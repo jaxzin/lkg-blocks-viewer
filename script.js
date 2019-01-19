@@ -1,7 +1,6 @@
 window.addEventListener('load', init)
 let scene
 let camera
-let light
 let renderer
 let mesh
 
@@ -12,15 +11,22 @@ function init() {
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
   camera.position.z = 5
   
-  light = new THREE.AmbientLight(0xffffff)
-  scene.add(light)
-  
   renderer = new THREE.WebGLRenderer()
   renderer.setSize(window.innerWidth, window.innerHeight)
   
   document.body.appendChild(renderer.domElement)
+  adjustLighting()
   addCube()
   animationLoop()
+}
+
+function adjustLighting() {
+    let pointLight = new THREE.PointLight(0xffffff)
+    pointLight.position.set(0, -10, 0)
+    scene.add(pointLight)
+  
+    let ambientLight = new THREE.AmbientLight(0x404040)
+    scene.add(ambientLight)
 }
 
 function addCube() {
