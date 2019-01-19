@@ -21,11 +21,11 @@ function init() {
 }
 
 function adjustLighting() {
-    let pointLight = new THREE.PointLight(0xffffff)
-    pointLight.position.set(0, -10, 0)
+    let pointLight = new THREE.PointLight(0xdddddd)
+    pointLight.position.set(-5, -3, 3)
     scene.add(pointLight)
   
-    let ambientLight = new THREE.AmbientLight(0x404040)
+    let ambientLight = new THREE.AmbientLight(0x505050)
     scene.add(ambientLight)
 }
 
