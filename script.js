@@ -48,17 +48,19 @@ function addBasicCube() {
 function fragmentShader() {
   return `
       uniform vec3 colorA; 
+      uniform vec3 colorB; 
+      uniform float mixer; 
 
       void main() {
-        gl_FragColor = vec4(colorA, 1.0);
-          //vec4(mix(vec3(1.0, 0.0, 0.0), vec3(0.0, 0.0, 1.0), 0.3), 1.0);
+        gl_FragColor = vec4(mix(colorA, colorB, mixer), 1.0);
       }
   `
 }
 
 function addExperimentalCube() {
   uniforms.colorA = {type: 'vec3', value: new THREE.Color(0xff0000)}
-  uniforms.colorB = {type: 'vec3', value: new TH}
+  uniforms.colorB = {type: 'vec3', value: new THREE.Color(0x0000ff)}
+  uniforms.mixer = {type: 'f', value: 0.0}
   
   let geometry = new THREE.BoxGeometry(1, 1, 1)
   let material =  new THREE.ShaderMaterial({
@@ -79,6 +81,9 @@ function animationLoop() {
     object.rotation.x += 0.01
     object.rotation.y += 0.03
   }
-
+  
+  let 
+  uniforms.mixer.value += 0.01
+  
   requestAnimationFrame(animationLoop)
 }
