@@ -17,7 +17,7 @@ function init() {
   document.body.appendChild(renderer.domElement)
   adjustLighting()
   addBasicCube()
-  //addExperimentalCube()
+  addExperimentalCube()
   animationLoop()
 }
 
@@ -34,19 +34,19 @@ function addBasicCube() {
   let geometry = new THREE.BoxGeometry(1, 1, 1)
   let material = new THREE.MeshLambertMaterial()  
   
-  mesh = new THREE.Mesh(geometry, material)
+  let mesh = new THREE.Mesh(geometry, material)
   mesh.position.x = -2
   scene.add(mesh)
+  sceneObjects.push(mesh)
 }
 
 function addExperimentalCube() {
   let geometry = new THREE.BoxGeometry(1, 1, 1)
-  //let material = new THREE.MeshLambertMaterial()
   let material =  new THREE.ShaderMaterial({
     uniforms: THREE.UniformsUtils.merge([
       THREE.UniformsLib['lights'],
       {
-        lightIntensity: {type: 'f', value: 0.5},
+        lightIntensity: {type: 'f', value: 1.0},
         textureSampler: {type: 't', value: null}
       }
     ]),
@@ -54,8 +54,8 @@ function addExperimentalCube() {
     lights: true,
   })
   
-  
   let mesh = new THREE.Mesh(geometry, material)
+  mesh.position.x = 2
   scene.add(mesh)
   sceneObjects.push(mesh)
 }
@@ -63,8 +63,10 @@ function addExperimentalCube() {
 function animationLoop() {
   renderer.render(scene, camera)
   
-  mesh.rotation.x += 0.01
-  mesh.rotation.y += 0.03
-  
+  for(let object of sceneObjects) {
+    object.rotation.x += 0.01
+    object.rotation.y += 0.03
+  }
+
   requestAnimationFrame(animationLoop)
 }
