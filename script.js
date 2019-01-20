@@ -40,6 +40,16 @@ function addBasicCube() {
   sceneObjects.push(mesh)
 }
 
+function fragmentShader() {
+  return `
+      uniform float lightIntensity;
+      
+      void main() {
+        gl_FragColor = vec4(1.0 * lightIntensity, 0.0 * lightIntensity, 0.0 * lightIntensity, 1.0);
+      }
+  `
+}
+
 function addExperimentalCube() {
   let geometry = new THREE.BoxGeometry(1, 1, 1)
   let material =  new THREE.ShaderMaterial({
@@ -50,7 +60,7 @@ function addExperimentalCube() {
         textureSampler: {type: 't', value: null}
       }
     ]),
-    fragmentShader: document.getElementById( 'fragmentShader' ).textContent,
+    fragmentShader: fragmentShader(),
     lights: true,
   })
   
