@@ -42,9 +42,11 @@ function addBasicCube() {
 }
 
 function vertexShader() {
+  var
   return `
     void main() {
-      
+      vec4 modelViewPosition = modelViewMatrix * vec4(position, 1.0);
+      gl_Position = projectionMatrix * modelViewPosition; 
     }
   `
 }
@@ -63,14 +65,15 @@ function fragmentShader() {
 }
 
 function addExperimentalCube() {
-  uniforms.colorA = {type: 'vec3', value: new THREE.Color(0xff0000)}
-  uniforms.colorB = {type: 'vec3', value: new THREE.Color(0x0000ff)}
+  uniforms.colorA = {type: 'vec3', value: new THREE.Color(0xc33764)}
+  uniforms.colorB = {type: 'vec3', value: new THREE.Color(0x1d2671)}
   uniforms.mixer = {type: 'f', value: 0.0}
   
   let geometry = new THREE.BoxGeometry(1, 1, 1)
   let material =  new THREE.ShaderMaterial({
     uniforms: uniforms,
     fragmentShader: fragmentShader(),
+    vertexShader: vertexShader(),
   })
   
   let mesh = new THREE.Mesh(geometry, material)
