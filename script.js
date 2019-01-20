@@ -3,6 +3,7 @@ let scene
 let camera
 let renderer
 let sceneObjects = []
+let uniforms = {}
 
 
 function init() {
@@ -40,12 +41,12 @@ function addBasicCube() {
   sceneObjects.push(mesh)
 }
 
+
+//linear-gradient: color-1 to color-2 
 function fragmentShader() {
   return `
-      uniform float lightIntensity;
-      
       void main() {
-        gl_FragColor = vec4(1.0 * lightIntensity, 0.0 * lightIntensity, 0.0 * lightIntensity, 1.0);
+        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
       }
   `
 }
@@ -53,14 +54,8 @@ function fragmentShader() {
 function addExperimentalCube() {
   let geometry = new THREE.BoxGeometry(1, 1, 1)
   let material =  new THREE.ShaderMaterial({
-    uniforms: THREE.UniformsUtils.merge([
-      THREE.UniformsLib['lights'],
-      {
-        lightIntensity: {type: 'f', value: 1.0}
-      }
-    ]),
+    //uniforms: uniforms,
     fragmentShader: fragmentShader(),
-    lights: true,
   })
   
   let mesh = new THREE.Mesh(geometry, material)
