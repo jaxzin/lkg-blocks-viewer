@@ -33,7 +33,15 @@ function addCube() {
   let geometry = new THREE.BoxGeometry(1, 1, 1)
   //let material = new THREE.MeshLambertMaterial()
   let material =  new THREE.ShaderMaterial({
-    fragmentShader: document.getElementById( 'fragmentShader' ).textContent
+    uniforms: THREE.UniformsUtils.merge([
+      THREE.UniformsLib['lights'],
+      {
+        lightIntensity: {type: 'f', value: 1.0},
+        textureSampler: {type: 't', value: null}
+      }
+    ]),
+    fragmentShader: document.getElementById( 'fragmentShader' ).textContent,
+    lights: true,
   })
   
   mesh = new THREE.Mesh(geometry, material)
