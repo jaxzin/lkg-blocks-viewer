@@ -1,3 +1,6 @@
+
+/* global THREE */
+
 window.addEventListener('load', init)
 let scene
 let camera
