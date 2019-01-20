@@ -4,7 +4,7 @@ let camera
 let renderer
 let sceneObjects = []
 let uniforms = {}
-
+let toggle = 1
 
 function init() {
   scene = new THREE.Scene()
@@ -41,9 +41,14 @@ function addBasicCube() {
   sceneObjects.push(mesh)
 }
 
+function vertexShader() {
+  return `
+    void main() {
+      
+    }
+  `
+}
 
-//linear-gradient: color-1 to color-2 
-//step 1: change based on time
 //step 2: change based on coordinates
 function fragmentShader() {
   return `
@@ -82,8 +87,15 @@ function animationLoop() {
     object.rotation.y += 0.03
   }
   
-  let 
-  uniforms.mixer.value += 0.01
+  if(uniforms.mixer.value >= 1.0) {
+    toggle = -1
+  } 
+  
+  if(uniforms.mixer.value <= 0.0) {
+    toggle = 1
+  }
+  
+  uniforms.mixer.value += 0.01 * toggle
   
   requestAnimationFrame(animationLoop)
 }
