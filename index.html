@@ -17,8 +17,17 @@
     <script src="/three.min.js" defer></script>
     <!-- I did a quick search for how to load it as a file, not sure yet if I want to make AJAX requests for the sake of getting the text -->
     <script id="fragmentShader" type="x-shader/x-fragment">
+      //struct PointLight {
+        //vec3 color;
+        //vec3 position;
+        //float distance; 
+      //}
+      
+      uniform float lightIntensity;
+      
       void main() {
-        gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);
+        //console.log(lightIntensity);
+        gl_FragColor = vec4(1.0 * lightIntensity, 0.0 * lightIntensity, 0.0 * lightIntensity, 1.0);
       }
     </script>
     <script src="/script.js" defer></script>

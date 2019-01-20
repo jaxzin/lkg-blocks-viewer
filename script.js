@@ -36,7 +36,7 @@ function addCube() {
     uniforms: THREE.UniformsUtils.merge([
       THREE.UniformsLib['lights'],
       {
-        lightIntensity: {type: 'f', value: 1.0},
+        lightIntensity: {type: 'f', value: 0.5},
         textureSampler: {type: 't', value: null}
       }
     ]),
