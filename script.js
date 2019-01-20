@@ -43,10 +43,12 @@ function addBasicCube() {
 
 
 //linear-gradient: color-1 to color-2 
+//step 1: change based on time
+//step 2: change based on coordinates
 function fragmentShader() {
   return `
       void main() {
-        gl_FragColor = vec4(mix(vec3(1.0, 0.0, 0.0, 1.0), vec4(0.0, 0.0, 1.0, 1.0), 0.3) 1.0);
+        gl_FragColor = vec4(mix(vec3(1.0, 0.0, 0.0), vec3(0.0, 0.0, 1.0), 0.3), 1.0);
       }
   `
 }
