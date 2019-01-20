@@ -56,8 +56,7 @@ function addExperimentalCube() {
     uniforms: THREE.UniformsUtils.merge([
       THREE.UniformsLib['lights'],
       {
-        lightIntensity: {type: 'f', value: 1.0},
-        textureSampler: {type: 't', value: null}
+        lightIntensity: {type: 'f', value: 1.0}
       }
     ]),
     fragmentShader: fragmentShader(),
