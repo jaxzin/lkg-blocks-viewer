@@ -47,16 +47,22 @@ function addBasicCube() {
 //step 2: change based on coordinates
 function fragmentShader() {
   return `
+      uniform vec3 colorA; 
+
       void main() {
-        gl_FragColor = vec4(mix(vec3(1.0, 0.0, 0.0), vec3(0.0, 0.0, 1.0), 0.3), 1.0);
+        gl_FragColor = vec4(colorA, 1.0);
+          //vec4(mix(vec3(1.0, 0.0, 0.0), vec3(0.0, 0.0, 1.0), 0.3), 1.0);
       }
   `
 }
 
 function addExperimentalCube() {
+  uniforms.colorA = {type: 'vec3', value: new THREE.Color(0xff0000)}
+  uniforms.colorB = {type: 'vec3', value: new TH}
+  
   let geometry = new THREE.BoxGeometry(1, 1, 1)
   let material =  new THREE.ShaderMaterial({
-    //uniforms: uniforms,
+    uniforms: uniforms,
     fragmentShader: fragmentShader(),
   })
   
