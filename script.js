@@ -2,7 +2,7 @@ window.addEventListener('load', init)
 let scene
 let camera
 let renderer
-let mesh
+let sceneObjects = []
 
 
 function init() {
@@ -16,7 +16,8 @@ function init() {
   
   document.body.appendChild(renderer.domElement)
   adjustLighting()
-  addCube()
+  addBasicCube()
+  //addExperimentalCube()
   animationLoop()
 }
 
@@ -29,7 +30,16 @@ function adjustLighting() {
     scene.add(ambientLight)
 }
 
-function addCube() {
+function addBasicCube() {
+  let geometry = new THREE.BoxGeometry(1, 1, 1)
+  let material = new THREE.MeshLambertMaterial()  
+  
+  mesh = new THREE.Mesh(geometry, material)
+  mesh.position.x = -2
+  scene.add(mesh)
+}
+
+function addExperimentalCube() {
   let geometry = new THREE.BoxGeometry(1, 1, 1)
   //let material = new THREE.MeshLambertMaterial()
   let material =  new THREE.ShaderMaterial({
@@ -44,8 +54,10 @@ function addCube() {
     lights: true,
   })
   
-  mesh = new THREE.Mesh(geometry, material)
+  
+  let mesh = new THREE.Mesh(geometry, material)
   scene.add(mesh)
+  sceneObjects.push(mesh)
 }
 
 function animationLoop() {
