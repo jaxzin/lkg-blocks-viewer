@@ -16,6 +16,11 @@
     <!-- scripts -->
     <script src="/three.min.js" defer></script>
     <!-- I did a quick search for how to load it as a file, not sure yet if I want to make AJAX requests for the sake of getting the text -->
+    <script id="vertexShader" type="x-shader/x-vertex">
+      void main() {
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position.x, position.y, position.z, 1.0);
+      }
+    </script>
     <script id="fragmentShader" type="x-shader/x-fragment">
       void main() {
         gl_Fragcolor = vec4(1.0, 0.0, 0.0, 1.0);
