@@ -65,8 +65,8 @@ function fragmentShader() {
 }
 
 function addExperimentalCube() {
-  uniforms.colorA = {type: 'vec3', value: new THREE.Color(0xc33764)}
-  uniforms.colorB = {type: 'vec3', value: new THREE.Color(0x1d2671)}
+  uniforms.colorA = {type: 'vec3', value: new THREE.Color(0x74ebd5)}
+  uniforms.colorB = {type: 'vec3', value: new THREE.Color(0xACB6E5)}
   
   let geometry = new THREE.BoxGeometry(1, 1, 1)
   let material =  new THREE.ShaderMaterial({
