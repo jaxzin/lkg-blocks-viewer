@@ -4,7 +4,6 @@ let camera
 let renderer
 let sceneObjects = []
 let uniforms = {}
-let toggle = 1
 
 function init() {
   scene = new THREE.Scene()
@@ -42,24 +41,25 @@ function addBasicCube() {
 }
 
 function vertexShader() {
-  var
   return `
+    varying vec3 vUv; 
+
     void main() {
+      vUv = position; 
       vec4 modelViewPosition = modelViewMatrix * vec4(position, 1.0);
       gl_Position = projectionMatrix * modelViewPosition; 
     }
   `
 }
 
-//step 2: change based on coordinates
 function fragmentShader() {
   return `
       uniform vec3 colorA; 
       uniform vec3 colorB; 
-      uniform float mixer; 
+      varying vec3 vUv;
 
       void main() {
-        gl_FragColor = vec4(mix(colorA, colorB, mixer), 1.0);
+        gl_FragColor = vec4(mix(colorA, colorB, vUv.z), 1.0);
       }
   `
 }
@@ -67,7 +67,6 @@ function fragmentShader() {
 function addExperimentalCube() {
   uniforms.colorA = {type: 'vec3', value: new THREE.Color(0xc33764)}
   uniforms.colorB = {type: 'vec3', value: new THREE.Color(0x1d2671)}
-  uniforms.mixer = {type: 'f', value: 0.0}
   
   let geometry = new THREE.BoxGeometry(1, 1, 1)
   let material =  new THREE.ShaderMaterial({
@@ -89,16 +88,6 @@ function animationLoop() {
     object.rotation.x += 0.01
     object.rotation.y += 0.03
   }
-  
-  if(uniforms.mixer.value >= 1.0) {
-    toggle = -1
-  } 
-  
-  if(uniforms.mixer.value <= 0.0) {
-    toggle = 1
-  }
-  
-  uniforms.mixer.value += 0.01 * toggle
   
   requestAnimationFrame(animationLoop)
 }
