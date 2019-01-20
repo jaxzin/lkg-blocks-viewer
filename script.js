@@ -31,7 +31,11 @@ function adjustLighting() {
 
 function addCube() {
   let geometry = new THREE.BoxGeometry(1, 1, 1)
-  let material = new THREE.MeshLambertMaterial()
+  //let material = new THREE.MeshLambertMaterial()
+  let material =  new THREE.ShaderMaterial({
+    fragmentShader: document.getElementById( 'fragmentShader' ).textContent
+  })
+  
   mesh = new THREE.Mesh(geometry, material)
   scene.add(mesh)
 }
