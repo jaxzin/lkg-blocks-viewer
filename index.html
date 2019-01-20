@@ -15,9 +15,11 @@
     
     <!-- scripts -->
     <script src="/three.min.js" defer></script>
-    <!-- I did a quick search for how to load it as a file, not sure if I want to make AJAX r -->
-    <script>
-    
+    <!-- I did a quick search for how to load it as a file, not sure yet if I want to make AJAX requests for the sake of getting the text -->
+    <script id="fragmentShader" type="x-shader/x-fragment">
+      void main() {
+        gl_Fragcolor = vec4(1.0, 0.0, 0.0, 1.0);
+      }
     </script>
     <script src="/script.js" defer></script>
   </body>
