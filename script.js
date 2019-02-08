@@ -104,6 +104,7 @@ function lambertLightFragmentShader() {
 
       void main() {
         //I need to learn wtf the thing below is lol
+        //This is the correct way to process lambertian lighting
         vec4 addedLights = vec4(0.0, 0.0, 0.0, 1.0);
 
         for(int l = 0; l < NUM_POINT_LIGHTS; l++) {
@@ -112,7 +113,7 @@ function lambertLightFragmentShader() {
                * 1.0; //'light intensity' 
         }
 
-        gl_FragColor = vec4(1.0, 0.5, 0.5, 1.0) * addedLights;
+        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0) * addedLights;
           //vec4(mix(colorA, colorB, vUv.z) * addedLights.rgb, 1.0);
       }
   `
