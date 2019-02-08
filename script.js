@@ -95,9 +95,16 @@ function lambertLightFragmentShader() {
         float distance; 
       }; 
 
+      struct AmbientLightColor {
+        vec3 color;
+        vec3 position;
+        float distance; 
+      }; 
+
       uniform vec3 colorA; 
       uniform vec3 colorB; 
       uniform PointLight pointLights[NUM_POINT_LIGHTS];
+      uniform AmbientLightColor ambientLight;
       varying vec3 vUv;
       varying vec4 modelViewPosition; 
       varying vec3 vecNormal; 
@@ -113,7 +120,9 @@ function lambertLightFragmentShader() {
                * 1.0; //'light intensity' 
         }
 
-        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0) * addedLights;
+        //ambientLight.color
+        gl_FragColor = vec4(vec3(1.0, 1.0, 1.0), 0);
+//vec4(1.0, 0.0, 0.0, 1.0) * addedLights;
           //vec4(mix(colorA, colorB, vUv.z) * addedLights.rgb, 1.0);
       }
   `
