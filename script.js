@@ -26,11 +26,12 @@ function init() {
 
 function adjustLighting() {
     let pointLight = new THREE.PointLight(0xdddddd)
-    pointLight.position.set(-5, -3, 3)
+    //ointLight.position.set(-5, -3, 3)
+    pointLight.position.set(0, 0, 0)
     scene.add(pointLight)
   
     let ambientLight = new THREE.AmbientLight(0x505050)
-    scene.add(ambientLight)
+    //scene.add(ambientLight)
 }
 
 function addBasicCube() {
@@ -47,10 +48,12 @@ function vertexShader() {
   return `
     varying vec3 vUv; 
     varying vec4 modelViewPosition; 
+    varying vec3 vecNormal;
 
     void main() {
       vUv = position; 
       vec4 modelViewPosition = modelViewMatrix * vec4(position, 1.0);
+      vecNormal = (modelViewMatrix * vec4(normal, 0.0)).xyz; //????????
       gl_Position = projectionMatrix * modelViewPosition; 
     }
   `
@@ -98,6 +101,7 @@ function lambertLightFragmentShader() {
       uniform PointLight pointLights[NUM_POINT_LIGHTS];
       varying vec3 vUv;
       varying vec4 modelViewPosition; 
+      varying vec3 vecNormal; 
 
       void main() {
         //I need to learn wtf the thing below is lol
@@ -106,13 +110,11 @@ function lambertLightFragmentShader() {
         for(int l = 0; l < NUM_POINT_LIGHTS; l++) {
             vec3 lightDirection = normalize(modelViewPosition.xyz - pointLights[l].position);
             addedLights.rgb += clamp(dot(-lightDirection, vecNormal), 0.0, 1.0) * pointLights[l].color
-             //   * 1.0; //'light intensity' 
+               * 1.0; //'light intensity' 
         }
 
-        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0); //modelViewPosition;
-          //vec4(1.0, 0.0, 0.0, 1.0); 
-
-          //vec4(mix(colorA, colorB, vUv.z), 1.0);
+        gl_FragColor = vec4(1.0 * addedLights.r, 0.0, 0.0, 1.0);
+          //vec4(mix(colorA, colorB, vUv.z) * addedLights.rgb, 1.0);
       }
   `
 }
