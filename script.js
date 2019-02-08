@@ -90,15 +90,31 @@ function lambertLightFragmentShader() {
         vec3 color;
         vec3 position;
         float distance; 
-      } 
+      }; 
 
       uniform vec3 colorA; 
       uniform vec3 colorB; 
-      uniform PointLight pointLo
+      uniform PointLight pointLights[NUM_POINT_LIGHTS];
       varying vec3 vUv;
 
       void main() {
-        gl_FragColor = vec4(mix(colorA, colorB, vUv.z), 1.0);
+        //I need to learn wtf the thing below is lol
+        vec4 addedLights = vec4(0.0,
+                          0.0,
+                          0.0,
+                          1.0);
+        for(int l = 0; l < NUM_POINT_LIGHTS; l++) {
+            vec3 lightDirection = normalize(vecPos
+                            - pointLights[l].position);
+              addedLights.rgb += clamp(dot(-lightDirection,
+                               vecNormal), 0.0, 1.0)
+                         * pointLights[l].color
+                         * 1.0; //'light intensity' 
+              }
+
+        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0); 
+
+          //vec4(mix(colorA, colorB, vUv.z), 1.0);
       }
   `
 }
@@ -114,7 +130,7 @@ function addExperimentalLightCube() {
   let geometry = new THREE.BoxGeometry(1, 1, 1)
   let material =  new THREE.ShaderMaterial({
     uniforms: uniforms,
-    fragmentShader: fragmentShader(),
+    fragmentShader: lambertLightFragmentShader(),
     vertexShader: vertexShader(),
     lights: true
   })
