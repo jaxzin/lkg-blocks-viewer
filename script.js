@@ -26,8 +26,7 @@ function init() {
 
 function adjustLighting() {
     let pointLight = new THREE.PointLight(0xdddddd)
-    //ointLight.position.set(-5, -3, 3)
-    pointLight.position.set(3, 0, 0)
+    pointLight.position.set(-5, -3, 3)
     scene.add(pointLight)
   
     let ambientLight = new THREE.AmbientLight(0x505050)
@@ -105,7 +104,7 @@ function lambertLightFragmentShader() {
 
       void main() {
         //I need to learn wtf the thing below is lol
-        vec4 addedLights = vec4(0.8, 0.8, 0.8, 1.0);
+        vec4 addedLights = vec4(0.0, 0.0, 0.0, 1.0);
 
         for(int l = 0; l < NUM_POINT_LIGHTS; l++) {
             vec3 lightDirection = normalize(modelViewPosition.xyz - pointLights[l].position);
