@@ -19,7 +19,8 @@ function init() {
   document.body.appendChild(renderer.domElement)
   adjustLighting()
   addBasicCube()
-  addExperimentalCube()
+  //addExperimentalCube()
+  addExperimentalLightCube()
   animationLoop()
 }
 
@@ -82,6 +83,37 @@ function addExperimentalCube() {
   scene.add(mesh)
   sceneObjects.push(mesh)
 }
+
+function lambertLightFragmentShader() {
+    return `
+      uniform vec3 colorA; 
+      uniform vec3 colorB; 
+      varying vec3 vUv;
+
+      void main() {
+        gl_FragColor = vec4(mix(colorA, colorB, vUv.z), 1.0);
+      }
+  `
+}
+
+function addExperimentalLightCube() {
+  uniforms.colorA = {type: 'vec3', value: new THREE.Color(0x74ebd5)}
+  uniforms.colorB = {type: 'vec3', value: new THREE.Color(0xACB6E5)}
+  
+  let geometry = new THREE.BoxGeometry(1, 1, 1)
+  let material =  new THREE.ShaderMaterial({
+    uniforms: uniforms,
+    fragmentShader: fragmentShader(),
+    vertexShader: vertexShader(),
+    lights: true
+  })
+  
+  let mesh = new THREE.Mesh(geometry, material)
+  mesh.position.x = 2
+  scene.add(mesh)
+  sceneObjects.push(mesh)
+}
+
 
 function animationLoop() {
   renderer.render(scene, camera)
