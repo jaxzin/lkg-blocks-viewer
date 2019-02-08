@@ -86,8 +86,15 @@ function addExperimentalCube() {
 
 function lambertLightFragmentShader() {
     return `
+      struct PointLight {
+        vec3 color;
+        vec3 position;
+        float distance; 
+      } 
+
       uniform vec3 colorA; 
       uniform vec3 colorB; 
+      uniform PointLight pointLo
       varying vec3 vUv;
 
       void main() {
@@ -99,6 +106,10 @@ function lambertLightFragmentShader() {
 function addExperimentalLightCube() {
   uniforms.colorA = {type: 'vec3', value: new THREE.Color(0x74ebd5)}
   uniforms.colorB = {type: 'vec3', value: new THREE.Color(0xACB6E5)}
+  uniforms = THREE.UniformsUtils.merge([
+      uniforms,
+      THREE.UniformsLib['lights']
+    ])
   
   let geometry = new THREE.BoxGeometry(1, 1, 1)
   let material =  new THREE.ShaderMaterial({
