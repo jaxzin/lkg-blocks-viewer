@@ -1,5 +1,6 @@
 /* global THREE */
 
+//TODO: code is a mees, should probably take time to structure this & find a way to 'modularize' shaders
 window.addEventListener('load', init)
 let scene
 let camera
@@ -114,10 +115,12 @@ function lambertLightFragmentShader() {
         }
 
         //tried a bunch of stuff but I'm not sure how to retrieve the ambient light from THREE.js which would be super neat 
-        vec3 redAndPoint = vec3(1.0 * addedLights.r, 0.0, 0.0);
-        vec3 finalRed = vec3(redAndPoint.r + 0.3, 0.0, 0.0); 
+        //logic at this point is: always add a constant float since a,bient light is evenly distributed on the         
 
-        vec3 colorAndPointLight = mix(vec3(0.0, 0.0, 1.0), vec3(1.0, 0.0, 0.0), vUv.z) * addedLights.rgb;
+        vec3 redAndPoint = vec3(1.0 * addedLights.r, 0.0, 0.0);
+        vec3 finalRed = vec3(redAndPoint.r + 0.3, 0.0, 0.0; 
+
+        vec3 colorAndPointLight = mix(vec3(0.0, 1.0, 0.0), vec3(1.0, 0.0, 0.0), vUv.z) * addedLights.rgb;
         vec3 finalColor = vec3(colorAndPointLight.r + 0.3, colorAndPointLight.g + 0.3, colorAndPointLight.b + 0.3);
 
         gl_FragColor = vec4(finalColor, 1.0);
