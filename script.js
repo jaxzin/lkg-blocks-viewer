@@ -115,12 +115,14 @@ function lambertLightFragmentShader() {
         }
 
         //tried a bunch of stuff but I'm not sure how to retrieve the ambient light from THREE.js which would be super neat 
-        //logic at this point is: always add a constant float since a,bient light is evenly distributed on the         
+        //logic at this point is: always add a constant float since ambient light is evenly distributed in the scene
+        //this seems fine for solid colors but doesn't show the expected result for gradients, I have no idea what goed wrong so I should probably really explorer
+        //the theory behind ligthing :') 
 
         vec3 redAndPoint = vec3(1.0 * addedLights.r, 0.0, 0.0);
-        vec3 finalRed = vec3(redAndPoint.r + 0.3, 0.0, 0.0; 
+        vec3 finalRed = vec3(redAndPoint.r + 0.3, 0.0, 0.0); 
 
-        vec3 colorAndPointLight = mix(vec3(0.0, 1.0, 0.0), vec3(1.0, 0.0, 0.0), vUv.z) * addedLights.rgb;
+        vec3 colorAndPointLight = mix(colorA, colorB, vUv.z) * addedLights.rgb;
         vec3 finalColor = vec3(colorAndPointLight.r + 0.3, colorAndPointLight.g + 0.3, colorAndPointLight.b + 0.3);
 
         gl_FragColor = vec4(finalColor, 1.0);
