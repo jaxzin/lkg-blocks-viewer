@@ -103,7 +103,7 @@ function lambertLightFragmentShader() {
       varying vec3 vecNormal; 
 
       void main() {
-        //I need to learn wtf the thing below is lol
+        //I need to learn theory behind this right now my understanding is: looping through all the point light and than apply magic lol.
         //https://csantosbh.wordpress.com/2014/01/09/custom-shaders-with-three-js-uniforms-textures-and-lighting/
         vec4 addedLights = vec4(0.0, 0.0, 0.0, 1.0);
 
@@ -113,10 +113,14 @@ function lambertLightFragmentShader() {
                * 1.0; //'light intensity' 
         }
 
-        //tried a bunch of stuff but I'm not sure how to retrieve the ambient light
-        vec3 colorAndPointLight 
+        //tried a bunch of stuff but I'm not sure how to retrieve the ambient light from THREE.js which would be super neat 
+        vec3 redAndPoint = vec3(1.0 * addedLights.r, 0.0, 0.0);
+        vec3 finalRed = vec3(redAndPoint.r + 0.3, 0.0, 0.0); 
 
-        gl_FragColor = vec4(, 1.0);
+        vec3 colorAndPointLight = mix(vec3(0.0, 0.0, 1.0), vec3(1.0, 0.0, 0.0), vUv.z) * addedLights.rgb;
+        vec3 finalColor = vec3(colorAndPointLight.r + 0.3, colorAndPointLight.g + 0.3, colorAndPointLight.b + 0.3);
+
+        gl_FragColor = vec4(finalColor, 1.0);
       }
   `
 }
@@ -128,8 +132,6 @@ function addExperimentalLightCube() {
       uniforms,
       THREE.UniformsLib['lights']
     ])
-  
-  console.log(THREE.UniformsLib['lights'])
   
   let geometry = new THREE.BoxGeometry(1, 1, 1)
   let material =  new THREE.ShaderMaterial({
