@@ -62,29 +62,32 @@ function vertexShader() {
 
 function fragmentShader() {
   return `
-      uniform vec3 colorA; 
-      uniform vec3 colorB; 
-      varying vec3 vUv;
+      float depth = -modelViewPosition.z;
+      float fogNear = 1.0;
+      float fogFar = 10.0;
 
-      void main() {
-        gl_FragColor = vec4(mix(colorA, colorB, vUv.z), 1.0);
-      }
+      float fogFactor = clamp((fogFar - depth) / (fogFar - fogNear), 0.0, 1.0);
+      fogFactor = smoothstep(0.0, 1.0, fogFactor); // Optional, for smoother transition
+
+      vec3 color = mix(colorA, colorB, vUv.z);
+      gl_FragColor = vec4(mix(vec3(1.0), color, fogFactor), fogFactor);
   `
 }
 
 function addExperimentalCube() {
-  uniforms.colorA = {type: 'vec3', value: new THREE.Color(0x74ebd5)}
-  uniforms.colorB = {type: 'vec3', value: new THREE.Color(0xACB6E5)}
+  uniforms.colorA = {type: 'vec3', value: new THREE.Color(0xff0000)}
+  uniforms.colorB = {type: 'vec3', value: new THREE.Color(0x00ffff)}
   
-  let geometry = new THREE.BoxGeometry(1, 1, 1)
+  let geometry = new THREE.BoxGeometry(2, 2, 2)
   let material =  new THREE.ShaderMaterial({
     uniforms: uniforms,
     fragmentShader: fragmentShader(),
     vertexShader: vertexShader(),
+    transparent: true
   })
   
   let mesh = new THREE.Mesh(geometry, material)
-  mesh.position.x = 2
+  mesh.position.x = 1
   scene.add(mesh)
   sceneObjects.push(mesh)
 }
