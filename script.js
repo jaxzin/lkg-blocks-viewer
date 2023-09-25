@@ -27,8 +27,8 @@ function init() {
 
 function adjustLighting() {
     let pointLight = new THREE.PointLight(0xdddddd)
-    //pointLight.position.set(-5, -3, 3)
-    pointLight.position.set(0, 0, 0)
+    pointLight.position.set(-5, -3, 3)
+    // pointLight.position.set(0, 0, 0)
     scene.add(pointLight)
   
     let ambientLight = new THREE.AmbientLight(0x505050)
@@ -40,7 +40,7 @@ function addBasicCube() {
   let material = new THREE.MeshLambertMaterial()  
   
   let mesh = new THREE.Mesh(geometry, material)
-  mesh.position.x = -2
+  // mesh.position.x = -2
   scene.add(mesh)
   sceneObjects.push(mesh)
 }
@@ -53,7 +53,7 @@ function vertexShader() {
 
     void main() {
       vUv = position; 
-      vec4 modelViewPosition = modelViewMatrix * vec4(position, 1.0);
+      modelViewPosition = modelViewMatrix * vec4(position, 1.0);
       vecNormal = (modelViewMatrix * vec4(normal, 0.0)).xyz; //????????
       gl_Position = projectionMatrix * modelViewPosition; 
     }
@@ -62,15 +62,21 @@ function vertexShader() {
 
 function fragmentShader() {
   return `
-      float depth = -modelViewPosition.z;
-      float fogNear = 1.0;
-      float fogFar = 10.0;
+      varying vec4 modelViewPosition;
 
-      float fogFactor = clamp((fogFar - depth) / (fogFar - fogNear), 0.0, 1.0);
-      fogFactor = smoothstep(0.0, 1.0, fogFactor); // Optional, for smoother transition
+      void main() {
+        float depth = -modelViewPosition.z; // Negative because the camera looks down the negative Z-axis in view space.
 
-      vec3 color = mix(colorA, colorB, vUv.z);
-      gl_FragColor = vec4(mix(vec3(1.0), color, fogFactor), fogFactor);
+        float near = 3.0;  // Adjust based on your scene.
+        float far = 5.0;  // Adjust based on your scene.
+
+        // Normalize between 0 and 1
+        float normalizedDepth = clamp((depth - near) / (far - near), 0.0, 1.0);
+
+        // Map to a color where red is near and green is far
+        gl_FragColor = vec4(1.0 - normalizedDepth, normalizedDepth, 0.0, 1.0 - normalizedDepth);
+      }
+
   `
 }
 
@@ -87,7 +93,7 @@ function addExperimentalCube() {
   })
   
   let mesh = new THREE.Mesh(geometry, material)
-  mesh.position.x = 1
+  // mesh.position.x = 1
   scene.add(mesh)
   sceneObjects.push(mesh)
 }
