@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     scene.add(sunSphere);
 
     // Earth
-    const earthGeometry = new THREE.SphereGeometry(2.5, 32, 32);
+    const earthGeometry = new THREE.SphereGeometry(5.5, 32, 32);
     const earthMaterial = new THREE.MeshPhongMaterial({
         color: 0x2255ff,
         specular: 0x222222,  // Adding some specular highlights
@@ -146,9 +146,13 @@ void main() {
     const int NUM_IN_SCATTER = 80;
 
     float density(vec3 p, float ph) {
-        float atmoThickness = atmoRadius - surfaceRadius;
-        float altitude = length(p) - surfaceRadius;
-        return exp(-max(altitude, 0.0) / (ph * atmoThickness * atmoThickness));
+        // works for 2.5 surf, 6.0 atmo
+        //float atmoThickness = 3.0 * (atmoRadius - surfaceRadius);
+        //float altitude = length(p) - surfaceRadius*0.7;
+        float atmoThickness = 3.0 * (atmoRadius - surfaceRadius);
+        float altitude = length(p) - surfaceRadius*0.98;
+
+        return exp(-max(altitude, 0.0) / (ph * atmoThickness));
     }
 
 
