@@ -209,7 +209,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
           //float altitude = length(p) - surfaceRadius*0.975;
 
           // works for 5.5 surf, 0.25 atmo
-          //float atmoThickness = 5.0 * (atmoRadius - surfaceRadius);
+          float atmoThickness = (atmoRadius - surfaceRadius);
           float altitude = length(p) - surfaceRadius;
           
           // Use an epsilon value to avoid floating-point errors
@@ -218,7 +218,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
               return 1.0;
           }
 
-          return exp(-max(altitude, 0.0) / ph);
+          return exp(-max(altitude, 0.0) / (ph*atmoThickness));
       }
 
 
@@ -524,7 +524,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
 
     // Atmosphere
-    const atmosphereThickness = 0.25; // altitude, not density
+    const atmosphereThickness = 4.25; // altitude, not density
     const atmosphereGeometry = 
           new THREE.SphereGeometry(
             earthGeometry.parameters.radius + atmosphereThickness, 
@@ -565,7 +565,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
           requestAnimationFrame(animate);
 
           // auto-rotate the camera
-          controls.update();
+          //controls.update();
       
           // rotate the earth
           earth.rotation.y += 0.001;
