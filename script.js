@@ -149,8 +149,10 @@ void main() {
         // works for 2.5 surf, 6.0 atmo
         //float atmoThickness = 3.0 * (atmoRadius - surfaceRadius);
         //float altitude = length(p) - surfaceRadius*0.7;
-        float atmoThickness = 3.0 * (atmoRadius - surfaceRadius);
-        float altitude = length(p) - surfaceRadius*0.98;
+        
+        // works for 5.5 surf, 6.0 atmo
+        float atmoThickness = 4.0 * (atmoRadius - surfaceRadius);
+        float altitude = length(p) - surfaceRadius*0.975;
 
         return exp(-max(altitude, 0.0) / (ph * atmoThickness));
     }
