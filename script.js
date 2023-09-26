@@ -200,6 +200,10 @@ document.addEventListener('DOMContentLoaded', (event) => {
       const int NUM_IN_SCATTER = 80;
 
       float density(vec3 p, float ph) {
+      
+          float actualScaleHeight = 8500.0;  // The scale height on Earth in meters
+          float scale = (atmoRadius - surfaceRadius) / actualScaleHeight; // Scaling factor based on the gap
+
           // works for 2.5 surf, 3.5 atmo
           //float atmoThickness = 3.0 * (atmoRadius - surfaceRadius);
           //float altitude = length(p) - surfaceRadius*0.7;
@@ -218,7 +222,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
               return 1.0;
           }
 
-          return exp(-max(altitude, 0.0) / (ph*atmoThickness));
+          return exp(-altitude / (ph*atmoThickness));
       }
 
 
@@ -565,7 +569,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
           requestAnimationFrame(animate);
 
           // auto-rotate the camera
-          //controls.update();
+          controls.update();
       
           // rotate the earth
           earth.rotation.y += 0.001;
