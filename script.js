@@ -1,26 +1,24 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-function gaussianRandom(mean, stdDev) {
-    let u1 = Math.random();
-    let u2 = Math.random();
-    let z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
-    return z0 * stdDev + mean;
-}
+// globals shared between the two main event listeners
+let camera;
+let renderer;
+let atmosphereMaterial;
 
 document.addEventListener('DOMContentLoaded', (event) => {
 
     // Initialize Three.js scene
     const scene = 
           new THREE.Scene();
-    const camera = 
+    camera = 
           new THREE.PerspectiveCamera(
             75,   // field of view (FOV)
             window.innerWidth / window.innerHeight, // aspect ratio
             0.1,  // near clipping plane
             5000  // far clipping plane
           );
-    const renderer = 
+    renderer = 
           new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
 
@@ -48,15 +46,14 @@ document.addEventListener('DOMContentLoaded', (event) => {
     // Visual representation of Sun as a yellow unlit sphere
     const sunRadius = 0.5;
     const sunMeshSegments = 32;
-    const sunColor = 0xFFFF00; // Yellow
     const sunGeometry = 
           new THREE.SphereGeometry(
-            sunRadius, 
-            sunMeshSegments, 
-            sunMeshSegments
+            0.5,  // radius 
+            4,    // mesh segments
+            4
           );
     const sunMaterial = 
-          new THREE.MeshBasicMaterial({ color: sunColor });
+          new THREE.MeshBasicMaterial({ color: 0xFFFF00 /* Yellow */ });
     const sunSphere = 
           new THREE.Mesh(sunGeometry, sunMaterial);
     sunSphere.position.copy(sunLight.position);  // Set the position to be the same as sunLight
@@ -304,7 +301,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
           new THREE.SphereGeometry(6, 32, 32);
 
     // Shader Material
-    const atmosphereMaterial = 
+    atmosphereMaterial = 
           new THREE.ShaderMaterial({
             vertexShader: vertexShader,
             fragmentShader: fragmentShader,
@@ -312,34 +309,24 @@ document.addEventListener('DOMContentLoaded', (event) => {
             uniforms: {
                 lightPosition: { value: sunLight.position.clone() },
                 lightIntensity: { value: sunLight.intensity },
-                iResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+                iResolution: { 
+                  value: new THREE.Vector2(
+                            0,//window.innerWidth, 
+                            0//window.innerHeight
+                  ) 
+                },
                 surfaceRadius: { value: earthGeometry.parameters.radius },
                 atmoRadius: { value: atmosphereGeometry.parameters.radius }
             }
         });
 
-    const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
+    const atmosphere = 
+          new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
     scene.add(atmosphere);
 
 
-    // Meteor Lines
-    const lines = [];
-    for (let i = 0; i < 200; i++) {
-        const points = [];
-        const x = gaussianRandom(0, 2);
-        const y = gaussianRandom(0, 2);
-        const z = gaussianRandom(0, 2);
-        points.push(new THREE.Vector3(x, y, z));
-        points.push(new THREE.Vector3(x, y, z - 20)); // Extend lines 10 units
-        const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
-        const lineMaterial = new THREE.LineBasicMaterial({ color: 0xbbbb99, transparent: true, opacity: 0.5 });
-        const line = new THREE.Line(lineGeometry, lineMaterial);
-        line.visible = false; // Hide initially
-        lines.push(line);
-        scene.add(line);
-    }
-
-    const controls = new OrbitControls( camera, renderer.domElement );
+    const controls = 
+          new OrbitControls( camera, renderer.domElement );
     controls.autoRotate = true;
 
     // Camera and Controls
@@ -348,22 +335,29 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
 
     const animate = function () {
-        requestAnimationFrame(animate);
+          requestAnimationFrame(animate);
 
-        // required if controls.enableDamping or controls.autoRotate are set to true
-        controls.update();
+          // auto-rotate the camera
+          controls.update();
 
-        // console.log(2.0 * Math.atan(1.0 / camera.projectionMatrix.elements[5]) * (180.0 / Math.PI));
-        let canvasSize = new THREE.Vector2();
-        renderer.getSize(canvasSize);
+          // update the shader with the light position 
+          //  (overkill, unless I implement a way to move the sun)
+          //atmosphereMaterial.uniforms.lightPosition.value = sunLight.position.clone();
 
-        atmosphereMaterial.uniforms.lightPosition.value = sunLight.position.clone();
-        atmosphereMaterial.uniforms.iResolution.value.copy(canvasSize);
-
-
-
-        renderer.render(scene, camera);
+          renderer.render(scene, camera);
     };
 
     animate();
 });
+
+window.addEventListener( 'resize', onWindowResize, false );
+
+function onWindowResize(){
+
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+
+    renderer.setSize( window.innerWidth, window.innerHeight );
+    // atmosphereMaterial.uniforms.iResolution.value.set(window.innerWidth, window.innerHeight);
+
+}
