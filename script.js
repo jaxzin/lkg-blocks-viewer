@@ -240,6 +240,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
       vec4 in_scatter( vec3 o, vec3 dir, vec2 e, vec3 l, float l_intensity) {
           const float ph_ray = 0.15;
           const float ph_mie = 0.05;
+          const float ph_alpha = 1.0;
 
           const vec3 k_ray = vec3( 3.8, 13.5, 33.1 );
           const vec3 k_mie = vec3( 21.0 );
@@ -247,10 +248,12 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
           vec3 sum_ray = vec3( 0.0 );
           vec3 sum_mie = vec3( 0.0 );
+          vec3 sum_alpha = vec3( 0.0 );
 
 
           float n_ray0 = 0.0;
           float n_mie0 = 0.0;
+          float n_alpha0 = 0.0;
 
           float len = ( e.y - e.x ) / float( NUM_IN_SCATTER );
           vec3 s = dir * len;
@@ -259,8 +262,10 @@ document.addEventListener('DOMContentLoaded', (event) => {
           for ( int i = 0; i < NUM_IN_SCATTER; i++, v += s ) {
               float d_ray = density( v, ph_ray ) * len;
               float d_mie = density( v, ph_mie ) * len;
+              float d_alpha = density( v, ph_alpha ) * len;
 
               n_ray0 += d_ray;
+              n_mie0 += d_mie;
               n_mie0 += d_mie;
 
               vec2 f = ray_vs_sphere( v, l, atmoRadius );
@@ -282,7 +287,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
               sum_ray * k_ray * phase_ray( cc ) +
               sum_mie * k_mie * phase_mie( -0.78, c, cc );
 
-          return vec4(scatter, length(scatter)) *  l_intensity;
+          float alpha_scale = 10.0 * l_intensity; // TBD why this scalar?
+          float alpha = alpha_scale * length(scatter);
+          return vec4(scatter * l_intensity, alpha);
       }
 
       // ray direction
