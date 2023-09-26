@@ -11,37 +11,36 @@ function gaussianRandom(mean, stdDev) {
 document.addEventListener('DOMContentLoaded', (event) => {
 
     // Initialize Three.js scene
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 5000);
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    const scene = 
+          new THREE.Scene();
+    const camera = 
+          new THREE.PerspectiveCamera(
+            75,   // field of view (FOV)
+            window.innerWidth / window.innerHeight, // aspect ratio
+            0.1,  // near clipping plane
+            5000  // far clipping plane
+          );
+    const renderer = 
+          new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.outputEncoding = THREE.LinearEncoding;
-    renderer.gammaInput = true;
-    renderer.gammaOutput = true;
 
     document.body.appendChild(renderer.domElement);
 
     // Ambient Light
-    const ambientColor = 0x404040;  // soft white
-    const ambientIntensity = 10;
     const ambientLight = 
           new THREE.AmbientLight(
-            ambientColor, 
-            ambientIntensity
+            0xFFFFFF, // white
+            0.5       // dim (half candela)
           );
     scene.add(ambientLight);
 
     // Sun (Point Light)
-    const sunLightColor = 0xFFFFFF;
-    const sunLightIntensity = 10;
-    const sunLightMaxDistance = 100;
-    const sunLightDecay = 0;
     const sunLight = 
           new THREE.PointLight(
-            sunLightColor, 
-            sunLightIntensity, 
-            sunLightMaxDistance, 
-            sunLightDecay
+            0xFFFFFF, // white
+            10.0,     // intensity
+            100,      // max distance 
+            0         // no decay
           );
     sunLight.position.set(-30, 0, -10); // Position to the left of the camera
     scene.add(sunLight);
@@ -57,256 +56,267 @@ document.addEventListener('DOMContentLoaded', (event) => {
             sunMeshSegments
           );
     const sunMaterial = 
-          new THREE.MeshBasicMaterial({ color: 0xffff00 });
-    const sunSphere = new THREE.Mesh(sunGeometry, sunMaterial);
+          new THREE.MeshBasicMaterial({ color: sunColor });
+    const sunSphere = 
+          new THREE.Mesh(sunGeometry, sunMaterial);
     sunSphere.position.copy(sunLight.position);  // Set the position to be the same as sunLight
     scene.add(sunSphere);
 
     // Earth
-    const earthGeometry = new THREE.SphereGeometry(5.5, 32, 32);
+    const earthGeometry = 
+          new THREE.SphereGeometry(
+            5.5, // radius 
+            32,  // mesh segments (longitude) 
+            32   // mesh segments (latitude)
+          );
     const earthMaterial = new THREE.MeshPhongMaterial({
-        color: 0x2255ff,
-        specular: 0x222222,  // Adding some specular highlights
-        shininess: 100.0  // Adding shininess
-    });    const earth = new THREE.Mesh(earthGeometry, earthMaterial);
+        color: 0x2255ff,    // a blue ball
+        specular: 0x222222, // a glinty ball
+        shininess: 100.0    // a shiny ball
+    });    
+    const earth = 
+          new THREE.Mesh(earthGeometry, earthMaterial);
     scene.add(earth);
 
 // Vertex Shader
 // language=GLSL
     const vertexShader = `
-precision highp float;
-varying vec4 vWorldPosition;
-varying float fov;
+      precision highp float;
+      varying vec4 vWorldPosition;
+      varying float fov;
 
-const float PI = 3.14159265359;
+      const float PI = 3.14159265359;
 
-varying vec3 viewRay; // View space ray direction
+      varying vec3 viewRay; // View space ray direction
 
-void main() {
-    vWorldPosition = modelMatrix * vec4(position, 1.0);
+      void main() {
+          vWorldPosition = modelMatrix * vec4(position, 1.0);
 
-    // Compute clip-space position
-    vec4 clipSpacePos = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          // Compute clip-space position
+          vec4 clipSpacePos = 
+                projectionMatrix * modelViewMatrix * vec4(position, 1.0);
 
-    // Compute normalized device coordinates (NDC)
-    vec3 ndc = clipSpacePos.xyz / clipSpacePos.w;
+          // Compute normalized device coordinates (NDC)
+          vec3 ndc = clipSpacePos.xyz / clipSpacePos.w;
 
-    // Compute the view-space ray direction
-    vec4 clipRay = vec4(ndc.x, ndc.y, -1.0, 1.0);
-    vec4 tempViewRay = inverse(projectionMatrix) * clipRay;
-    viewRay = vec3(tempViewRay.x, tempViewRay.y, -1.0);
-    
-    gl_Position = clipSpacePos;
-    
-    
-    fov = 2.0 * atan(1.0 / projectionMatrix[1][1]) * (180.0 / PI);
-}
+          // Compute the view-space ray direction
+          vec4 clipRay = vec4(ndc.x, ndc.y, -1.0, 1.0);
+          vec4 tempViewRay = inverse(projectionMatrix) * clipRay;
+          viewRay = vec3(tempViewRay.x, tempViewRay.y, -1.0);
+
+          gl_Position = clipSpacePos;
+
+
+          fov = 2.0 * atan(1.0 / projectionMatrix[1][1]) * (180.0 / PI);
+      }
 `;
 
 
 // Fragment Shader
 // language=GLSL
     const fragmentShader = `
-    precision highp float;
-    uniform vec3 lightPosition;
-    uniform float lightIntensity;
-    uniform vec2 iResolution;
-    varying float fov;
+      precision highp float;
+      uniform vec3 lightPosition;
+      uniform float lightIntensity;
+      uniform vec2 iResolution;
+      varying float fov;
 
-    uniform float surfaceRadius;
-    uniform float atmoRadius;
-
-
-    varying vec4 vWorldPosition;
-    varying vec3 viewRay; // View space ray direction
-
-    // Written by GLtracy
-    // Credit: https://www.shadertoy.com/view/lslXDr
-
-    // math const
-    const float PI = 3.14159265359;
-    const float MAX = 10000.0;
+      uniform float surfaceRadius;
+      uniform float atmoRadius;
 
 
-    // ray intersects sphere
-    // e = -b +/- sqrt( b^2 - c )
-    vec2 ray_vs_sphere( vec3 p, vec3 dir, float r ) {
-        float b = dot( p, dir );
-        float c = dot( p, p ) - r * r;
+      varying vec4 vWorldPosition;
+      varying vec3 viewRay; // View space ray direction
 
-        float d = b * b - c;
-        if ( d < 0.0 ) {
-            return vec2( MAX, -MAX );
-        }
-        d = sqrt( d );
+      // Written by GLtracy
+      // Credit: https://www.shadertoy.com/view/lslXDr
 
-        return vec2( -b - d, -b + d );
-    }
-
-    // Mie
-    // g : ( -0.75, -0.999 )
-    //      3 * ( 1 - g^2 )               1 + c^2
-    // F = ----------------- * -------------------------------
-    //      8pi * ( 2 + g^2 )     ( 1 + g^2 - 2 * g * c )^(3/2)
-    float phase_mie( float g, float c, float cc ) {
-        float gg = g * g;
-
-        float a = ( 1.0 - gg ) * ( 1.0 + cc );
-
-        float b = 1.0 + gg - 2.0 * g * c;
-        b *= sqrt( b );
-        b *= 2.0 + gg;
-
-        return ( 3.0 / 8.0 / PI ) * a / b;
-    }
-
-    // Rayleigh
-    // g : 0
-    // F = 3/16PI * ( 1 + c^2 )
-    float phase_ray( float cc ) {
-        return ( 3.0 / 16.0 / PI ) * ( 1.0 + cc );
-    }
-
-    const int NUM_OUT_SCATTER = 8;
-    const int NUM_IN_SCATTER = 80;
-
-    float density(vec3 p, float ph) {
-        // works for 2.5 surf, 6.0 atmo
-        //float atmoThickness = 3.0 * (atmoRadius - surfaceRadius);
-        //float altitude = length(p) - surfaceRadius*0.7;
-        
-        // works for 5.5 surf, 6.0 atmo
-        float atmoThickness = 4.0 * (atmoRadius - surfaceRadius);
-        float altitude = length(p) - surfaceRadius*0.975;
-
-        return exp(-max(altitude, 0.0) / (ph * atmoThickness));
-    }
+      // math const
+      const float PI = 3.14159265359;
+      const float MAX = 10000.0;
 
 
-    float optic( vec3 p, vec3 q, float ph ) {
-        vec3 s = ( q - p ) / float( NUM_OUT_SCATTER );
-        vec3 v = p + s * 0.5;
+      // ray intersects sphere
+      // e = -b +/- sqrt( b^2 - c )
+      vec2 ray_vs_sphere( vec3 p, vec3 dir, float r ) {
+          float b = dot( p, dir );
+          float c = dot( p, p ) - r * r;
 
-        float sum = 0.0;
-        for ( int i = 0; i < NUM_OUT_SCATTER; i++ ) {
-            sum += density( v, ph );
-            v += s;
-        }
-        sum *= length( s );
+          float d = b * b - c;
+          if ( d < 0.0 ) {
+              return vec2( MAX, -MAX );
+          }
+          d = sqrt( d );
 
-        return sum;
-    }
+          return vec2( -b - d, -b + d );
+      }
 
-    vec4 in_scatter( vec3 o, vec3 dir, vec2 e, vec3 l, float l_intensity) {
-        const float ph_ray = 0.05; //0.05 orig
-        const float ph_mie = 0.02;
+      // Mie
+      // g : ( -0.75, -0.999 )
+      //      3 * ( 1 - g^2 )               1 + c^2
+      // F = ----------------- * -------------------------------
+      //      8pi * ( 2 + g^2 )     ( 1 + g^2 - 2 * g * c )^(3/2)
+      float phase_mie( float g, float c, float cc ) {
+          float gg = g * g;
 
-        const vec3 k_ray = vec3( 3.8, 13.5, 33.1 );
-        const vec3 k_mie = vec3( 21.0 );
-        const float k_mie_ex = 1.1;
+          float a = ( 1.0 - gg ) * ( 1.0 + cc );
 
-        vec3 sum_ray = vec3( 0.0 );
-        vec3 sum_mie = vec3( 0.0 );
+          float b = 1.0 + gg - 2.0 * g * c;
+          b *= sqrt( b );
+          b *= 2.0 + gg;
+
+          return ( 3.0 / 8.0 / PI ) * a / b;
+      }
+
+      // Rayleigh
+      // g : 0
+      // F = 3/16PI * ( 1 + c^2 )
+      float phase_ray( float cc ) {
+          return ( 3.0 / 16.0 / PI ) * ( 1.0 + cc );
+      }
+
+      const int NUM_OUT_SCATTER = 8;
+      const int NUM_IN_SCATTER = 80;
+
+      float density(vec3 p, float ph) {
+          // works for 2.5 surf, 6.0 atmo
+          //float atmoThickness = 3.0 * (atmoRadius - surfaceRadius);
+          //float altitude = length(p) - surfaceRadius*0.7;
+
+          // works for 5.5 surf, 6.0 atmo
+          float atmoThickness = 4.0 * (atmoRadius - surfaceRadius);
+          float altitude = length(p) - surfaceRadius*0.975;
+
+          return exp(-max(altitude, 0.0) / (ph * atmoThickness));
+      }
 
 
-        float n_ray0 = 0.0;
-        float n_mie0 = 0.0;
+      float optic( vec3 p, vec3 q, float ph ) {
+          vec3 s = ( q - p ) / float( NUM_OUT_SCATTER );
+          vec3 v = p + s * 0.5;
 
-        float len = ( e.y - e.x ) / float( NUM_IN_SCATTER );
-        vec3 s = dir * len;
-        vec3 v = o + dir * ( e.x + len * 0.5 );
+          float sum = 0.0;
+          for ( int i = 0; i < NUM_OUT_SCATTER; i++ ) {
+              sum += density( v, ph );
+              v += s;
+          }
+          sum *= length( s );
 
-        for ( int i = 0; i < NUM_IN_SCATTER; i++, v += s ) {
-            float d_ray = density( v, ph_ray ) * len;
-            float d_mie = density( v, ph_mie ) * len;
+          return sum;
+      }
 
-            n_ray0 += d_ray;
-            n_mie0 += d_mie;
+      vec4 in_scatter( vec3 o, vec3 dir, vec2 e, vec3 l, float l_intensity) {
+          const float ph_ray = 0.05; //0.05 orig
+          const float ph_mie = 0.02;
 
-            vec2 f = ray_vs_sphere( v, l, atmoRadius );
-            vec3 u = v + l * f.y;
+          const vec3 k_ray = vec3( 3.8, 13.5, 33.1 );
+          const vec3 k_mie = vec3( 21.0 );
+          const float k_mie_ex = 1.1;
 
-            float n_ray1 = optic( v, u, ph_ray );
-            float n_mie1 = optic( v, u, ph_mie );
+          vec3 sum_ray = vec3( 0.0 );
+          vec3 sum_mie = vec3( 0.0 );
 
-            vec3 att = exp( - ( n_ray0 + n_ray1 ) * k_ray - ( n_mie0 + n_mie1 ) * k_mie * k_mie_ex );
 
-            sum_ray += d_ray * att;
-            sum_mie += d_mie * att;
+          float n_ray0 = 0.0;
+          float n_mie0 = 0.0;
 
-        }
+          float len = ( e.y - e.x ) / float( NUM_IN_SCATTER );
+          vec3 s = dir * len;
+          vec3 v = o + dir * ( e.x + len * 0.5 );
 
-        float c  = dot( dir, -l );
-        float cc = c * c;
-        vec3 scatter =
-            sum_ray * k_ray * phase_ray( cc ) +
-            sum_mie * k_mie * phase_mie( -0.78, c, cc );
+          for ( int i = 0; i < NUM_IN_SCATTER; i++, v += s ) {
+              float d_ray = density( v, ph_ray ) * len;
+              float d_mie = density( v, ph_mie ) * len;
 
-        return vec4(scatter, length(scatter)) *  lightIntensity;
-    }
+              n_ray0 += d_ray;
+              n_mie0 += d_mie;
 
-    // ray direction
-    vec3 ray_dir( float fov, vec2 size, vec2 pos ) {
-        vec2 xy = pos - size * 0.5;
+              vec2 f = ray_vs_sphere( v, l, atmoRadius );
+              vec3 u = v + l * f.y;
 
-        float cot_half_fov = tan( radians( 90.0 - fov * 0.5 ) );
-        float z = size.y * 0.5 * cot_half_fov;
+              float n_ray1 = optic( v, u, ph_ray );
+              float n_mie1 = optic( v, u, ph_mie );
 
-        return normalize( vec3( xy, -z ) );
-    }
+              vec3 att = exp( - ( n_ray0 + n_ray1 ) * k_ray - ( n_mie0 + n_mie1 ) * k_mie * k_mie_ex );
 
-    void main() {
-        vec2 fragCoord = gl_FragCoord.xy / iResolution.xy;
+              sum_ray += d_ray * att;
+              sum_mie += d_mie * att;
 
-        // Step 3: World Space Ray
-        vec4 worldRay = inverse(viewMatrix) * vec4(viewRay, 0.0);
+          }
 
-        // Normalize the ray direction
-        vec3 dir = normalize(worldRay.xyz);
+          float c  = dot( dir, -l );
+          float cc = c * c;
+          vec3 scatter =
+              sum_ray * k_ray * phase_ray( cc ) +
+              sum_mie * k_mie * phase_mie( -0.78, c, cc );
 
-        // default ray origin
-        vec3 eye = vWorldPosition.xyz;
+          return vec4(scatter, length(scatter)) *  lightIntensity;
+      }
 
-        // sun light dir
-        vec3 l = normalize(lightPosition - vWorldPosition.xyz);
+      // ray direction
+      vec3 ray_dir( float fov, vec2 size, vec2 pos ) {
+          vec2 xy = pos - size * 0.5;
 
-        // find if the pixel is part of the atmosphere
-        vec2 e = ray_vs_sphere( eye, dir, atmoRadius );
+          float cot_half_fov = tan( radians( 90.0 - fov * 0.5 ) );
+          float z = size.y * 0.5 * cot_half_fov;
 
-        // something went horribly wrong so set the pixel debug red
-        if ( e.x > e.y ) {
-            gl_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );
-            return;
-        }
+          return normalize( vec3( xy, -z ) );
+      }
 
-        // find if the pixel is part of the surface
-        vec2 f = ray_vs_sphere( eye, dir, surfaceRadius );
-        e.y = min( e.y, f.x );
+      void main() {
+          vec2 fragCoord = gl_FragCoord.xy / iResolution.xy;
 
-        vec4 I = in_scatter( eye, dir, e, l, lightIntensity);
+          // Step 3: World Space Ray
+          vec4 worldRay = inverse(viewMatrix) * vec4(viewRay, 0.0);
 
-        vec4 I_gamma = pow( I, vec4(1.0 / 2.2) );
-        gl_FragColor = I_gamma;
-    }
+          // Normalize the ray direction
+          vec3 dir = normalize(worldRay.xyz);
+
+          // default ray origin
+          vec3 eye = vWorldPosition.xyz;
+
+          // sun light dir
+          vec3 l = normalize(lightPosition - vWorldPosition.xyz);
+
+          // find if the pixel is part of the atmosphere
+          vec2 e = ray_vs_sphere( eye, dir, atmoRadius );
+
+          // something went horribly wrong so set the pixel debug red
+          if ( e.x > e.y ) {
+              gl_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );
+              return;
+          }
+
+          // find if the pixel is part of the surface
+          vec2 f = ray_vs_sphere( eye, dir, surfaceRadius );
+          e.y = min( e.y, f.x );
+
+          vec4 I = in_scatter( eye, dir, e, l, lightIntensity);
+
+          vec4 I_gamma = pow( I, vec4(1.0 / 2.2) );
+          gl_FragColor = I_gamma;
+      }
 `;
 
 
     // Atmosphere
-    const atmosphereGeometry = new THREE.SphereGeometry(6, 32, 32);
+    const atmosphereGeometry = 
+          new THREE.SphereGeometry(6, 32, 32);
 
     // Shader Material
-    const atmosphereMaterial = new THREE.ShaderMaterial({
-        vertexShader: vertexShader,
-        fragmentShader: fragmentShader,
-        transparent: true,
-        uniforms: {
-            lightPosition: { value: sunLight.position.clone() },
-            lightIntensity: { value: sunLight.intensity },
-            iResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
-            surfaceRadius: { value: earthGeometry.parameters.radius },
-            atmoRadius: { value: atmosphereGeometry.parameters.radius }
-        }
-    });
+    const atmosphereMaterial = 
+          new THREE.ShaderMaterial({
+            vertexShader: vertexShader,
+            fragmentShader: fragmentShader,
+            transparent: true,
+            uniforms: {
+                lightPosition: { value: sunLight.position.clone() },
+                lightIntensity: { value: sunLight.intensity },
+                iResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+                surfaceRadius: { value: earthGeometry.parameters.radius },
+                atmoRadius: { value: atmosphereGeometry.parameters.radius }
+            }
+        });
 
     const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
     scene.add(atmosphere);
