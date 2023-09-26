@@ -202,14 +202,18 @@ document.addEventListener('DOMContentLoaded', (event) => {
       float density(vec3 p, float ph) {
       
           float actualScaleHeight = 8500.0;  // The scale height on Earth in meters
-          float scale = 0.5*(atmoRadius - surfaceRadius) / actualScaleHeight; // Scaling factor based on the gap
+          float scale = (atmoRadius - surfaceRadius) / actualScaleHeight; // Scaling factor based on the gap
+          
 
           float altitude = length(p) - surfaceRadius;
           
           // Initial density at the surface (sea level). Set this to your desired value.
           // Earth's air density at sea level is approximately 1.225 kg/m^3
           float rho_0 = 1.225; 
-          rho_0 
+          
+          //TBD, why does it looks better with these tunings?
+          scale *= 0.5;
+          rho_0 *= 0.08125; 
 
           // Use exponential decay formula to calculate density
           float rho = rho_0 * exp(-max(altitude, 0.0) / (actualScaleHeight * scale));
@@ -326,7 +330,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
 
     // Atmosphere
-    const atmosphereThickness = 0.5; // altitude, not density
+    const atmosphereThickness = 0.25; // altitude, not density
     const atmosphereGeometry = 
           new THREE.SphereGeometry(
             earthGeometry.parameters.radius + atmosphereThickness, 
