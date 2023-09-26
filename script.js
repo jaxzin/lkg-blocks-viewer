@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
             0xFFFFFF, // white
             0.5       // dim (half candela)
           );
-    scene.add(ambientLight);
+    //scene.add(ambientLight);
 
     // Sun (Point Light)
     const sunLight = 
@@ -84,15 +84,16 @@ document.addEventListener('DOMContentLoaded', (event) => {
     const earthSpecular = 
           textureLoader.load('https://cdn.glitch.me/1baa4277-c64f-4d73-9c1a-c63d612886ca/Earth_Specular.jpg?v=1695750608336' );
     const earthBump = 
-          textureLoader.load('https://cdn.glitch.me/1baa4277-c64f-4d73-9c1a-c63d612886ca/Earth_Diffuse.jpg?v=1695750587559' );
+          textureLoader.load('https://cdn.glitch.global/1baa4277-c64f-4d73-9c1a-c63d612886ca/Earth_Normal.jpg?v=1695750598706' );
     const earthMaterial = new THREE.MeshPhongMaterial({
-        //color: 0x2255ff,    // a blue ball
-        specular: 0x777777, // a glinty ball
-        shininess: 100.0,    // a shiny ball
         map: earthDiffuse,
-        //emissiveMap: earthLights,
+        //color: 0x2255ff,    // tint the map
+        emissiveMap: earthLights,
+        emissive: 0x999999,  // white lights
         specularMap: earthSpecular,
-        //normalMap: earthBump
+        shininess: 100.0,    // water is shiny
+        normalMap: earthBump,
+        //normalScale: new THREE.Vector2(5.0,5.0)
     });    
     const earth = 
           new THREE.Mesh(earthGeometry, earthMaterial);
@@ -358,6 +359,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
           // auto-rotate the camera
           controls.update();
+      
+          // rotate the earth
+          earth.rotation.y += 0.001;
 
           // update the shader with the light position 
           //  (overkill, unless I implement a way to move the sun)
