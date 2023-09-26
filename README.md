@@ -1,10 +1,8 @@
-# Three Cube Experiment
+# Planet Atmosphere shader
 
-Playing around with [three.js](https://threejs.org/) to eventually get past of just creating basic shapes with random colors. 
+Playing around with [three.js](https://threejs.org/) to learn how too...
 
-specific goals: 
-- make the gradient move 
-- implement basic lambertian reflectance
-- make the cube wiggle with a vertex shader
+1. Port a shadertoy shader to three.js's ShaderMaterial
+2. Learn how to write a shader in general
+3. Make a planet atmosphere shader for a project.
 
-(I wish there were checkboxes ✨, feel the same way? [vote!](https://support.glitch.com/t/support-for-gfm-checkboxes-in-markdown/2976)) 

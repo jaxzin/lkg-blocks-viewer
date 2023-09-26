@@ -31,14 +31,14 @@ document.addEventListener('DOMContentLoaded', (event) => {
     scene.add(sunLight);
 
     // Visual representation of Sun as a yellow unlit sphere
-    const sunGeometry = new THREE.SphereGeometry(1, 32, 32);  // 1 is the radius of the sphere
+    const sunGeometry = new THREE.SphereGeometry(0.5, 32, 32);  // 1 is the radius of the sphere
     const sunMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });  // yellow and unlit
     const sunSphere = new THREE.Mesh(sunGeometry, sunMaterial);
     sunSphere.position.copy(sunLight.position);  // Set the position to be the same as sunLight
     scene.add(sunSphere);
 
     // Earth
-    const earthGeometry = new THREE.SphereGeometry(5, 32, 32);
+    const earthGeometry = new THREE.SphereGeometry(5.5, 32, 32);
     const earthMaterial = new THREE.MeshPhongMaterial({
         color: 0x2255ff,
         specular: 0x222222,  // Adding some specular highlights
@@ -233,38 +233,37 @@ varying vec3 viewRay; // View space ray direction
     }
 
 void main() {
-  vec2 fragCoord = gl_FragCoord.xy / iResolution.xy;
-  vec4 fragColor;
+    vec2 fragCoord = gl_FragCoord.xy / iResolution.xy;
 
     // Step 3: World Space Ray
     vec4 worldRay = inverse(viewMatrix) * vec4(viewRay, 0.0);
-    
+
     // Normalize the ray direction
     vec3 dir = normalize(worldRay.xyz);
 
+    // default ray origin
+    vec3 eye = vWorldPosition.xyz;
 
+    // sun light dir
+    vec3 l = normalize(lightPosition - vWorldPosition.xyz);
 
-        // default ray origin
-        vec3 eye = vWorldPosition.xyz;
+    // find if the pixel is part of the atmosphere
+    vec2 e = ray_vs_sphere( eye, dir, atmoRadius );
+    
+    // something went horribly wrong so set the pixel debug red
+    if ( e.x > e.y ) {
+        gl_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );
+        return;
+    }
 
-        // sun light dir
-        vec3 l = normalize(lightPosition - vWorldPosition.xyz);
+    // find if the pixel is part of the surface
+    vec2 f = ray_vs_sphere( eye, dir, surfaceRadius );
+    e.y = min( e.y, f.x );
 
-        vec2 e = ray_vs_sphere( eye, dir, atmoRadius );
-        if ( e.x > e.y ) {
-            fragColor = vec4( 1.0, 0.0, 0.0, 0.0 );
-            gl_FragColor = fragColor;
-            return;
-        }
+    vec4 I = in_scatter( eye, dir, e, l );
 
-        vec2 f = ray_vs_sphere( eye, dir, surfaceRadius );
-        e.y = min( e.y, f.x );
-
-        vec4 I = in_scatter( eye, dir, e, l );
-
-        vec4 I_gamma = pow( I, vec4(1.0 / 5.0) ) * lightIntensity;
-    fragColor = I_gamma;
-    gl_FragColor = fragColor;
+    vec4 I_gamma = pow( I, vec4(1.0 / 5.0) ) * lightIntensity;
+    gl_FragColor = I_gamma;
 }
 `;
 
@@ -302,7 +301,7 @@ void main() {
         const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
         const lineMaterial = new THREE.LineBasicMaterial({ color: 0xbbbb99, transparent: true, opacity: 0.5 });
         const line = new THREE.Line(lineGeometry, lineMaterial);
-        line.visible = true; // Hide initially
+        line.visible = false; // Hide initially
         lines.push(line);
         scene.add(line);
     }
