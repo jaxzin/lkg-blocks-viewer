@@ -48,10 +48,10 @@ document.addEventListener('DOMContentLoaded', (event) => {
           new THREE.PointLight(
             0xFFFFFF, // white
             4.0,      // intensity
-            100,      // max distance 
+            1000,     // max distance 
             0         // no decay
           );
-    sunLight.position.set(-30, 0, -10); // Position to the left of the camera
+    sunLight.position.set(-300, 0, -100); // Position to the left of the camera
     scene.add(sunLight);
 
     // Visual representation of Sun as a yellow unlit sphere
@@ -212,8 +212,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
           float rho_0 = 1.225; 
           
           //TBD, why does it looks better with these tunings?
-          scale *= 0.5;
-          rho_0 *= 0.08125; 
+          //scale *= 0.5;
+          //rho_0 *= 0.08125; 
 
           // Use exponential decay formula to calculate density
           float rho = rho_0 * exp(-max(altitude, 0.0) / (actualScaleHeight * scale));
@@ -240,13 +240,13 @@ document.addEventListener('DOMContentLoaded', (event) => {
       vec4 in_scatter( vec3 o, vec3 dir, vec2 e, vec3 l, float l_intensity) {
           const float ph_ray = 0.15;
           const float ph_mie = 0.05;
-          const float ph_alpha = 0.35;
+          const float ph_alpha = 0.25;
 
           const vec3 k_ray = vec3( 3.8, 13.5, 33.1 );
           const vec3 k_mie = vec3( 21.0 );
           const float k_mie_ex = 1.1;
           
-          const float k_alpha = 5.0;
+          const float k_alpha = 2.0;
 
           vec3 sum_ray = vec3( 0.0 );
           vec3 sum_mie = vec3( 0.0 );
@@ -320,9 +320,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
           // find if the pixel is part of the atmosphere
           vec2 e = ray_vs_sphere( eye, dir, atmoRadius );
 
-          // something went horribly wrong so set the pixel debug red
+          // something went horribly wrong so set the pixel transparent
           if ( e.x > e.y ) {
-              gl_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );
+              gl_FragColor = vec4( 0.0, 0.0, 0.0, 0.0 );
               return;
           }
 
