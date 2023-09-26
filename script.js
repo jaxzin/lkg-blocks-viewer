@@ -240,13 +240,13 @@ document.addEventListener('DOMContentLoaded', (event) => {
       vec4 in_scatter( vec3 o, vec3 dir, vec2 e, vec3 l, float l_intensity) {
           const float ph_ray = 0.15;
           const float ph_mie = 0.05;
-          const float ph_alpha = 0.25;
+          const float ph_alpha = 0.35;
 
           const vec3 k_ray = vec3( 3.8, 13.5, 33.1 );
           const vec3 k_mie = vec3( 21.0 );
           const float k_mie_ex = 1.1;
           
-          const float k_alpha = 10.0;
+          const float k_alpha = 5.0;
 
           vec3 sum_ray = vec3( 0.0 );
           vec3 sum_mie = vec3( 0.0 );
@@ -255,7 +255,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
           float n_ray0 = 0.0;
           float n_mie0 = 0.0;
-          float n_alpha0 = 0.0;
 
           float len = ( e.y - e.x ) / float( NUM_IN_SCATTER );
           vec3 s = dir * len;
@@ -268,20 +267,20 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
               n_ray0 += d_ray;
               n_mie0 += d_mie;
-              n_alpha0 += d_alpha;
 
               vec2 f = ray_vs_sphere( v, l, atmoRadius );
               vec3 u = v + l * f.y;
 
               float n_ray1 = optic( v, u, ph_ray );
               float n_mie1 = optic( v, u, ph_mie );
-              float n_alpha1 = optic( v, u, ph_alpha );
 
               vec3 att = exp( - ( n_ray0 + n_ray1 ) * k_ray - ( n_mie0 + n_mie1 ) * k_mie * k_mie_ex );
 
               sum_ray += d_ray * att;
               sum_mie += d_mie * att;
-              sum_alpha += d_alpha;// * exp( - (n_alpha0 + n_alpha1) * k_alpha );
+              
+              // The optical density is only a factor of the density of the traveled media
+              sum_alpha += d_alpha;
 
           }
 
@@ -340,7 +339,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
 
     // Atmosphere
-    const atmosphereThickness = 0.25; // altitude, not density
+    const atmosphereThickness = 0.1375; // altitude, not density
     const atmosphereGeometry = 
           new THREE.SphereGeometry(
             earthGeometry.parameters.radius + atmosphereThickness, 
