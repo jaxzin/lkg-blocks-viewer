@@ -82,29 +82,29 @@ void main() {
 // Fragment Shader
 // language=GLSL
     const fragmentShader = `
-precision highp float;
-uniform vec3 lightPosition;
-uniform float lightIntensity;
-uniform vec2 iResolution;
-varying float fov;
+    precision highp float;
+    uniform vec3 lightPosition;
+    uniform float lightIntensity;
+    uniform vec2 iResolution;
+    varying float fov;
 
-uniform float surfaceRadius;
-uniform float atmoRadius;
+    uniform float surfaceRadius;
+    uniform float atmoRadius;
 
 
-varying vec4 vWorldPosition;
-varying vec3 viewRay; // View space ray direction
+    varying vec4 vWorldPosition;
+    varying vec3 viewRay; // View space ray direction
 
-// Written by GLtracy
-// Credit: https://www.shadertoy.com/view/lslXDr
+    // Written by GLtracy
+    // Credit: https://www.shadertoy.com/view/lslXDr
 
-// math const
+    // math const
     const float PI = 3.14159265359;
     const float MAX = 10000.0;
 
 
-// ray intersects sphere
-// e = -b +/- sqrt( b^2 - c )
+    // ray intersects sphere
+    // e = -b +/- sqrt( b^2 - c )
     vec2 ray_vs_sphere( vec3 p, vec3 dir, float r ) {
         float b = dot( p, dir );
         float c = dot( p, p ) - r * r;
@@ -118,11 +118,11 @@ varying vec3 viewRay; // View space ray direction
         return vec2( -b - d, -b + d );
     }
 
-// Mie
-// g : ( -0.75, -0.999 )
-//      3 * ( 1 - g^2 )               1 + c^2
-// F = ----------------- * -------------------------------
-//      8pi * ( 2 + g^2 )     ( 1 + g^2 - 2 * g * c )^(3/2)
+    // Mie
+    // g : ( -0.75, -0.999 )
+    //      3 * ( 1 - g^2 )               1 + c^2
+    // F = ----------------- * -------------------------------
+    //      8pi * ( 2 + g^2 )     ( 1 + g^2 - 2 * g * c )^(3/2)
     float phase_mie( float g, float c, float cc ) {
         float gg = g * g;
 
@@ -135,9 +135,9 @@ varying vec3 viewRay; // View space ray direction
         return ( 3.0 / 8.0 / PI ) * a / b;
     }
 
-// Rayleigh
-// g : 0
-// F = 3/16PI * ( 1 + c^2 )
+    // Rayleigh
+    // g : 0
+    // F = 3/16PI * ( 1 + c^2 )
     float phase_ray( float cc ) {
         return ( 3.0 / 16.0 / PI ) * ( 1.0 + cc );
     }
@@ -146,9 +146,9 @@ varying vec3 viewRay; // View space ray direction
     const int NUM_IN_SCATTER = 80;
 
     float density(vec3 p, float ph) {
-        float atmoThickness = 1.0 * (atmoRadius - surfaceRadius);
+        float atmoThickness = atmoRadius - surfaceRadius;
         float altitude = length(p) - surfaceRadius;
-        return exp(-max(altitude, 0.0) / (ph * atmoThickness));
+        return exp(-max(altitude, 0.0) / (ph * atmoThickness * atmoThickness));
     }
 
 
@@ -177,7 +177,7 @@ varying vec3 viewRay; // View space ray direction
         vec3 sum_ray = vec3( 0.0 );
         vec3 sum_mie = vec3( 0.0 );
 
-        
+
         float n_ray0 = 0.0;
         float n_mie0 = 0.0;
 
@@ -191,14 +191,6 @@ varying vec3 viewRay; // View space ray direction
 
             n_ray0 += d_ray;
             n_mie0 += d_mie;
-
-            #if 0
-            vec2 e = ray_vs_sphere( v, l, surfaceRadius );
-            e.x = max( e.x, 0.0 );
-            if ( e.x < e.y ) {
-                continue;
-            }
-            #endif
 
             vec2 f = ray_vs_sphere( v, l, atmoRadius );
             vec3 u = v + l * f.y;
@@ -222,7 +214,7 @@ varying vec3 viewRay; // View space ray direction
         return vec4(10.0 * scatter, 10.0 * length(scatter));
     }
 
-// ray direction
+    // ray direction
     vec3 ray_dir( float fov, vec2 size, vec2 pos ) {
         vec2 xy = pos - size * 0.5;
 
@@ -232,39 +224,39 @@ varying vec3 viewRay; // View space ray direction
         return normalize( vec3( xy, -z ) );
     }
 
-void main() {
-    vec2 fragCoord = gl_FragCoord.xy / iResolution.xy;
+    void main() {
+        vec2 fragCoord = gl_FragCoord.xy / iResolution.xy;
 
-    // Step 3: World Space Ray
-    vec4 worldRay = inverse(viewMatrix) * vec4(viewRay, 0.0);
+        // Step 3: World Space Ray
+        vec4 worldRay = inverse(viewMatrix) * vec4(viewRay, 0.0);
 
-    // Normalize the ray direction
-    vec3 dir = normalize(worldRay.xyz);
+        // Normalize the ray direction
+        vec3 dir = normalize(worldRay.xyz);
 
-    // default ray origin
-    vec3 eye = vWorldPosition.xyz;
+        // default ray origin
+        vec3 eye = vWorldPosition.xyz;
 
-    // sun light dir
-    vec3 l = normalize(lightPosition - vWorldPosition.xyz);
+        // sun light dir
+        vec3 l = normalize(lightPosition - vWorldPosition.xyz);
 
-    // find if the pixel is part of the atmosphere
-    vec2 e = ray_vs_sphere( eye, dir, atmoRadius );
-    
-    // something went horribly wrong so set the pixel debug red
-    if ( e.x > e.y ) {
-        gl_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );
-        return;
+        // find if the pixel is part of the atmosphere
+        vec2 e = ray_vs_sphere( eye, dir, atmoRadius );
+
+        // something went horribly wrong so set the pixel debug red
+        if ( e.x > e.y ) {
+            gl_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );
+            return;
+        }
+
+        // find if the pixel is part of the surface
+        vec2 f = ray_vs_sphere( eye, dir, surfaceRadius );
+        e.y = min( e.y, f.x );
+
+        vec4 I = in_scatter( eye, dir, e, l );
+
+        vec4 I_gamma = pow( I, vec4(1.0 / 2.2) ) * lightIntensity;
+        gl_FragColor = I_gamma;
     }
-
-    // find if the pixel is part of the surface
-    vec2 f = ray_vs_sphere( eye, dir, surfaceRadius );
-    e.y = min( e.y, f.x );
-
-    vec4 I = in_scatter( eye, dir, e, l );
-
-    vec4 I_gamma = pow( I, vec4(1.0 / 2.2) ) * lightIntensity;
-    gl_FragColor = I_gamma;
-}
 `;
 
 
