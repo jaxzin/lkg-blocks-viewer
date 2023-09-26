@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     // Earth
     const earthGeometry = 
           new THREE.SphereGeometry(
-            5.5, // radius 
+            2.5, // radius 
             128,  // mesh segments (longitude) 
             128   // mesh segments (latitude)
           );
@@ -320,7 +320,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
           vec2 f = ray_vs_sphere( eye, dir, surfaceRadius );
           e.y = min( e.y, f.x );
           
-           if ( f.x < f.y ) {
+          if ( f.x < f.y ) {
               gl_FragColor = vec4( 0.0, 0.0, 1.0, 1.0 );
               return;
           }
