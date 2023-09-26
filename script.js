@@ -22,17 +22,42 @@ document.addEventListener('DOMContentLoaded', (event) => {
     document.body.appendChild(renderer.domElement);
 
     // Ambient Light
-    const ambientLight = new THREE.AmbientLight(0x404040, 10); // soft white light
+    const ambientColor = 0x404040;  // soft white
+    const ambientIntensity = 10;
+    const ambientLight = 
+          new THREE.AmbientLight(
+            ambientColor, 
+            ambientIntensity
+          );
     scene.add(ambientLight);
 
     // Sun (Point Light)
-    const sunLight = new THREE.PointLight(0xffffff, 5, 100, 0);
+    const sunLightColor = 0xFFFFFF;
+    const sunLightIntensity = 10;
+    const sunLightMaxDistance = 100;
+    const sunLightDecay = 0;
+    const sunLight = 
+          new THREE.PointLight(
+            sunLightColor, 
+            sunLightIntensity, 
+            sunLightMaxDistance, 
+            sunLightDecay
+          );
     sunLight.position.set(-30, 0, -10); // Position to the left of the camera
     scene.add(sunLight);
 
     // Visual representation of Sun as a yellow unlit sphere
-    const sunGeometry = new THREE.SphereGeometry(0.5, 32, 32);  // 1 is the radius of the sphere
-    const sunMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });  // yellow and unlit
+    const sunRadius = 0.5;
+    const sunMeshSegments = 32;
+    const sunColor = 0xFFFF00; // Yellow
+    const sunGeometry = 
+          new THREE.SphereGeometry(
+            sunRadius, 
+            sunMeshSegments, 
+            sunMeshSegments
+          );
+    const sunMaterial = 
+          new THREE.MeshBasicMaterial({ color: 0xffff00 });
     const sunSphere = new THREE.Mesh(sunGeometry, sunMaterial);
     sunSphere.position.copy(sunLight.position);  // Set the position to be the same as sunLight
     scene.add(sunSphere);
@@ -172,7 +197,7 @@ void main() {
         return sum;
     }
 
-    vec4 in_scatter( vec3 o, vec3 dir, vec2 e, vec3 l ) {
+    vec4 in_scatter( vec3 o, vec3 dir, vec2 e, vec3 l, float l_intensity) {
         const float ph_ray = 0.05; //0.05 orig
         const float ph_mie = 0.02;
 
@@ -217,7 +242,7 @@ void main() {
             sum_ray * k_ray * phase_ray( cc ) +
             sum_mie * k_mie * phase_mie( -0.78, c, cc );
 
-        return vec4(10.0 * scatter, 10.0 * length(scatter));
+        return vec4(scatter, length(scatter)) *  lightIntensity;
     }
 
     // ray direction
@@ -258,9 +283,9 @@ void main() {
         vec2 f = ray_vs_sphere( eye, dir, surfaceRadius );
         e.y = min( e.y, f.x );
 
-        vec4 I = in_scatter( eye, dir, e, l );
+        vec4 I = in_scatter( eye, dir, e, l, lightIntensity);
 
-        vec4 I_gamma = pow( I, vec4(1.0 / 2.2) ) * lightIntensity;
+        vec4 I_gamma = pow( I, vec4(1.0 / 2.2) );
         gl_FragColor = I_gamma;
     }
 `;
@@ -276,7 +301,7 @@ void main() {
         transparent: true,
         uniforms: {
             lightPosition: { value: sunLight.position.clone() },
-            lightIntensity: { value: 0.75 /*sunLight.intensity*/ },
+            lightIntensity: { value: sunLight.intensity },
             iResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
             surfaceRadius: { value: earthGeometry.parameters.radius },
             atmoRadius: { value: atmosphereGeometry.parameters.radius }
