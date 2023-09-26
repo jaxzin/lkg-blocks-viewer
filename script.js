@@ -74,9 +74,10 @@ document.addEventListener('DOMContentLoaded', (event) => {
           new THREE.SphereGeometry(
             5.5, // radius 
             32,  // mesh segments (longitude) 
-            128   // mesh segments (latitude)
+            32   // mesh segments (latitude)
           );
   
+    // Load earth textures, attrib: https://www.highend3d.com/downloads/3d-textures/c/16k-earth-w-4k-moon-free
     const earthDiffuse = 
           textureLoader.load('https://cdn.glitch.me/1baa4277-c64f-4d73-9c1a-c63d612886ca/Earth_Diffuse.jpg?v=1695750587559' );
     const earthLights = 
@@ -326,8 +327,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
     const atmosphereGeometry = 
           new THREE.SphereGeometry(
             earthGeometry.parameters.radius + atmosphereThickness, 
-            128,  // mesh segments (width)
-            128   // mesh segement (height)
+            32,  // mesh segments (width)
+            32   // mesh segement (height)
           );
 
     // Shader Material
