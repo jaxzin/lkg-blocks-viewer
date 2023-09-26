@@ -11,12 +11,13 @@ document.addEventListener('DOMContentLoaded', (event) => {
     // Initialize Three.js scene
     const scene = 
           new THREE.Scene();
+    const aspectRatio = window.innerWidth / window.innerHeight;
     camera = 
           new THREE.PerspectiveCamera(
-            75,   // field of view (FOV)
-            window.innerWidth / window.innerHeight, // aspect ratio
-            0.1,  // near clipping plane
-            5000  // far clipping plane
+            75,       // field of view (FOV)
+            aspectRatio,
+            0.1,      // near clipping plane
+            5000      // far clipping plane
           );
     renderer = 
           new THREE.WebGLRenderer({ antialias: true });
@@ -44,13 +45,11 @@ document.addEventListener('DOMContentLoaded', (event) => {
     scene.add(sunLight);
 
     // Visual representation of Sun as a yellow unlit sphere
-    const sunRadius = 0.5;
-    const sunMeshSegments = 32;
     const sunGeometry = 
           new THREE.SphereGeometry(
-            0.5,  // radius 
-            4,    // mesh segments
-            4
+            0.5,      // radius 
+            4,        // mesh segments (width)
+            4         // mesh segments (height)
           );
     const sunMaterial = 
           new THREE.MeshBasicMaterial({ color: 0xFFFF00 /* Yellow */ });
@@ -63,8 +62,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
     const earthGeometry = 
           new THREE.SphereGeometry(
             5.5, // radius 
-            32,  // mesh segments (longitude) 
-            32   // mesh segments (latitude)
+            128,  // mesh segments (longitude) 
+            128   // mesh segments (latitude)
           );
     const earthMaterial = new THREE.MeshPhongMaterial({
         color: 0x2255ff,    // a blue ball
@@ -115,7 +114,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
       precision highp float;
       uniform vec3 lightPosition;
       uniform float lightIntensity;
-      uniform vec2 iResolution;
       varying float fov;
 
       uniform float surfaceRadius;
@@ -261,8 +259,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
       }
 
       void main() {
-          vec2 fragCoord = gl_FragCoord.xy / iResolution.xy;
-
           // Step 3: World Space Ray
           vec4 worldRay = inverse(viewMatrix) * vec4(viewRay, 0.0);
 
@@ -297,8 +293,13 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
 
     // Atmosphere
+    const atmosphereThickness = 0.5; // altitude, not density
     const atmosphereGeometry = 
-          new THREE.SphereGeometry(6, 32, 32);
+          new THREE.SphereGeometry(
+            earthGeometry.parameters.radius + atmosphereThickness, 
+            128,  // mesh segments (width)
+            128   // mesh segement (height)
+          );
 
     // Shader Material
     atmosphereMaterial = 
@@ -309,12 +310,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
             uniforms: {
                 lightPosition: { value: sunLight.position.clone() },
                 lightIntensity: { value: sunLight.intensity },
-                iResolution: { 
-                  value: new THREE.Vector2(
-                            0,//window.innerWidth, 
-                            0//window.innerHeight
-                  ) 
-                },
                 surfaceRadius: { value: earthGeometry.parameters.radius },
                 atmoRadius: { value: atmosphereGeometry.parameters.radius }
             }
@@ -330,7 +325,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     controls.autoRotate = true;
 
     // Camera and Controls
-    camera.position.set(10, 0, -10);
+    camera.position.set(7, 0, -7);
     camera.updateProjectionMatrix()
 
 
@@ -342,7 +337,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
           // update the shader with the light position 
           //  (overkill, unless I implement a way to move the sun)
-          //atmosphereMaterial.uniforms.lightPosition.value = sunLight.position.clone();
+          atmosphereMaterial.uniforms.lightPosition.value = sunLight.position.clone();
 
           renderer.render(scene, camera);
     };
@@ -358,6 +353,4 @@ function onWindowResize(){
     camera.updateProjectionMatrix();
 
     renderer.setSize( window.innerWidth, window.innerHeight );
-    // atmosphereMaterial.uniforms.iResolution.value.set(window.innerWidth, window.innerHeight);
-
 }
