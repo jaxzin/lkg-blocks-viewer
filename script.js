@@ -25,6 +25,16 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     document.body.appendChild(renderer.domElement);
 
+  
+    // Background Stars
+    const textureLoader = new THREE.TextureLoader();
+
+    const textureStars = textureLoader.load( 'https://cdn.glitch.global/1baa4277-c64f-4d73-9c1a-c63d612886ca/Stars.png?v=1695750609407' );
+    textureStars.mapping = THREE.EquirectangularReflectionMapping;
+    textureStars.colorSpace = THREE.SRGBColorSpace;
+    scene.background = textureStars;
+  
+  
     // Ambient Light
     const ambientLight = 
           new THREE.AmbientLight(
@@ -58,6 +68,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     sunSphere.position.copy(sunLight.position);  // Set the position to be the same as sunLight
     scene.add(sunSphere);
 
+  
     // Earth
     const earthGeometry = 
           new THREE.SphereGeometry(
@@ -65,6 +76,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
             128,  // mesh segments (longitude) 
             128   // mesh segments (latitude)
           );
+  
+    const ea
     const earthMaterial = new THREE.MeshPhongMaterial({
         color: 0x2255ff,    // a blue ball
         specular: 0x222222, // a glinty ball
