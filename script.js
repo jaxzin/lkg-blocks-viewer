@@ -240,7 +240,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
       vec4 in_scatter( vec3 o, vec3 dir, vec2 e, vec3 l, float l_intensity) {
           const float ph_ray = 0.15;
           const float ph_mie = 0.05;
-          const float ph_alpha = 100000000.0;
+          const float ph_alpha = 0.25;
 
           const vec3 k_ray = vec3( 3.8, 13.5, 33.1 );
           const vec3 k_mie = vec3( 21.0 );
@@ -250,11 +250,12 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
           vec3 sum_ray = vec3( 0.0 );
           vec3 sum_mie = vec3( 0.0 );
-          vec3 sum_alpha = vec3( 0.0 );
+          float sum_alpha = 0.0;
 
 
           float n_ray0 = 0.0;
           float n_mie0 = 0.0;
+          float n_alpha0 = 0.0;
 
           float len = ( e.y - e.x ) / float( NUM_IN_SCATTER );
           vec3 s = dir * len;
@@ -274,13 +275,13 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
               float n_ray1 = optic( v, u, ph_ray );
               float n_mie1 = optic( v, u, ph_mie );
-              float n_alpha1 = optic( v, y, ph_alpha );
+              float n_alpha1 = optic( v, u, ph_alpha );
 
               vec3 att = exp( - ( n_ray0 + n_ray1 ) * k_ray - ( n_mie0 + n_mie1 ) * k_mie * k_mie_ex );
 
               sum_ray += d_ray * att;
               sum_mie += d_mie * att;
-              sum_alpha += d_alpha * exp( - (n_alpha0 + n_alpha 1) * k_alpha );
+              sum_alpha += d_alpha;// * exp( - (n_alpha0 + n_alpha1) * k_alpha );
 
           }
 
@@ -290,9 +291,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
               sum_ray * k_ray * phase_ray( cc ) +
               sum_mie * k_mie * phase_mie( -0.78, c, cc );
 
-          //float alpha_scale = 10.0 * l_intensity; // TBD why this scalar?
-          //float alpha = alpha_scale * length(scatter);
-          float alpha = 100000000.0 * sum_alpha;
+          float alpha = sum_alpha * k_alpha;
           return vec4(scatter * l_intensity, alpha);
       }
 
