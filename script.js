@@ -135,7 +135,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
 
 // Fragment Shader
-// language=GLSL
+// language=GLSL  
     const fragmentShader = `
       precision highp float;
       uniform vec3 lightPosition;
