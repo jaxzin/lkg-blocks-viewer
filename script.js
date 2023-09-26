@@ -77,11 +77,22 @@ document.addEventListener('DOMContentLoaded', (event) => {
             128   // mesh segments (latitude)
           );
   
-    const ea
+    const earthDiffuse = 
+          textureLoader.load('https://cdn.glitch.me/1baa4277-c64f-4d73-9c1a-c63d612886ca/Earth_Diffuse.jpg?v=1695750587559' );
+    const earthLights = 
+          textureLoader.load('https://cdn.glitch.global/1baa4277-c64f-4d73-9c1a-c63d612886ca/Earth_Night.jpg?v=1695750593678' );
+    const earthSpecular = 
+          textureLoader.load('https://cdn.glitch.me/1baa4277-c64f-4d73-9c1a-c63d612886ca/Earth_Specular.jpg?v=1695750608336' );
+    const earthBump = 
+          textureLoader.load('https://cdn.glitch.me/1baa4277-c64f-4d73-9c1a-c63d612886ca/Earth_Diffuse.jpg?v=1695750587559' );
     const earthMaterial = new THREE.MeshPhongMaterial({
-        color: 0x2255ff,    // a blue ball
-        specular: 0x222222, // a glinty ball
-        shininess: 100.0    // a shiny ball
+        //color: 0x2255ff,    // a blue ball
+        specular: 0x777777, // a glinty ball
+        shininess: 100.0,    // a shiny ball
+        map: earthDiffuse,
+        //emissiveMap: earthLights,
+        specularMap: earthSpecular,
+        //normalMap: earthBump
     });    
     const earth = 
           new THREE.Mesh(earthGeometry, earthMaterial);
@@ -330,7 +341,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     const atmosphere = 
           new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
-    scene.add(atmosphere);
+    //scene.add(atmosphere);
 
 
     const controls = 
