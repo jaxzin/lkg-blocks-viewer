@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     scene.add(sunSphere);
 
     // Earth
-    const earthGeometry = new THREE.SphereGeometry(5.5, 32, 32);
+    const earthGeometry = new THREE.SphereGeometry(2.5, 32, 32);
     const earthMaterial = new THREE.MeshPhongMaterial({
         color: 0x2255ff,
         specular: 0x222222,  // Adding some specular highlights
@@ -146,8 +146,8 @@ varying vec3 viewRay; // View space ray direction
     const int NUM_IN_SCATTER = 80;
 
     float density(vec3 p, float ph) {
-        float altitude = length(p) - surfaceRadius;
         float atmoThickness = 1.0 * (atmoRadius - surfaceRadius);
+        float altitude = length(p) - surfaceRadius;
         return exp(-max(altitude, 0.0) / (ph * atmoThickness));
     }
 
@@ -262,7 +262,7 @@ void main() {
 
     vec4 I = in_scatter( eye, dir, e, l );
 
-    vec4 I_gamma = pow( I, vec4(1.0 / 5.0) ) * lightIntensity;
+    vec4 I_gamma = pow( I, vec4(1.0 / 2.2) ) * lightIntensity;
     gl_FragColor = I_gamma;
 }
 `;
