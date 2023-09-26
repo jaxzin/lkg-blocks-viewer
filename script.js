@@ -96,6 +96,7 @@ varying vec4 vWorldPosition;
 varying vec3 viewRay; // View space ray direction
 
 // Written by GLtracy
+// Credit: https://www.shadertoy.com/view/lslXDr
 
 // math const
     const float PI = 3.14159265359;
@@ -141,10 +142,6 @@ varying vec3 viewRay; // View space ray direction
         return ( 3.0 / 16.0 / PI ) * ( 1.0 + cc );
     }
 
-// scatter const
-//    float R_INNER = surfaceRadius;
-//    float R = atmoRadius;
-
     const int NUM_OUT_SCATTER = 8;
     const int NUM_IN_SCATTER = 80;
 
@@ -175,14 +172,11 @@ varying vec3 viewRay; // View space ray direction
 
         const vec3 k_ray = vec3( 3.8, 13.5, 33.1 );
         const vec3 k_mie = vec3( 21.0 );
-//        const vec3 k_ray = vec3( 2.5, 4.5, 5.7 );
-//        const vec3 k_mie = vec3( 4.0 );
         const float k_mie_ex = 1.1;
 
         vec3 sum_ray = vec3( 0.0 );
         vec3 sum_mie = vec3( 0.0 );
 
-        float alpha_accum = 1.0; // Initialize alpha value
         
         float n_ray0 = 0.0;
         float n_mie0 = 0.0;
@@ -217,9 +211,6 @@ varying vec3 viewRay; // View space ray direction
             sum_ray += d_ray * att;
             sum_mie += d_mie * att;
 
-            float transmittance = 1.0 / float(NUM_IN_SCATTER);//length(att);  // or another measure
-            alpha_accum += d_ray;//pow(transmittance, 1.0 / float(NUM_IN_SCATTER));  // Exponentiate to scale impact
-//            alpha_accum += (1.0 - length(att)) * (1.0 / float(NUM_IN_SCATTER)); // Change this factor to control alpha accumulation
         }
 
         float c  = dot( dir, -l );
@@ -227,9 +218,6 @@ varying vec3 viewRay; // View space ray direction
         vec3 scatter =
             sum_ray * k_ray * phase_ray( cc ) +
             sum_mie * k_mie * phase_mie( -0.78, c, cc );
-
-        alpha_accum = 1.0 - alpha_accum;  // Convert transmittance to opacity
-        alpha_accum = clamp(alpha_accum, 0.0, 1.0); // Clamping alpha between 0 and 1
 
         return vec4(10.0 * scatter, 10.0 * length(scatter));
     }
@@ -251,35 +239,18 @@ void main() {
     // Step 3: World Space Ray
     vec4 worldRay = inverse(viewMatrix) * vec4(viewRay, 0.0);
     
-    // default ray dir
-//        vec3 dir = ray_dir( 45.0, iResolution.xy, fragCoord.xy );
-//        vec3 dir = normalize(vWorldPosition.xyz - cameraDirection);
-//        vec3 dir = getRayDirInCameraSpace(gl_FragCoord.xy, iResolution, inverse(projectionMatrix));
-
     // Normalize the ray direction
     vec3 dir = normalize(worldRay.xyz);
-    //vec3 dir = ray_dir( fov, iResolution.xy, gl_FragCoord.xy);
 
 
 
         // default ray origin
-//        vec3 eye = vec3( 0.0, 0.0, 3.0 );
         vec3 eye = vWorldPosition.xyz;
-//        vec3 eye = cameraPosition;
-//        vec3 eye = dir;
-
-        // rotate camera
-        // mat3 rot = rot3xy( vec2( 0.0, iTime * 0.5 ) );
-        // dir = rot * dir;
-        // eye = rot * eye;
 
         // sun light dir
-//        vec3 l = normalize(vec3( 30.0, 0.0, 10.0));//0.0, 0.0, 1.0 ));
         vec3 l = normalize(lightPosition - vWorldPosition.xyz);
-//        vec3 l = normalize(lightPosition - cameraPosition);
 
         vec2 e = ray_vs_sphere( eye, dir, atmoRadius );
-//        vec2 e = ray_vs_sphere( eye, dir, surfaceRadius );
         if ( e.x > e.y ) {
             fragColor = vec4( 1.0, 0.0, 0.0, 0.0 );
             gl_FragColor = fragColor;
@@ -294,17 +265,8 @@ void main() {
         vec4 I_gamma = pow( I, vec4(1.0 / 5.0) ) * lightIntensity;
     fragColor = I_gamma;
     gl_FragColor = fragColor;
-//  gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0); // Blue
-  
-//    // Normalize fragment coordinates to [0, 1] range
-//  vec2 normalizedCoords = gl_FragCoord.xy /  iResolution.xy;
-//  
-//  // Use the fragment coordinates for some computation, e.g., a gradient
-//  gl_FragColor = vec4(normalizedCoords.x, normalizedCoords.y, 0.0, 1.0);
 }
 `;
-
-
 
 
     // Atmosphere
@@ -316,121 +278,60 @@ void main() {
         fragmentShader: fragmentShader,
         transparent: true,
         uniforms: {
-            // modelViewMatrix: { value: new THREE.Matrix4() },
-            // projectionMatrix: { value: new THREE.Matrix4() },
             lightPosition: { value: sunLight.position.clone() },
             lightIntensity: { value: 0.75 /*sunLight.intensity*/ },
-            // cameraPosition2: { value: new THREE.Vector3() },
-            // cameraDirection: { value: new THREE.Vector3() },
             iResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
             surfaceRadius: { value: earthGeometry.parameters.radius },
             atmoRadius: { value: atmosphereGeometry.parameters.radius }
-        },
-        shadowSide: THREE.BackSide
-        // blending: THREE.AdditiveBlending,
-        //side: THREE.BackSide
+        }
     });
-    // console.log(atmosphereMaterial.uniforms);
 
     const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
     scene.add(atmosphere);
 
-    // Meteor sprite
-    const textureLoader = new THREE.TextureLoader();
-    textureLoader.load('https://cdn.glitch.global/1baa4277-c64f-4d73-9c1a-c63d612886ca/meteorImage.png?v=1695688511115', function(texture) {
-        texture.encoding = THREE.LinearEncoding;  // Or THREE.sRGBEncoding, etc.
-        const spriteMaterial = new THREE.SpriteMaterial({ map: texture, color: 0xffffff });
-        const sprite = new THREE.Sprite(spriteMaterial);
-        sprite.scale.set(30, 30, 1); // Increased scale to fill view
-        sprite.position.set(0, 0, -30);
-        scene.add(sprite);
 
-        // Lines
-        const lines = [];
-        for (let i = 0; i < 200; i++) {
-            const points = [];
-            const x = gaussianRandom(0, 2);
-            const y = gaussianRandom(0, 2);
-            const z = gaussianRandom(0, 2);
-            points.push(new THREE.Vector3(x, y, z));
-            points.push(new THREE.Vector3(x, y, z - 20)); // Extend lines 10 units
-            const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
-            const lineMaterial = new THREE.LineBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0 });
-            const line = new THREE.Line(lineGeometry, lineMaterial);
-            line.visible = false; // Hide initially
-            lines.push(line);
-            scene.add(line);
-        }
+    // Meteor Lines
+    const lines = [];
+    for (let i = 0; i < 200; i++) {
+        const points = [];
+        const x = gaussianRandom(0, 2);
+        const y = gaussianRandom(0, 2);
+        const z = gaussianRandom(0, 2);
+        points.push(new THREE.Vector3(x, y, z));
+        points.push(new THREE.Vector3(x, y, z - 20)); // Extend lines 10 units
+        const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+        const lineMaterial = new THREE.LineBasicMaterial({ color: 0xbbbb99, transparent: true, opacity: 0.5 });
+        const line = new THREE.Line(lineGeometry, lineMaterial);
+        line.visible = true; // Hide initially
+        lines.push(line);
+        scene.add(line);
+    }
 
-        const controls = new OrbitControls( camera, renderer.domElement );
+    const controls = new OrbitControls( camera, renderer.domElement );
+    controls.autoRotate = true;
 
-        // Camera and Controls
-        let phase = 3;
-        camera.position.set(10, 0, -10);
-        let lookAt = new THREE.Vector3(0, -1.75, -10)
-        camera.lookAt(lookAt); // Aim the camera at the sprite
-        camera.updateProjectionMatrix()
+    // Camera and Controls
+    camera.position.set(10, 0, -10);
+    camera.updateProjectionMatrix()
 
 
-        let fadeSpeed = 0.01;  // Speed at which the elements will fade
-        let isFading = false;
-        let orbiting = false;
+    const animate = function () {
+        requestAnimationFrame(animate);
 
-        document.addEventListener('keydown', function(event) {
-            if (event.code === 'Space') {
-                phase++;
-                if (phase === 1) {
-                    // Begin fading process
-                    isFading = true;
-                }
-                if (phase === 2) {
-                    // Trigger camera movement
-                }
-            }
-        });
+        // required if controls.enableDamping or controls.autoRotate are set to true
+        controls.update();
 
-        const animate = function () {
-            requestAnimationFrame(animate);
+        // console.log(2.0 * Math.atan(1.0 / camera.projectionMatrix.elements[5]) * (180.0 / Math.PI));
+        let canvasSize = new THREE.Vector2();
+        renderer.getSize(canvasSize);
 
-            if(!orbiting) {
-                controls.autoRotate = true;
-                orbiting = true;
-            } else {
-                // required if controls.enableDamping or controls.autoRotate are set to true
-                controls.update();
-            }
-
-            // console.log(2.0 * Math.atan(1.0 / camera.projectionMatrix.elements[5]) * (180.0 / Math.PI));
-
-            let cameraPosition = new THREE.Vector3();
-            camera.getWorldPosition(cameraPosition);  // Get the world position of the camera
-
-            let cameraDirection = new THREE.Vector3();
-            camera.getWorldDirection(cameraDirection);  // Get the world direction of the camera
-
-            // // Get Light Direction in world space
-            // let sunDirectionWorld = new THREE.Vector3();
-            // sunDirectionWorld.copy(sunLight.position);
-            //
-            // // Transform to camera space
-            // let sunDirectionCameraSpace = sunDirectionWorld.applyMatrix4(camera.matrixWorldInverse);
-
-            // atmosphereMaterial.uniforms.modelViewMatrix.value.copy(atmosphere.modelViewMatrix);
-            // atmosphereMaterial.uniforms.projectionMatrix.value.copy(camera.projectionMatrix);
-            // atmosphereMaterial.uniforms.cameraPosition2.value.copy(cameraPosition);
-            // atmosphereMaterial.uniforms.cameraDirection.value.copy(cameraDirection);
-            atmosphereMaterial.uniforms.lightPosition.value = sunLight.position.clone();
-            atmosphereMaterial.uniforms.iResolution.value.set(window.innerWidth, window.innerHeight);
-            // atmosphereMaterial.uniforms.cameraDirection.value = cameraDirection;
-            // atmosphereMaterial.uniforms.lightDirection.value = sunLight.position;
+        atmosphereMaterial.uniforms.lightPosition.value = sunLight.position.clone();
+        atmosphereMaterial.uniforms.iResolution.value.copy(canvasSize);
 
 
-            let canvasSize = new THREE.Vector2();
-            renderer.getSize(canvasSize);
 
-            renderer.render(scene, camera);
-        };
+        renderer.render(scene, camera);
+    };
 
-        animate();
-    });
+    animate();
 });
