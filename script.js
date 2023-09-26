@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     const sunLight = 
           new THREE.PointLight(
             0xFFFFFF, // white
-            4.0,      // intensity
+            10.0,      // intensity
             100,      // max distance 
             0         // no decay
           );
@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     // Earth
     const earthGeometry = 
           new THREE.SphereGeometry(
-            2.5, // radius 
+            5.5, // radius 
             128,  // mesh segments (longitude) 
             128   // mesh segments (latitude)
           );
@@ -202,7 +202,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
       float density(vec3 p, float ph) {
       
           float actualScaleHeight = 8500.0;  // The scale height on Earth in meters
-          float scale = (atmoRadius - surfaceRadius) / actualScaleHeight; // Scaling factor based on the gap
+          float scale = 0.25*(atmoRadius - surfaceRadius) / actualScaleHeight; // Scaling factor based on the gap
 
           // works for 2.5 surf, 3.5 atmo
           //float atmoThickness = 3.0 * (atmoRadius - surfaceRadius);
@@ -216,13 +216,15 @@ document.addEventListener('DOMContentLoaded', (event) => {
           float atmoThickness = (atmoRadius - surfaceRadius);
           float altitude = length(p) - surfaceRadius;
           
-          // Use an epsilon value to avoid floating-point errors
-          float epsilon = 1e-5;
-          if(altitude < epsilon) {
-              return 1.0;
-          }
+          // Initial density at the surface (sea level). Set this to your desired value.
+          // Earth's air density at sea level is approximately 1.225 kg/m^3
+          float rho_0 = 1.225 * 0.25; 
 
-          return exp(-altitude / (ph*atmoThickness));
+          // Use exponential decay formula to calculate density
+          float rho = rho_0 * exp(-altitude / (actualScaleHeight * scale));
+          return rho * ph;
+    
+          // return exp(-altitude / (ph*atmoThickness));
       }
 
 
@@ -324,15 +326,15 @@ document.addEventListener('DOMContentLoaded', (event) => {
           vec2 f = ray_vs_sphere( eye, dir, surfaceRadius );
           e.y = min( e.y, f.x );
           
-          if ( f.x < f.y ) {
-              gl_FragColor = vec4( 0.0, 0.0, 1.0, 1.0 );
-              return;
-          }
+          // if ( f.x < f.y ) {
+          //     gl_FragColor = vec4( 0.0, 0.0, 1.0, 1.0 );
+          //     return;
+          // }
 
           vec4 I = in_scatter( eye, dir, e, l, lightIntensity);
 
-          //vec4 I_gamma = pow( I, vec4(1.0 / 2.2) );
-          vec4 I_gamma = vec4(pow( I.xyz, vec3(1.0 / 2.2) ), 1.0);
+          vec4 I_gamma = pow( I, vec4(1.0 / 2.2) );
+          //vec4 I_gamma = vec4(pow( I.xyz, vec3(1.0 / 2.2) ), 1.0);
           gl_FragColor = I_gamma;
       }
 `;
@@ -528,7 +530,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
 
     // Atmosphere
-    const atmosphereThickness = 4.25; // altitude, not density
+    const atmosphereThickness = 0.25; // altitude, not density
     const atmosphereGeometry = 
           new THREE.SphereGeometry(
             earthGeometry.parameters.radius + atmosphereThickness, 
