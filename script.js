@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     const aspectRatio = window.innerWidth / window.innerHeight;
     camera = 
           new THREE.PerspectiveCamera(
-            75,       // field of view (FOV)
+            35,       // field of view (FOV)
             aspectRatio,
             0.1,      // near clipping plane
             5000      // far clipping plane
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     const sunLight = 
           new THREE.PointLight(
             0xFFFFFF, // white
-            10.0,     // intensity
+            4.0,      // intensity
             100,      // max distance 
             0         // no decay
           );
@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     const earthGeometry = 
           new THREE.SphereGeometry(
             5.5, // radius 
-            128,  // mesh segments (longitude) 
+            32,  // mesh segments (longitude) 
             128   // mesh segments (latitude)
           );
   
@@ -199,13 +199,17 @@ document.addEventListener('DOMContentLoaded', (event) => {
       const int NUM_IN_SCATTER = 80;
 
       float density(vec3 p, float ph) {
-          // works for 2.5 surf, 6.0 atmo
+          // works for 2.5 surf, 3.5 atmo
           //float atmoThickness = 3.0 * (atmoRadius - surfaceRadius);
           //float altitude = length(p) - surfaceRadius*0.7;
 
-          // works for 5.5 surf, 6.0 atmo
-          float atmoThickness = 4.0 * (atmoRadius - surfaceRadius);
-          float altitude = length(p) - surfaceRadius*0.975;
+          // works for 5.5 surf, 0.5 atmo
+          //float atmoThickness = 4.0 * (atmoRadius - surfaceRadius);
+          //float altitude = length(p) - surfaceRadius*0.975;
+
+          // works for 5.5 surf, 0.25 atmo
+          float atmoThickness = 5.0 * (atmoRadius - surfaceRadius);
+          float altitude = length(p) - surfaceRadius*0.989;
 
           return exp(-max(altitude, 0.0) / (ph * atmoThickness));
       }
@@ -318,7 +322,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
 
     // Atmosphere
-    const atmosphereThickness = 0.5; // altitude, not density
+    const atmosphereThickness = 0.25; // altitude, not density
     const atmosphereGeometry = 
           new THREE.SphereGeometry(
             earthGeometry.parameters.radius + atmosphereThickness, 
@@ -342,15 +346,16 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     const atmosphere = 
           new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
-    //scene.add(atmosphere);
+    scene.add(atmosphere);
 
 
     const controls = 
           new OrbitControls( camera, renderer.domElement );
     controls.autoRotate = true;
+    controls.autoRotateSpeed = 1.0;
 
     // Camera and Controls
-    camera.position.set(7, 0, -7);
+    camera.position.set(20, 0, -20);
     camera.updateProjectionMatrix()
 
 
