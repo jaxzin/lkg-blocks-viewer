@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
             35,       // field of view (FOV)
             aspectRatio,
             0.1,      // near clipping plane
-            5000      // far clipping plane
+            500000    // far clipping plane
           );
     renderer = 
           new THREE.WebGLRenderer({ antialias: true });
@@ -48,18 +48,18 @@ document.addEventListener('DOMContentLoaded', (event) => {
           new THREE.PointLight(
             0xFFFFFF, // white
             4.0,      // intensity
-            1000,     // max distance 
+            0,        // max distance 
             0         // no decay
           );
-    sunLight.position.set(-300, 0, -100); // Position to the left of the camera
+    sunLight.position.set(-100000, 0, -100000); // Position to the left of the camera
     scene.add(sunLight);
 
     // Visual representation of Sun as a yellow unlit sphere
     const sunGeometry = 
           new THREE.SphereGeometry(
-            0.5,      // radius 
-            4,        // mesh segments (width)
-            4         // mesh segments (height)
+            600,      // radius 
+            16,        // mesh segments (width)
+            16         // mesh segments (height)
           );
     const sunMaterial = 
           new THREE.MeshBasicMaterial({ color: 0xFFFF00 /* Yellow */ });
@@ -73,8 +73,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
     const earthGeometry = 
           new THREE.SphereGeometry(
             5.5, // radius 
-            128,  // mesh segments (longitude) 
-            128   // mesh segments (latitude)
+            64,  // mesh segments (longitude) 
+            64   // mesh segments (latitude)
           );
   
     // Load earth textures, attrib: https://www.highend3d.com/downloads/3d-textures/c/16k-earth-w-4k-moon-free
@@ -92,13 +92,45 @@ document.addEventListener('DOMContentLoaded', (event) => {
         emissiveMap: earthLights,
         emissive: 0x999999,  // white lights
         specularMap: earthSpecular,
-        shininess: 100.0,    // water is shiny
+        specular: 0x444444,
+        shininess: 75.0,    // water is shiny
         normalMap: earthBump,
         //normalScale: new THREE.Vector2(5.0,5.0)
     });    
     const earth = 
           new THREE.Mesh(earthGeometry, earthMaterial);
     scene.add(earth);
+
+    const cloudGeometry = 
+          new THREE.SphereGeometry(
+            earthGeome, // radius 
+            64,  // mesh segments (longitude) 
+            64   // mesh segments (latitude)
+          );
+  
+    // Load earth textures, attrib: https://www.highend3d.com/downloads/3d-textures/c/16k-earth-w-4k-moon-free
+    const earthDiffuse = 
+          textureLoader.load('https://cdn.glitch.me/1baa4277-c64f-4d73-9c1a-c63d612886ca/Earth_Diffuse.jpg?v=1695750587559' );
+    const earthLights = 
+          textureLoader.load('https://cdn.glitch.global/1baa4277-c64f-4d73-9c1a-c63d612886ca/Earth_Night.jpg?v=1695750593678' );
+    const earthSpecular = 
+          textureLoader.load('https://cdn.glitch.me/1baa4277-c64f-4d73-9c1a-c63d612886ca/Earth_Specular.jpg?v=1695750608336' );
+    const earthBump = 
+          textureLoader.load('https://cdn.glitch.global/1baa4277-c64f-4d73-9c1a-c63d612886ca/Earth_Normal.jpg?v=1695750598706' );
+    const earthMaterial = new THREE.MeshPhongMaterial({
+        map: earthDiffuse,
+        //color: 0x2255ff,    // tint the map
+        emissiveMap: earthLights,
+        emissive: 0x999999,  // white lights
+        specularMap: earthSpecular,
+        specular: 0x444444,
+        shininess: 75.0,    // water is shiny
+        normalMap: earthBump,
+        //normalScale: new THREE.Vector2(5.0,5.0)
+    });    
+    const earth = 
+          new THREE.Mesh(earthGeometry, earthMaterial);
+    scene.add(earth);  
 
 // Vertex Shader
 // language=GLSL
@@ -343,8 +375,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
     const atmosphereGeometry = 
           new THREE.SphereGeometry(
             earthGeometry.parameters.radius + atmosphereThickness, 
-            32,  // mesh segments (width)
-            32   // mesh segement (height)
+            64,  // mesh segments (width)
+            64   // mesh segement (height)
           );
 
     // Shader Material
