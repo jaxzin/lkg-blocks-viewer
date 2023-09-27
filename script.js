@@ -113,8 +113,10 @@ document.addEventListener('DOMContentLoaded', (event) => {
   
     const cloudMaterial = new THREE.MeshPhongMaterial({
         alphaMap: earthClouds,
+        bumpMap: earthClouds,
+        bumpScale: 0.025,
         transparent: true,
-        opacity: 1,
+        opacity: 0.9,
         side: THREE.DoubleSide
     });    
     const clouds = 
