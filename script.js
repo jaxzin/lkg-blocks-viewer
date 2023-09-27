@@ -86,6 +86,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
           textureLoader.load('https://cdn.glitch.me/1baa4277-c64f-4d73-9c1a-c63d612886ca/Earth_Specular.jpg?v=1695750608336' );
     const earthBump = 
           textureLoader.load('https://cdn.glitch.global/1baa4277-c64f-4d73-9c1a-c63d612886ca/Earth_Normal.jpg?v=1695750598706' );
+    const earthClouds = 
+          textureLoader.load('https://cdn.glitch.global/1baa4277-c64f-4d73-9c1a-c63d612886ca/Earth_Cloud.jpg?v=1695750580741' );
     const earthMaterial = new THREE.MeshPhongMaterial({
         map: earthDiffuse,
         //color: 0x2255ff,    // tint the map
@@ -96,6 +98,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         shininess: 75.0,    // water is shiny
         normalMap: earthBump,
         //normalScale: new THREE.Vector2(5.0,5.0)
+        aoMap: earthClouds
     });    
     const earth = 
           new THREE.Mesh(earthGeometry, earthMaterial);
@@ -103,34 +106,20 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     const cloudGeometry = 
           new THREE.SphereGeometry(
-            earthGeome, // radius 
+            earthGeometry.parameters.radius + 0.04, // radius 
             64,  // mesh segments (longitude) 
             64   // mesh segments (latitude)
           );
   
-    // Load earth textures, attrib: https://www.highend3d.com/downloads/3d-textures/c/16k-earth-w-4k-moon-free
-    const earthDiffuse = 
-          textureLoader.load('https://cdn.glitch.me/1baa4277-c64f-4d73-9c1a-c63d612886ca/Earth_Diffuse.jpg?v=1695750587559' );
-    const earthLights = 
-          textureLoader.load('https://cdn.glitch.global/1baa4277-c64f-4d73-9c1a-c63d612886ca/Earth_Night.jpg?v=1695750593678' );
-    const earthSpecular = 
-          textureLoader.load('https://cdn.glitch.me/1baa4277-c64f-4d73-9c1a-c63d612886ca/Earth_Specular.jpg?v=1695750608336' );
-    const earthBump = 
-          textureLoader.load('https://cdn.glitch.global/1baa4277-c64f-4d73-9c1a-c63d612886ca/Earth_Normal.jpg?v=1695750598706' );
-    const earthMaterial = new THREE.MeshPhongMaterial({
-        map: earthDiffuse,
-        //color: 0x2255ff,    // tint the map
-        emissiveMap: earthLights,
-        emissive: 0x999999,  // white lights
-        specularMap: earthSpecular,
-        specular: 0x444444,
-        shininess: 75.0,    // water is shiny
-        normalMap: earthBump,
-        //normalScale: new THREE.Vector2(5.0,5.0)
+    const cloudMaterial = new THREE.MeshPhongMaterial({
+        alphaMap: earthClouds,
+        transparent: true,
+        opacity: 1,
+        side: THREE.DoubleSide
     });    
-    const earth = 
-          new THREE.Mesh(earthGeometry, earthMaterial);
-    scene.add(earth);  
+    const clouds = 
+          new THREE.Mesh(cloudGeometry, cloudMaterial);
+    scene.add(clouds);  
 
 // Vertex Shader
 // language=GLSL
@@ -416,6 +405,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
       
           // rotate the earth
           earth.rotation.y += 0.001;
+          clouds.rotation.y += 0.001;
 
           // update the shader with the light position 
           //  (overkill, unless I implement a way to move the sun)
