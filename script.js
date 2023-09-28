@@ -90,16 +90,16 @@ document.addEventListener('DOMContentLoaded', (event) => {
           textureLoader.load('https://cdn.glitch.global/1baa4277-c64f-4d73-9c1a-c63d612886ca/Earth_Cloud.jpg?v=1695750580741' );
     const earthMaterial = new THREE.MeshPhongMaterial({
         map: earthDiffuse,
-        // emissiveMap: earthLights,
-        // emissive: 0xFFFFFF,   // white lights
-        // emissiveIntensity: 2.0,
-        // specularMap: earthSpecular,
-        // specular: 0x444444,   
-        // shininess: 75.0,      // water is shiny
+        emissiveMap: earthLights,
+        emissive: 0xFFFFFF,   // white lights
+        emissiveIntensity: 2.0,
+        specularMap: earthSpecular,
+        specular: 0x444444,   
+        shininess: 75.0,      // water is shiny
         normalMap: earthBump,
         normalScale: new THREE.Vector2(5.0,5.0),
-        // lightMap: earthClouds,
-        // lightMapIntensity: -5.0  // turn the clouds into ground shadows
+        lightMap: earthClouds,
+        lightMapIntensity: -5.0  // turn the clouds into ground shadows
     });    
     const earth = 
           new THREE.Mesh(earthGeometry, earthMaterial);
@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     const cloudGeometry = 
           new THREE.SphereGeometry(
-            earthGeometry.parameters.radius + 0.08, // radius 
+            earthGeometry.parameters.radius + 0.04, // radius 
             64,  // mesh segments (longitude) 
             64   // mesh segments (latitude)
           );
@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     });    
     const clouds = 
           new THREE.Mesh(cloudGeometry, cloudMaterial);
-    //scene.add(clouds);  
+    scene.add(clouds);  
 
 // Vertex Shader
 // language=GLSL
