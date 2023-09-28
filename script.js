@@ -2,6 +2,13 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { Lensflare, LensflareElement } from 'three/addons/objects/Lensflare.js';
 
+
+const EARTH_RADIUS = 6378.1; // km
+const ATMOSPHERE_HEIGHT = 100.0; //km
+
+const EARTH_ORBIT_RADIUS = 149597870.0; // km
+const SUN_RADIUS = 696340.0; // km
+
 // globals shared between the two main event listeners
 let camera;
 let renderer;
@@ -15,10 +22,10 @@ document.addEventListener('DOMContentLoaded', (event) => {
     const aspectRatio = window.innerWidth / window.innerHeight;
     camera = 
           new THREE.PerspectiveCamera(
-            35,       // field of view (FOV)
+            35,                 // field of view (FOV)
             aspectRatio,
-            0.1,      // near clipping plane
-            500000    // far clipping plane
+            0.1,                // near clipping plane
+            SUN_RADIUS * 2.0    // far clipping plane
           );
     renderer = 
           new THREE.WebGLRenderer({ antialias: true });
@@ -52,7 +59,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
             0,        // max distance 
             0         // no decay
           );
-    sunLight.position.set(-100000, 0, -100000); // Position to the left of the camera
+    sunLight.position.set(-10000, 0, -100000); // Position to the left of the camera
     scene.add(sunLight);
 
   
