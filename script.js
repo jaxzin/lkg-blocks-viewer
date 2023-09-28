@@ -7,7 +7,7 @@ import { Lensflare, LensflareElement } from 'three/addons/objects/Lensflare.js';
 const SCALE_FACTOR = 0.01;
 
 const EARTH_RADIUS = 6378.1 * SCALE_FACTOR; // km
-const KARMAN_LINE = 600.0 * SCALE_FACTOR; //km
+const KARMAN_LINE = 100.0 * SCALE_FACTOR; //km
 
 const AU = 149597870.0 * SCALE_FACTOR; // km
 const SUN_RADIUS = 696340.0 * SCALE_FACTOR; // km
@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     const aspectRatio = window.innerWidth / window.innerHeight;
     camera = 
           new THREE.PerspectiveCamera(
-            35,                 // field of view (FOV)
+            25,                 // field of view (FOV)
             aspectRatio,
             0.1,                // near clipping plane
             2.0 * AU            // far clipping plane
@@ -125,7 +125,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     const cloudMaterial = new THREE.MeshPhongMaterial({
         alphaMap: earthClouds,
         bumpMap: earthClouds,
-        bumpScale: 0.005,
+        bumpScale: 0.05,
         transparent: true,
         opacity: 1.0,
         side: THREE.DoubleSide
@@ -246,9 +246,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
           float rho_0 = 1.225; 
           
           //TBD, why does it looks better with these tunings?
-          scale *= 0.125;
-          rho_0 *= 0.008125; 
-          //rho_0 *= 0.16; 
+          //scale *= 0.125;
+          rho_0 *= 0.08125; 
 
           // Use exponential decay formula to calculate density
           float rho = rho_0 * exp(-max(altitude, 0.0) / (actualScaleHeight * scale));
@@ -403,8 +402,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     const controls = 
           new OrbitControls( camera, renderer.domElement );
-    //controls.autoRotate = true;
-    controls.autoRotateSpeed = 1.0;
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = 0.5;
 
     // Camera and Controls
     camera.position.set(4.0 * EARTH_RADIUS, 0, -4.0 * EARTH_RADIUS);
