@@ -3,11 +3,14 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { Lensflare, LensflareElement } from 'three/addons/objects/Lensflare.js';
 
 
-const EARTH_RADIUS = 6378.1 * 0.01; // km
-const KARMAN_LINE = 100.0 * 0.01; //km
+// Scale it down to avoid visual artifacts due to precision issues
+const SCALE_FACTOR = 0.01;
 
-const AU = 149597870.0 * 0.01; // km
-const SUN_RADIUS = 696340.0 * 0.01; // km
+const EARTH_RADIUS = 6378.1 * SCALE_FACTOR; // km
+const KARMAN_LINE = 600.0 * SCALE_FACTOR; //km
+
+const AU = 149597870.0 * SCALE_FACTOR; // km
+const SUN_RADIUS = 696340.0 * SCALE_FACTOR; // km
 
 // globals shared between the two main event listeners
 let camera;
@@ -243,8 +246,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
           float rho_0 = 1.225; 
           
           //TBD, why does it looks better with these tunings?
-          //scale *= 0.5;
-          //rho_0 *= 0.08125; 
+          scale *= 0.125;
+          rho_0 *= 0.008125; 
+          //rho_0 *= 0.16; 
 
           // Use exponential decay formula to calculate density
           float rho = rho_0 * exp(-max(altitude, 0.0) / (actualScaleHeight * scale));
@@ -394,7 +398,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     const atmosphere = 
           new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
-    //scene.add(atmosphere);
+    scene.add(atmosphere);
 
 
     const controls = 
