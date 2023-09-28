@@ -3,11 +3,11 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { Lensflare, LensflareElement } from 'three/addons/objects/Lensflare.js';
 
 
-const EARTH_RADIUS = 6378.1; // km
-const ATMOSPHERE_HEIGHT = 100.0; //km
+const EARTH_RADIUS = 6378.1 * 0.01; // km
+const KARMAN_LINE = 100.0 * 0.01; //km
 
-const EARTH_ORBIT_RADIUS = 149597870.0; // km
-const SUN_RADIUS = 696340.0; // km
+const AU = 149597870.0 * 0.01; // km
+const SUN_RADIUS = 696340.0 * 0.01; // km
 
 // globals shared between the two main event listeners
 let camera;
@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
             35,                 // field of view (FOV)
             aspectRatio,
             0.1,                // near clipping plane
-            SUN_RADIUS * 2.0    // far clipping plane
+            2.0 * AU            // far clipping plane
           );
     renderer = 
           new THREE.WebGLRenderer({ antialias: true });
@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
             0,        // max distance 
             0         // no decay
           );
-    sunLight.position.set(-10000, 0, -100000); // Position to the left of the camera
+    sunLight.position.set(-1.0 * AU, 0, 0); // Position to the left of the camera
     scene.add(sunLight);
 
   
@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     // Earth
     const earthGeometry = 
           new THREE.SphereGeometry(
-            5.5, // radius 
+            EARTH_RADIUS, // radius 
             64,  // mesh segments (longitude) 
             64   // mesh segments (latitude)
           );
@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     const cloudGeometry = 
           new THREE.SphereGeometry(
-            earthGeometry.parameters.radius + 0.04, // radius 
+            earthGeometry.parameters.radius + (0.2*KARMAN_LINE), // radius 
             64,  // mesh segments (longitude) 
             64   // mesh segments (latitude)
           );
@@ -370,7 +370,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
 
     // Atmosphere
-    const atmosphereThickness = 0.1375; // altitude, not density
+    const atmosphereThickness = KARMAN_LINE; // altitude, not density
     const atmosphereGeometry = 
           new THREE.SphereGeometry(
             earthGeometry.parameters.radius + atmosphereThickness, 
@@ -394,16 +394,16 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     const atmosphere = 
           new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
-    scene.add(atmosphere);
+    //scene.add(atmosphere);
 
 
     const controls = 
           new OrbitControls( camera, renderer.domElement );
-    controls.autoRotate = true;
+    //controls.autoRotate = true;
     controls.autoRotateSpeed = 1.0;
 
     // Camera and Controls
-    camera.position.set(20, 0, -20);
+    camera.position.set(4.0 * EARTH_RADIUS, 0, -4.0 * EARTH_RADIUS);
     camera.updateProjectionMatrix()
 
 
