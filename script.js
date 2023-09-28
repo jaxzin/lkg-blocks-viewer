@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { Lensflare, LensflareElement } from 'three/addons/objects/Lensflare.js';
 
 // globals shared between the two main event listeners
 let camera;
@@ -54,19 +55,18 @@ document.addEventListener('DOMContentLoaded', (event) => {
     sunLight.position.set(-100000, 0, -100000); // Position to the left of the camera
     scene.add(sunLight);
 
-    // Visual representation of Sun as a yellow unlit sphere
-    const sunGeometry = 
-          new THREE.SphereGeometry(
-            600,      // radius 
-            16,        // mesh segments (width)
-            16         // mesh segments (height)
-          );
-    const sunMaterial = 
-          new THREE.MeshBasicMaterial({ color: 0xFFFF00 /* Yellow */ });
-    const sunSphere = 
-          new THREE.Mesh(sunGeometry, sunMaterial);
-    sunSphere.position.copy(sunLight.position);  // Set the position to be the same as sunLight
-    scene.add(sunSphere);
+  
+    // Add lens flare to visually represent the sun
+    const textureFlare0 = textureLoader.load( "https://cdn.glitch.global/1baa4277-c64f-4d73-9c1a-c63d612886ca/lensflare0.png?v=1695869971328" );
+    const textureFlare1 = textureLoader.load( "https://cdn.glitch.global/1baa4277-c64f-4d73-9c1a-c63d612886ca/lensflare1.png?v=1695869974434" );
+    const textureFlare2 = textureLoader.load( "https://cdn.glitch.global/1baa4277-c64f-4d73-9c1a-c63d612886ca/lensflare2.png?v=1695869978356" );
+  
+    const lensflare = new Lensflare();
+
+    lensflare.addElement( new LensflareElement( textureFlare0, 512, 0 ) );
+    lensflare.addElement( new LensflareElement( textureFlare1, 512, 0 ) );
+    lensflare.addElement( new LensflareElement( textureFlare2, 60, 0.6 ) );
+    sunLight.add(lensflare);
 
   
     // Earth
