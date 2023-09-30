@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
             2.0 * AU            // far clipping plane
           );
     renderer = 
-          new THREE.WebGLRenderer({ antialias: false });
+          new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
 
     document.body.appendChild(renderer.domElement);
@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         map: earthDiffuse,
         emissiveMap: earthLights,
         emissive: 0xFFFFFF,   // white lights
-        emissiveIntensity: 1.0,
+        emissiveIntensity: 2.0,
         specularMap: earthSpecular,
         specular: 0x444444,   
         shininess: 75.0,      // water is shiny
@@ -117,7 +117,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     const cloudGeometry = 
           new THREE.SphereGeometry(
-            earthGeometry.parameters.radius + (0.5*KARMAN_LINE), // radius 
+            earthGeometry.parameters.radius + (0.2*KARMAN_LINE), // radius 
             64,  // mesh segments (longitude) 
             64   // mesh segments (latitude)
           );
@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         bumpMap: earthClouds,
         bumpScale: 0.05,
         transparent: true,
-        opacity: 1.2,
+        opacity: 1.0,
         side: THREE.DoubleSide
     });    
     const clouds = 
