@@ -128,7 +128,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         bumpScale: 0.05,
         transparent: true,
         opacity: 1.0,
-        side: THREE.DoubleSide
+        //side: THREE.DoubleSide
     });    
     const clouds = 
           new THREE.Mesh(cloudGeometry, cloudMaterial);
