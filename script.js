@@ -101,7 +101,7 @@ scene.add(plane);
 plane.rotation.y = Math.PI;
 
 // Assume you have a THREE.Mesh named 'plane'
-const planeNormal = new THREE.Vector3(0, 0, 1); // Normal of the plane in local space
+let planeNormal = new THREE.Vector3(0, 0, 1); // Normal of the plane in local space
 planeNormal.applyQuaternion(plane.quaternion).normalize(); // Apply the plane's rotation to get the world space normal
 
 const origin = new THREE.Vector3(); // Origin point of the arrow (can be the plane's position)
@@ -150,6 +150,16 @@ function oscillateRotation(time, amplitude, period) {
   
 const controls = 
       new OrbitControls( camera, renderer.domElement );
+controls.enableDamping = true;
+controls.dampingFactor = 0.01;  
+  
+controls.keys = {
+	LEFT: 'ArrowLeft', //left arrow
+	UP: 'ArrowUp', // up arrow
+	RIGHT: 'ArrowRight', // right arrow
+	BOTTOM: 'ArrowDown' // down arrow
+}
+  
 // controls.autoRotate = true;
 // controls.autoRotateSpeed = 0.5;  
 // Lock rotation around the X axis
@@ -165,14 +175,16 @@ controls.maxAzimuthAngle = Math.PI + halfAngleLimit;
 // Animation loop
 function animate(time) {
     requestAnimationFrame(animate);
-
-    // auto-rotate the camera
-    controls.update();  
+  
+    controls.update();
   
     // Rotate the plane back and forth by 45 degrees
     let angle = oscillateRotation(time, halfAngleLimit, 2000); // 45 degrees, 2000 ms period
-    plane.rotation.y = angle;
+    //controls.rotation.y = angle;
 
+    let planeNormal = new THREE.Vector3(0, 0, 1); // Normal of the plane in local space
+    arrowHelper.setDirection(planeNormal.applyQuaternion(plane.quaternion).normalize());
+  
     // Update relative angle uniform
     shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, plane);
 
