@@ -42,15 +42,22 @@ const fragmentShader = `
         // Check if the relative angle is within the range
         if (abs(uRelativeAngle) > maxAngle) {
             // Determine if we are looking at the front or back of the plane
-            if (uRelativeAngle > 0.0) {
+            if (uRelativeAngle > radians(90.0)) {
                 gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0); // Front: Red
             } else {
                 gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0); // Back: White
             }
         } else {
-            // Rest of your shader logic for selecting the correct image
-            float angleStep = 2.0 * maxAngle / radians(96.0);
-            float index = floor((uRelativeAngle + maxAngle) / angleStep * (96.0 / (2.0 * maxAngle)));
+            // Normalize the angle to be within [0, 1]
+            float normalizedAngle = (uRelativeAngle + maxAngle) / (2.0 * maxAngle);
+
+            // Calculate the index
+            float totalImages = 96.0; // Total number of images in the atlas
+            float index = floor(normalizedAngle * totalImages);
+
+            // Ensure index is within bounds
+            index = clamp(index, 0.0, totalImages - 1.0);
+
             float row = floor(index / 8.0);
             float col = mod(index, 8.0);
             vec2 cellSize = vec2(1.0 / 8.0, (0.75 / 12.0));
@@ -81,7 +88,7 @@ const geometry = new THREE.PlaneGeometry(5, 5);
 plane = new THREE.Mesh(geometry, shaderMaterial);
 scene.add(plane);
 
-camera.position.z = 5;
+camera.position.z = -5;
 
 function calculateRelativeAngle(camera, object) {
     // Camera direction in world space
@@ -90,24 +97,25 @@ function calculateRelativeAngle(camera, object) {
 
     // Get the normal of the plane in world space
     let normalMatrix = new THREE.Matrix3().getNormalMatrix(object.matrixWorld);
+  
     let objectNormal = new THREE.Vector3(0, 0, 1); // Default normal in local space
     objectNormal.applyMatrix3(normalMatrix).normalize();
 
     // Calculate the dot product
     let dot = cameraDirection.dot(objectNormal);
 
-    // Clamp value to avoid any potential numerical issues and get the angle
-    dot = THREE.MathUtils.clamp(dot, -1.0, 1.0);
-    let angle = Math.acos(dot);
+    // Calculate the angle
+    let angle = Math.acos(THREE.MathUtils.clamp(dot, -1.0, 1.0));
 
-    // Convert angle to range [-PI/2, PI/2] as we are interested in -90 to 90 degrees
-    if (angle > Math.PI / 2) {
-        angle = Math.PI - angle;
+    //Determine the sign of the angle based on the cross product
+    let cross = new THREE.Vector3().crossVectors(cameraDirection, objectNormal);
+    if (cross.dot(object.up) < 0) {
+        angle = -angle;
     }
 
-    // Return angle in radians
-    return angle;// - Math.PI / 2;
+    return angle;
 }
+
 
 
   
