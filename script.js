@@ -22,7 +22,11 @@ document.body.appendChild(renderer.domElement);
 // Load the texture atlas
 const textureLoader = new THREE.TextureLoader();
 textureAtlas = textureLoader.load('https://cdn.glitch.global/98b2b4e8-ce2c-4c4f-8e0c-3e762cb48276/christmas_tree_2023_qs8x12a0.75.jpg?v=1702708834115');
+const quiltDims = new THREE.Vector2(8, 12); // quilt row & column count
+const quiltRes = new THREE.Vector2(6400.0, 7462.0);
 
+const maxViewingAngle = 58.; // max viewing angle image (degrees)
+  
 // Define vertex shader
 const vertexShader = `
     varying vec2 vUv;
@@ -38,8 +42,7 @@ const fragmentShader = `
     uniform sampler2D uTexture;
     uniform vec2 uTextureSize;
     uniform float uRelativeAngle; // Relative angle between camera and object
-    uniform float rows;
-    uniform float cols;
+    uniform vec2 quiltDims;
     uniform float viewCone;
     varying vec2 vUv;
 
@@ -51,6 +54,8 @@ const fragmentShader = `
             float normalizedAngle = (maxAngle - uRelativeAngle) / (2.0 * maxAngle);
 
             // Calculate the index
+            float cols = quiltDims.x;
+            float rows = quiltDims.y;
             float totalImages = float(rows * cols); // Total number of images in the atlas
             float index = floor(normalizedAngle * totalImages);
 
@@ -73,15 +78,15 @@ const fragmentShader = `
 
 `;
 
+  
 // Create a ShaderMaterial
 shaderMaterial = new THREE.ShaderMaterial({
     uniforms: {
         uTexture: { value: textureAtlas },
-        uTextureSize: { value: new THREE.Vector2(6400.0, 7462.0) }, 
+        uTextureSize: { value: quiltRes }, 
         uRelativeAngle: { value: 0.0 },
-        rows: { value: 12 },
-        cols: { value: 8 },
-        viewCone: {value: 58.} // viewing cone on the Looking Glass Portrait is 58º 
+        quiltDims: { value: quiltDims }, 
+        viewCone: {value: maxViewingAngle} // viewing cone on the Looking Glass Portrait is 58º 
     },
     vertexShader,
     fragmentShader,
@@ -152,9 +157,17 @@ controls.minPolarAngle = Math.PI / 2;
 controls.maxPolarAngle = Math.PI / 2;
 
 // Lock rotation around the Z axis
-controls.minAzimuthAngle = Math.PI / 2 + Math.PI / 4; // or any fixed value
-controls.maxAzimuthAngle = Math.PI + Math.PI / 4;  // or any fixed value
-  
+// controls.minAzimuthAngle = Math.PI / 2 + Math.PI / 4; // or any fixed value
+// controls.maxAzimuthAngle = Math.PI + Math.PI / 4;  // or any fixed value
+
+const angleLimit = maxViewingAngle * Math.PI / 180; // 58 degrees in radians
+
+// Assuming you want to center this range on the forward view (0 radians)
+const halfAngleLimit = angleLimit / 2;
+
+controls.minAzimuthAngle = Math.PI - halfAngleLimit; // 58 degrees to the left
+controls.maxAzimuthAngle = Math.PI + halfAngleLimit;  // 58 degrees to the right
+
 // Animation loop
 function animate(time) {
     requestAnimationFrame(animate);
