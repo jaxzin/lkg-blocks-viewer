@@ -48,31 +48,31 @@ const fragmentShader = `
 
     void main() {
         // Define the viewing angle range (in radians)
-        float maxAngle = radians(viewCone * .5); // 90 degrees range (45 degrees on either side)
+        float maxAngle = radians(viewCone * .5);
+        
+        // Normalize the angle to be within [0, 1]
+        float normalizedAngle = (maxAngle - uRelativeAngle) / (2.0 * maxAngle);
 
-            // Normalize the angle to be within [0, 1]
-            float normalizedAngle = (maxAngle - uRelativeAngle) / (2.0 * maxAngle);
+        // Calculate the index
+        float cols = quiltDims.x;
+        float rows = quiltDims.y;
+        float totalImages = float(rows * cols); // Total number of images in the quilt
+        float index = floor(normalizedAngle * totalImages);
 
-            // Calculate the index
-            float cols = quiltDims.x;
-            float rows = quiltDims.y;
-            float totalImages = float(rows * cols); // Total number of images in the quilt
-            float index = floor(normalizedAngle * totalImages);
+        // Ensure index is within bounds
+        index = clamp(index, 0.0, totalImages - 1.0);
 
-            // Ensure index is within bounds
-            index = clamp(index, 0.0, totalImages - 1.0);
+        float row = floor(index / cols);
+        float col = mod(index, cols);
 
-            float row = floor(index / cols);
-            float col = mod(index, cols);
+        // Calculate cell size in UV space
+        vec2 cellSize = vec2(1. / cols, 1. / rows);
+        vec2 cellOffset = vec2(col / cols, row / rows);
 
-            // Calculate cell size in UV space
-            vec2 cellSize = vec2(1. / cols, 1. / rows);
-            vec2 cellOffset = vec2(col / cols, row / rows);
+        // Calculate UV coordinates
+        vec2 cellUv = vUv * cellSize + cellOffset;
 
-            // Calculate UV coordinates
-            vec2 cellUv = vUv * cellSize + cellOffset;
-
-            gl_FragColor = texture2D(uTexture, cellUv);
+        gl_FragColor = texture2D(uTexture, cellUv);
     }
 
 
@@ -99,19 +99,6 @@ plane = new THREE.Mesh(geometry, shaderMaterial);
 scene.add(plane);
   
 plane.rotation.y = Math.PI;
-
-// Assume you have a THREE.Mesh named 'plane'
-let planeNormal = new THREE.Vector3(0, 0, 1); // Normal of the plane in local space
-planeNormal.applyQuaternion(plane.quaternion).normalize(); // Apply the plane's rotation to get the world space normal
-
-const origin = new THREE.Vector3(); // Origin point of the arrow (can be the plane's position)
-const length = 1; // Length of the arrow
-const hex = 0x00ff00; // Color of the arrow, green for example
-
-const arrowHelper = new THREE.ArrowHelper(planeNormal, origin, length, hex);
-scene.add(arrowHelper);  
-  
-  
 camera.position.z = -5;
 
 function calculateRelativeAngle(camera, object) {
@@ -139,29 +126,12 @@ function calculateRelativeAngle(camera, object) {
     return angle;
 }
 
-
-
-  
-// Function for oscillating rotation
-function oscillateRotation(time, amplitude, period) {
-    // Oscillate between -amplitude and +amplitude over a given period
-    return amplitude * Math.sin(time / period) + Math.PI;
-}
   
 const controls = 
       new OrbitControls( camera, renderer.domElement );
 controls.enableDamping = true;
-controls.dampingFactor = 0.01;  
-  
-controls.keys = {
-	LEFT: 'ArrowLeft', //left arrow
-	UP: 'ArrowUp', // up arrow
-	RIGHT: 'ArrowRight', // right arrow
-	BOTTOM: 'ArrowDown' // down arrow
-}
-  
-// controls.autoRotate = true;
-// controls.autoRotateSpeed = 0.5;  
+controls.dampingFactor = 0.025;  
+
 // Lock rotation around the X axis
 controls.minPolarAngle = Math.PI / 2;
 controls.maxPolarAngle = Math.PI / 2;
@@ -177,14 +147,7 @@ function animate(time) {
     requestAnimationFrame(animate);
   
     controls.update();
-  
-    // Rotate the plane back and forth by 45 degrees
-    let angle = oscillateRotation(time, halfAngleLimit, 2000); // 45 degrees, 2000 ms period
-    //controls.rotation.y = angle;
-
-    let planeNormal = new THREE.Vector3(0, 0, 1); // Normal of the plane in local space
-    arrowHelper.setDirection(planeNormal.applyQuaternion(plane.quaternion).normalize());
-  
+    
     // Update relative angle uniform
     shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, plane);
 
