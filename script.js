@@ -35,8 +35,8 @@ const fragmentShader = `
     uniform sampler2D uTexture;
     uniform vec2 uTextureSize;
     uniform float uRelativeAngle; // Relative angle between camera and object
-    uniform int rows;
-    uniform int cols;
+    uniform float rows;
+    uniform float cols;
 
     void main() {
         // Define the viewing angle range (in radians)
@@ -61,17 +61,17 @@ const fragmentShader = `
             // Ensure index is within bounds
             index = clamp(index, 0.0, totalImages - 1.0);
 
-            float row = floor(index / 8.0);
-            float col = mod(index, 8.0);
+            float row = floor(index / cols);
+            float col = mod(index, cols);
 
             // Calculate cell size in UV space
-            vec2 cellSize = vec2(1.0 / 8.0, 1.0 / 12.0);
+            vec2 cellSize = vec2(1.0 / cols, 1.0 / rows);
 
-            vec2 cellOffset = vec2(col / 8.0, row / 12.0);
+            vec2 cellOffset = vec2(col / cols, row / rows);
 
             // Calculate UV coordinates
             //vec2 uv = (gl_FragCoord.xy / (cellOffset * cellSize) + cellSize * 0.5); // Adding 0.5 to center on the middle of each image
-             vec2 uv = (gl_FragCoord.xy / uTextureSize) + cellOffset;
+             vec2 uv = (gl_FragCoord.xy / uTextureSize) + cellOffset + (cellSize * vec2(0.25, 0.0));
 
             gl_FragColor = texture2D(uTexture, uv);
         }
@@ -95,7 +95,7 @@ shaderMaterial = new THREE.ShaderMaterial({
 });
 
 // Add a mesh using the shader material
-const geometry = new THREE.PlaneGeometry(3, 4);
+const geometry = new THREE.PlaneGeometry(6, 8);
 plane = new THREE.Mesh(geometry, shaderMaterial);
 scene.add(plane);
 
