@@ -8,7 +8,7 @@ let camera;
 let renderer;
 let plane;
 let shaderMaterial;
-let textureAtlas;
+let textureQuilt;
 
 document.addEventListener('DOMContentLoaded', (event) => {
 
@@ -21,11 +21,11 @@ document.body.appendChild(renderer.domElement);
 
 // Load the texture atlas
 const textureLoader = new THREE.TextureLoader();
-textureAtlas = textureLoader.load('https://cdn.glitch.global/98b2b4e8-ce2c-4c4f-8e0c-3e762cb48276/christmas_tree_2023_qs8x12a0.75.jpg?v=1702708834115');
-const quiltDims = new THREE.Vector2(8, 12); // quilt row & column count
+textureQuilt = textureLoader.load('https://cdn.glitch.global/98b2b4e8-ce2c-4c4f-8e0c-3e762cb48276/christmas_tree_2023_qs8x12a0.75.jpg?v=1702708834115');
+const quiltDims = new THREE.Vector2(8, 12); // quilt col & row count
 const quiltRes = new THREE.Vector2(6400.0, 7462.0);
 
-const maxViewingAngle = 58.; // max viewing angle image (degrees)
+const maxViewingAngle = 25.; // max viewing angle image (degrees)
   
 // Define vertex shader
 const vertexShader = `
@@ -56,7 +56,7 @@ const fragmentShader = `
             // Calculate the index
             float cols = quiltDims.x;
             float rows = quiltDims.y;
-            float totalImages = float(rows * cols); // Total number of images in the atlas
+            float totalImages = float(rows * cols); // Total number of images in the quilt
             float index = floor(normalizedAngle * totalImages);
 
             // Ensure index is within bounds
@@ -82,7 +82,7 @@ const fragmentShader = `
 // Create a ShaderMaterial
 shaderMaterial = new THREE.ShaderMaterial({
     uniforms: {
-        uTexture: { value: textureAtlas },
+        uTexture: { value: textureQuilt },
         uTextureSize: { value: quiltRes }, 
         uRelativeAngle: { value: 0.0 },
         quiltDims: { value: quiltDims }, 
@@ -145,28 +145,22 @@ function calculateRelativeAngle(camera, object) {
 // Function for oscillating rotation
 function oscillateRotation(time, amplitude, period) {
     // Oscillate between -amplitude and +amplitude over a given period
-    return amplitude * Math.sin(time / period);
+    return amplitude * Math.sin(time / period) + Math.PI;
 }
   
 const controls = 
       new OrbitControls( camera, renderer.domElement );
-controls.autoRotate = true;
-controls.autoRotateSpeed = 0.5;  
+// controls.autoRotate = true;
+// controls.autoRotateSpeed = 0.5;  
 // Lock rotation around the X axis
 controls.minPolarAngle = Math.PI / 2;
 controls.maxPolarAngle = Math.PI / 2;
 
 // Lock rotation around the Z axis
-// controls.minAzimuthAngle = Math.PI / 2 + Math.PI / 4; // or any fixed value
-// controls.maxAzimuthAngle = Math.PI + Math.PI / 4;  // or any fixed value
-
-const angleLimit = maxViewingAngle * Math.PI / 180; // 58 degrees in radians
-
-// Assuming you want to center this range on the forward view (0 radians)
+const angleLimit = maxViewingAngle * Math.PI / 180;
 const halfAngleLimit = angleLimit / 2;
-
-controls.minAzimuthAngle = Math.PI - halfAngleLimit; // 58 degrees to the left
-controls.maxAzimuthAngle = Math.PI + halfAngleLimit;  // 58 degrees to the right
+controls.minAzimuthAngle = Math.PI - halfAngleLimit;
+controls.maxAzimuthAngle = Math.PI + halfAngleLimit;
 
 // Animation loop
 function animate(time) {
@@ -176,8 +170,8 @@ function animate(time) {
     controls.update();  
   
     // Rotate the plane back and forth by 45 degrees
-    // let angle = oscillateRotation(time, Math.PI / 4, 2000); // 45 degrees, 2000 ms period
-    // plane.rotation.y = angle;
+    let angle = oscillateRotation(time, halfAngleLimit, 2000); // 45 degrees, 2000 ms period
+    plane.rotation.y = angle;
 
     // Update relative angle uniform
     shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, plane);
