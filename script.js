@@ -40,21 +40,13 @@ const fragmentShader = `
     uniform float uRelativeAngle; // Relative angle between camera and object
     uniform float rows;
     uniform float cols;
+    uniform float viewCone;
     varying vec2 vUv;
 
     void main() {
         // Define the viewing angle range (in radians)
-        float maxAngle = radians(58. * .5); // 90 degrees range (45 degrees on either side)
+        float maxAngle = radians(viewCone * .5); // 90 degrees range (45 degrees on either side)
 
-        // Check if the relative angle is within the range
-        // if (abs(uRelativeAngle) > maxAngle) {
-        //     // Determine if we are looking at the front or back of the plane
-        //     if (abs(uRelativeAngle) < radians(90.0)) {
-        //         gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0); // Front: Red
-        //     } else {
-        //         gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0); // Back: White
-        //     }
-        // } else {
             // Normalize the angle to be within [0, 1]
             float normalizedAngle = (maxAngle - uRelativeAngle) / (2.0 * maxAngle);
 
@@ -72,13 +64,10 @@ const fragmentShader = `
             vec2 cellSize = vec2(1. / cols, 1. / rows);
             vec2 cellOffset = vec2(col / cols, row / rows);
 
-            vec2 texUv = vUv;// * vec2(-1., 1.);// * (1./3.) + vec2(0.5, (2./3.));
             // Calculate UV coordinates
-            vec2 cellUv = texUv * cellSize + cellOffset;
+            vec2 cellUv = vUv * cellSize + cellOffset;
 
-            //gl_FragColor = vec4(vUv,0.,1.);
             gl_FragColor = texture2D(uTexture, cellUv);
-        // }
     }
 
 
@@ -91,7 +80,8 @@ shaderMaterial = new THREE.ShaderMaterial({
         uTextureSize: { value: new THREE.Vector2(6400.0, 7462.0) }, 
         uRelativeAngle: { value: 0.0 },
         rows: { value: 12 },
-        cols: { value: 8 }
+        cols: { value: 8 },
+        viewCone: {value: 58.} // viewing cone on the Looking Glass Portrait is 58º 
     },
     vertexShader,
     fragmentShader,
@@ -102,6 +92,8 @@ shaderMaterial = new THREE.ShaderMaterial({
 const geometry = new THREE.PlaneGeometry(3,4);
 plane = new THREE.Mesh(geometry, shaderMaterial);
 scene.add(plane);
+  
+plane.rotation.y = Math.PI;
 
 // Assume you have a THREE.Mesh named 'plane'
 const planeNormal = new THREE.Vector3(0, 0, 1); // Normal of the plane in local space
@@ -123,15 +115,13 @@ function calculateRelativeAngle(camera, object) {
     camera.getWorldDirection(cameraDirection);
 
     // Get the normal of the plane in world space
-    let normalMatrix = new THREE.Matrix3().getNormalMatrix(object.matrixWorld);
-  
-    let objectNormal = new THREE.Vector3(0, 0, 1); // Default normal in local space
+    let objectNormal = new THREE.Vector3(0, 0, -1); // Default normal in local space
     objectNormal.applyQuaternion(plane.quaternion).normalize();
 
     // Calculate the dot product
     let dot = cameraDirection.dot(objectNormal);
 
-    // Calculate the angle
+     // Calculate the angle
     let angle = Math.acos(THREE.MathUtils.clamp(dot, -1.0, 1.0));
 
     //Determine the sign of the angle based on the cross product
@@ -139,7 +129,8 @@ function calculateRelativeAngle(camera, object) {
     if (cross.dot(object.up) < 0) {
         angle = -angle;
     }
-
+  
+    // The angle is now between 0 (facing each other) and PI (facing away)
     return angle;
 }
 
@@ -161,8 +152,8 @@ controls.minPolarAngle = Math.PI / 2;
 controls.maxPolarAngle = Math.PI / 2;
 
 // Lock rotation around the Z axis
-// controls.minAzimuthAngle = Math.PI / 2 + Math.PI / 4; // or any fixed value
-// controls.maxAzimuthAngle = Math.PI + Math.PI / 4;  // or any fixed value
+controls.minAzimuthAngle = Math.PI / 2 + Math.PI / 4; // or any fixed value
+controls.maxAzimuthAngle = Math.PI + Math.PI / 4;  // or any fixed value
   
 // Animation loop
 function animate(time) {
