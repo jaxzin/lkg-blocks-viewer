@@ -35,6 +35,8 @@ const fragmentShader = `
     uniform sampler2D uTexture;
     uniform vec2 uTextureSize;
     uniform float uRelativeAngle; // Relative angle between camera and object
+    uniform int rows;
+    uniform int cols;
 
     void main() {
         // Define the viewing angle range (in radians)
@@ -53,7 +55,7 @@ const fragmentShader = `
             float normalizedAngle = (-uRelativeAngle + maxAngle) / (2.0 * maxAngle);
 
             // Calculate the index
-            float totalImages = 96.0; // Total number of images in the atlas
+            float totalImages = float(rows * cols); // Total number of images in the atlas
             float index = floor(normalizedAngle * totalImages);
 
             // Ensure index is within bounds
@@ -83,7 +85,9 @@ shaderMaterial = new THREE.ShaderMaterial({
     uniforms: {
         uTexture: { value: textureAtlas },
         uTextureSize: { value: new THREE.Vector2(6400.0, 7462.0) }, 
-        uRelativeAngle: { value: 0.0 }
+        uRelativeAngle: { value: 0.0 },
+        rows: { value: 12 },
+        cols: { value: 8 }
     },
     vertexShader,
     fragmentShader,
@@ -136,7 +140,14 @@ const controls =
       new OrbitControls( camera, renderer.domElement );
 controls.autoRotate = true;
 controls.autoRotateSpeed = 0.5;  
+// Lock rotation around the X axis
+controls.minPolarAngle = Math.PI / 2;
+controls.maxPolarAngle = Math.PI / 2;
 
+// Lock rotation around the Z axis
+controls.minAzimuthAngle = Math.PI / 2 + Math.PI / 4; // or any fixed value
+controls.maxAzimuthAngle = Math.PI + Math.PI / 4;  // or any fixed value
+  
 // Animation loop
 function animate(time) {
     requestAnimationFrame(animate);
