@@ -1,4 +1,4 @@
-# Planet Atmosphere shader
+# Light field simulator
 
 Playing around with [three.js](https://threejs.org/) to learn how too...
 

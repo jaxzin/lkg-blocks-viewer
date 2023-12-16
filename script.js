@@ -1,16 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { Lensflare, LensflareElement } from 'three/addons/objects/Lensflare.js';
 
 
-// Scale it down to avoid visual artifacts due to precision issues
-const SCALE_FACTOR = 0.01;
-
-const EARTH_RADIUS = 6378.1 * SCALE_FACTOR; // km
-const KARMAN_LINE = 100.0 * SCALE_FACTOR; //km
-
-const AU = 149597870.0 * SCALE_FACTOR; // km
-const SUN_RADIUS = 696340.0 * SCALE_FACTOR; // km
 
 // globals shared between the two main event listeners
 let camera;
@@ -37,102 +28,14 @@ document.addEventListener('DOMContentLoaded', (event) => {
     document.body.appendChild(renderer.domElement);
 
   
-    // Background Stars
     const textureLoader = new THREE.TextureLoader();
 
-    const textureStars = textureLoader.load( 'https://cdn.glitch.global/1baa4277-c64f-4d73-9c1a-c63d612886ca/Stars.png?v=1695750609407' );
-    textureStars.mapping = THREE.EquirectangularReflectionMapping;
-    textureStars.colorSpace = THREE.SRGBColorSpace;
-    scene.background = textureStars;
+    const textureCard = textureLoader.load( 'https://cdn.glitch.global/98b2b4e8-ce2c-4c4f-8e0c-3e762cb48276/christmas_tree_2023_qs8x12a0.75.jpg?v=1702708834115' );
+    textureCard.mapping = THREE.EquirectangularReflectionMapping;
+    textureCard.colorSpace = THREE.SRGBColorSpace;
+    scene.background = textureCard;
   
   
-    // Ambient Light
-    const ambientLight = 
-          new THREE.AmbientLight(
-            0xFFFFFF, // white
-            0.5       // dim (half candela)
-          );
-    //scene.add(ambientLight);
-
-    // Sun (Point Light)
-    const sunLight = 
-          new THREE.PointLight(
-            0xFFFFFF, // white
-            4.0,      // intensity
-            0,        // max distance 
-            0         // no decay
-          );
-    sunLight.position.set(-1.0 * AU, 0, 0); // Position to the left of the camera
-    scene.add(sunLight);
-
-  
-    // Add lens flare to visually represent the sun
-    const textureFlare0 = textureLoader.load( "https://cdn.glitch.global/1baa4277-c64f-4d73-9c1a-c63d612886ca/lensflare0.png?v=1695869971328" );
-    const textureFlare1 = textureLoader.load( "https://cdn.glitch.global/1baa4277-c64f-4d73-9c1a-c63d612886ca/lensflare1.png?v=1695869974434" );
-    const textureFlare2 = textureLoader.load( "https://cdn.glitch.global/1baa4277-c64f-4d73-9c1a-c63d612886ca/lensflare2.png?v=1695869978356" );
-  
-    const lensflare = new Lensflare();
-
-    lensflare.addElement( new LensflareElement( textureFlare0, 512, 0 ) );
-    lensflare.addElement( new LensflareElement( textureFlare1, 512, 0 ) );
-    lensflare.addElement( new LensflareElement( textureFlare2, 60, 0.6 ) );
-    sunLight.add(lensflare);
-
-  
-    // Earth
-    const earthGeometry = 
-          new THREE.SphereGeometry(
-            EARTH_RADIUS, // radius 
-            64,  // mesh segments (longitude) 
-            64   // mesh segments (latitude)
-          );
-  
-    // Load earth textures, attrib: https://www.highend3d.com/downloads/3d-textures/c/16k-earth-w-4k-moon-free
-    const earthDiffuse = 
-          textureLoader.load('https://cdn.glitch.me/1baa4277-c64f-4d73-9c1a-c63d612886ca/Earth_Diffuse.jpg?v=1695750587559' );
-    const earthLights = 
-          textureLoader.load('https://cdn.glitch.global/1baa4277-c64f-4d73-9c1a-c63d612886ca/Earth_Night.jpg?v=1695750593678' );
-    const earthSpecular = 
-          textureLoader.load('https://cdn.glitch.me/1baa4277-c64f-4d73-9c1a-c63d612886ca/Earth_Specular.jpg?v=1695750608336' );
-    const earthBump = 
-          textureLoader.load('https://cdn.glitch.global/1baa4277-c64f-4d73-9c1a-c63d612886ca/Earth_Normal.jpg?v=1695750598706' );
-    const earthClouds = 
-          textureLoader.load('https://cdn.glitch.global/1baa4277-c64f-4d73-9c1a-c63d612886ca/Earth_Cloud.jpg?v=1695750580741' );
-    const earthMaterial = new THREE.MeshPhongMaterial({
-        map: earthDiffuse,
-        emissiveMap: earthLights,
-        emissive: 0xFFFFFF,   // white lights
-        emissiveIntensity: 2.0,
-        specularMap: earthSpecular,
-        specular: 0x444444,   
-        shininess: 75.0,      // water is shiny
-        normalMap: earthBump,
-        normalScale: new THREE.Vector2(5.0,5.0),
-        lightMap: earthClouds,
-        lightMapIntensity: -1.0  // turn the clouds into ground shadows
-    });    
-    const earth = 
-          new THREE.Mesh(earthGeometry, earthMaterial);
-    scene.add(earth);
-
-    const cloudGeometry = 
-          new THREE.SphereGeometry(
-            earthGeometry.parameters.radius + (0.2*KARMAN_LINE), // radius 
-            64,  // mesh segments (longitude) 
-            64   // mesh segments (latitude)
-          );
-  
-    const cloudMaterial = new THREE.MeshPhongMaterial({
-        alphaMap: earthClouds,
-        bumpMap: earthClouds,
-        bumpScale: 0.05,
-        transparent: true,
-        opacity: 1.0,
-        //side: THREE.DoubleSide
-    });    
-    const clouds = 
-          new THREE.Mesh(cloudGeometry, cloudMaterial);
-    scene.add(clouds);  
 
 // Vertex Shader
 // language=GLSL
@@ -372,8 +275,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
 `;
 
 
-    // Atmosphere
-    const atmosphereThickness = KARMAN_LINE; // altitude, not density
     const atmosphereGeometry = 
           new THREE.SphereGeometry(
             earthGeometry.parameters.radius + atmosphereThickness, 
