@@ -72,7 +72,8 @@ shaderMaterial = new THREE.ShaderMaterial({
         uRelativeAngle: { value: 0.0 }
     },
     vertexShader,
-    fragmentShader
+    fragmentShader,
+    side: THREE.DoubleSide // Make the material double-sided
 });
 
 // Add a mesh using the shader material
@@ -87,16 +88,13 @@ function calculateRelativeAngle(camera, object) {
     let cameraDirection = new THREE.Vector3();
     camera.getWorldDirection(cameraDirection);
 
-    // Object's front direction. Assuming the front is along negative Z-axis in object's local space.
-    let objectDirection = new THREE.Vector3(0, 0, -1);
-    objectDirection.applyQuaternion(object.quaternion); // Convert to world space
-
-    // Normalize directions to ensure they are unit vectors
-    cameraDirection.normalize();
-    objectDirection.normalize();
+    // Get the normal of the plane in world space
+    let normalMatrix = new THREE.Matrix3().getNormalMatrix(object.matrixWorld);
+    let objectNormal = new THREE.Vector3(0, 0, 1); // Default normal in local space
+    objectNormal.applyMatrix3(normalMatrix).normalize();
 
     // Calculate the dot product
-    let dot = cameraDirection.dot(objectDirection);
+    let dot = cameraDirection.dot(objectNormal);
 
     // Clamp value to avoid any potential numerical issues and get the angle
     dot = THREE.MathUtils.clamp(dot, -1.0, 1.0);
@@ -108,8 +106,9 @@ function calculateRelativeAngle(camera, object) {
     }
 
     // Return angle in radians
-    return angle - Math.PI / 2;
+    return angle;// - Math.PI / 2;
 }
+
 
   
 // Function for oscillating rotation
