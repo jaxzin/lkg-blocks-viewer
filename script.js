@@ -47,16 +47,16 @@ const fragmentShader = `
         float maxAngle = radians(58. * .5); // 90 degrees range (45 degrees on either side)
 
         // Check if the relative angle is within the range
-        if (abs(uRelativeAngle) > maxAngle) {
-            // Determine if we are looking at the front or back of the plane
-            if (abs(uRelativeAngle) < radians(90.0)) {
-                gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0); // Front: Red
-            } else {
-                gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0); // Back: White
-            }
-        } else {
+        // if (abs(uRelativeAngle) > maxAngle) {
+        //     // Determine if we are looking at the front or back of the plane
+        //     if (abs(uRelativeAngle) < radians(90.0)) {
+        //         gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0); // Front: Red
+        //     } else {
+        //         gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0); // Back: White
+        //     }
+        // } else {
             // Normalize the angle to be within [0, 1]
-            float normalizedAngle = (-uRelativeAngle + maxAngle) / (2.0 * maxAngle);
+            float normalizedAngle = (maxAngle - uRelativeAngle) / (2.0 * maxAngle);
 
             // Calculate the index
             float totalImages = float(rows * cols); // Total number of images in the atlas
@@ -72,13 +72,13 @@ const fragmentShader = `
             vec2 cellSize = vec2(1. / cols, 1. / rows);
             vec2 cellOffset = vec2(col / cols, row / rows);
 
-            vec2 texUv = vUv * vec2(-1., 1.);// * (1./3.) + vec2(0.5, (2./3.));
+            vec2 texUv = vUv;// * vec2(-1., 1.);// * (1./3.) + vec2(0.5, (2./3.));
             // Calculate UV coordinates
             vec2 cellUv = texUv * cellSize + cellOffset;
 
             //gl_FragColor = vec4(vUv,0.,1.);
             gl_FragColor = texture2D(uTexture, cellUv);
-        }
+        // }
     }
 
 
@@ -103,6 +103,18 @@ const geometry = new THREE.PlaneGeometry(3,4);
 plane = new THREE.Mesh(geometry, shaderMaterial);
 scene.add(plane);
 
+// Assume you have a THREE.Mesh named 'plane'
+const planeNormal = new THREE.Vector3(0, 0, 1); // Normal of the plane in local space
+planeNormal.applyQuaternion(plane.quaternion).normalize(); // Apply the plane's rotation to get the world space normal
+
+const origin = new THREE.Vector3(); // Origin point of the arrow (can be the plane's position)
+const length = 1; // Length of the arrow
+const hex = 0x00ff00; // Color of the arrow, green for example
+
+const arrowHelper = new THREE.ArrowHelper(planeNormal, origin, length, hex);
+scene.add(arrowHelper);  
+  
+  
 camera.position.z = -5;
 
 function calculateRelativeAngle(camera, object) {
@@ -114,7 +126,7 @@ function calculateRelativeAngle(camera, object) {
     let normalMatrix = new THREE.Matrix3().getNormalMatrix(object.matrixWorld);
   
     let objectNormal = new THREE.Vector3(0, 0, 1); // Default normal in local space
-    objectNormal.applyMatrix3(normalMatrix).normalize();
+    objectNormal.applyQuaternion(plane.quaternion).normalize();
 
     // Calculate the dot product
     let dot = cameraDirection.dot(objectNormal);
@@ -149,8 +161,8 @@ controls.minPolarAngle = Math.PI / 2;
 controls.maxPolarAngle = Math.PI / 2;
 
 // Lock rotation around the Z axis
-controls.minAzimuthAngle = Math.PI / 2 + Math.PI / 4; // or any fixed value
-controls.maxAzimuthAngle = Math.PI + Math.PI / 4;  // or any fixed value
+// controls.minAzimuthAngle = Math.PI / 2 + Math.PI / 4; // or any fixed value
+// controls.maxAzimuthAngle = Math.PI + Math.PI / 4;  // or any fixed value
   
 // Animation loop
 function animate(time) {
