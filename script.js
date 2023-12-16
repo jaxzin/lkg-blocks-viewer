@@ -25,7 +25,10 @@ textureAtlas = textureLoader.load('https://cdn.glitch.global/98b2b4e8-ce2c-4c4f-
 
 // Define vertex shader
 const vertexShader = `
+    varying vec2 vUv;
+
     void main() {
+        vUv = position.xy; // Assuming the plane is aligned with XY plane
         gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
     }
 `;
@@ -37,6 +40,7 @@ const fragmentShader = `
     uniform float uRelativeAngle; // Relative angle between camera and object
     uniform float rows;
     uniform float cols;
+    varying vec2 vUv;
 
     void main() {
         // Define the viewing angle range (in radians)
@@ -52,7 +56,7 @@ const fragmentShader = `
             }
         } else {
             // Normalize the angle to be within [0, 1]
-            float normalizedAngle = (-uRelativeAngle + maxAngle) / (2.0 * maxAngle);
+            float normalizedAngle = (uRelativeAngle + maxAngle) / (2.0 * maxAngle);
 
             // Calculate the index
             float totalImages = float(rows * cols); // Total number of images in the atlas
@@ -69,9 +73,10 @@ const fragmentShader = `
 
             vec2 cellOffset = vec2(col / cols, row / rows);
 
+            vec2 texUv = vUv * .5 + .5;
             // Calculate UV coordinates
             //vec2 uv = (gl_FragCoord.xy / (cellOffset * cellSize) + cellSize * 0.5); // Adding 0.5 to center on the middle of each image
-             vec2 uv = (gl_FragCoord.xy / uTextureSize) * cellSize * 25. + cellOffset + (cellSize * 25. * vec2(.0, .0));
+            vec2 uv = texUv * cellSize + cellOffset;
 
             gl_FragColor = texture2D(uTexture, uv);
         }
