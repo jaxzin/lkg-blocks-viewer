@@ -277,7 +277,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     const atmosphereGeometry = 
           new THREE.SphereGeometry(
-            earthGeometry.parameters.radius + atmosphereThickness, 
+            earthGeometry.parameters.radius, 
             64,  // mesh segments (width)
             64   // mesh segement (height)
           );
@@ -289,9 +289,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
             fragmentShader: fragmentShader,
             transparent: true,
             uniforms: {
-                lightPosition: { value: sunLight.position.clone() },
-                lightIntensity: { value: sunLight.intensity },
-                surfaceRadius: { value: earthGeometry.parameters.radius },
                 atmoRadius: { value: atmosphereGeometry.parameters.radius }
             }
         });
