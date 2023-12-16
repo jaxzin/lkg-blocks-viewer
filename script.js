@@ -61,9 +61,14 @@ const fragmentShader = `
 
             float row = floor(index / 8.0);
             float col = mod(index, 8.0);
-            vec2 cellSize = vec2(1.0, 1.0);
+
+            // Calculate cell size in UV space
+            vec2 cellSize = vec2(1.0 / 8.0, 0.75 / 12.0);
+
             vec2 cellOffset = vec2(col / 8.0, row / 12.0);
-            vec2 uv = (gl_FragCoord.xy / uTextureSize) * cellSize + cellOffset;
+
+            // Calculate UV coordinates
+            //vec2 uv = (gl_FragCoord.xy / (cellOffset * cellSize) + cellSize * 0.5); // Adding 0.5 to center on the middle of each image
 
             gl_FragColor = texture2D(uTexture, uv);
         }
