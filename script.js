@@ -8,6 +8,7 @@ let camera;
 let renderer;
 let plane;
 let shaderMaterial;
+let textureAtlas;
 
 document.addEventListener('DOMContentLoaded', (event) => {
 
@@ -20,7 +21,7 @@ document.body.appendChild(renderer.domElement);
 
 // Load the texture atlas
 const textureLoader = new THREE.TextureLoader();
-const textureAtlas = textureLoader.load('https://cdn.glitch.global/98b2b4e8-ce2c-4c4f-8e0c-3e762cb48276/christmas_tree_2023_qs8x12a0.75.jpg?v=1702708834115');
+textureAtlas = textureLoader.load('https://cdn.glitch.global/98b2b4e8-ce2c-4c4f-8e0c-3e762cb48276/christmas_tree_2023_qs8x12a0.75.jpg?v=1702708834115');
 
 // Define vertex shader
 const vertexShader = `
@@ -42,14 +43,14 @@ const fragmentShader = `
         // Check if the relative angle is within the range
         if (abs(uRelativeAngle) > maxAngle) {
             // Determine if we are looking at the front or back of the plane
-            if (uRelativeAngle > radians(90.0)) {
+            if (abs(uRelativeAngle) < radians(90.0)) {
                 gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0); // Front: Red
             } else {
                 gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0); // Back: White
             }
         } else {
             // Normalize the angle to be within [0, 1]
-            float normalizedAngle = (uRelativeAngle + maxAngle) / (2.0 * maxAngle);
+            float normalizedAngle = (-uRelativeAngle + maxAngle) / (2.0 * maxAngle);
 
             // Calculate the index
             float totalImages = 96.0; // Total number of images in the atlas
@@ -60,7 +61,7 @@ const fragmentShader = `
 
             float row = floor(index / 8.0);
             float col = mod(index, 8.0);
-            vec2 cellSize = vec2(1.0 / 8.0, (0.75 / 12.0));
+            vec2 cellSize = vec2(1.0 / 8.0, 1.0 / 8.0);
             vec2 cellOffset = vec2(col / 8.0, row / 12.0);
             vec2 uv = (gl_FragCoord.xy / uTextureSize) * cellSize + cellOffset;
 
@@ -75,7 +76,7 @@ const fragmentShader = `
 shaderMaterial = new THREE.ShaderMaterial({
     uniforms: {
         uTexture: { value: textureAtlas },
-        uTextureSize: { value: new THREE.Vector2(window.innerWidth, window.innerHeight * 0.75) }, // Adjusted for 0.75 aspect ratio
+        uTextureSize: { value: new THREE.Vector2(textureAtlas.image.width, textureAtlas.image.height) }, 
         uRelativeAngle: { value: 0.0 }
     },
     vertexShader,
