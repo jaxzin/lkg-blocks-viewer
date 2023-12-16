@@ -56,7 +56,7 @@ const fragmentShader = `
             }
         } else {
             // Normalize the angle to be within [0, 1]
-            float normalizedAngle = (uRelativeAngle + maxAngle) / (2.0 * maxAngle);
+            float normalizedAngle = (-uRelativeAngle + maxAngle) / (2.0 * maxAngle);
 
             // Calculate the index
             float totalImages = float(rows * cols); // Total number of images in the atlas
@@ -73,12 +73,13 @@ const fragmentShader = `
 
             vec2 cellOffset = vec2(col / cols, row / rows);
 
-            vec2 texUv = vUv * .5 + .5;
+            vec2 texUv = vUv * vec2(-1., 1.) * (1./3.) + vec2(0.5, (2./3.));
             // Calculate UV coordinates
-            //vec2 uv = (gl_FragCoord.xy / (cellOffset * cellSize) + cellSize * 0.5); // Adding 0.5 to center on the middle of each image
-            vec2 uv = texUv * cellSize + cellOffset;
+            vec2 cellUv = texUv * cellSize + cellOffset;
+            cellUv = clamp(cellUv, 0.0, 1.0);
 
-            gl_FragColor = texture2D(uTexture, uv);
+            gl_FragColor = vec4(cellUv,0.,1.);
+            //gl_FragColor = texture2D(uTexture, cellUv);
         }
     }
 
@@ -100,7 +101,7 @@ shaderMaterial = new THREE.ShaderMaterial({
 });
 
 // Add a mesh using the shader material
-const geometry = new THREE.PlaneGeometry(3, 4);
+const geometry = new THREE.PlaneGeometry(4, 4);
 plane = new THREE.Mesh(geometry, shaderMaterial);
 scene.add(plane);
 
