@@ -76,7 +76,7 @@ const fragmentShader = `
 shaderMaterial = new THREE.ShaderMaterial({
     uniforms: {
         uTexture: { value: textureAtlas },
-        uTextureSize: { value: new THREE.Vector2(textureAtlas.image.width, textureAtlas.image.height) }, 
+        uTextureSize: { value: new THREE.Vector2(6400.0, 7462.0) }, 
         uRelativeAngle: { value: 0.0 }
     },
     vertexShader,
