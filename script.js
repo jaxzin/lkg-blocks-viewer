@@ -28,7 +28,7 @@ const vertexShader = `
     varying vec2 vUv;
 
     void main() {
-        vUv = position.xy; // Assuming the plane is aligned with XY plane
+        vUv = uv; // Assign the UV coordinates from the vertex attributes
         gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
     }
 `;
@@ -44,7 +44,7 @@ const fragmentShader = `
 
     void main() {
         // Define the viewing angle range (in radians)
-        float maxAngle = radians(45.0); // 90 degrees range (45 degrees on either side)
+        float maxAngle = radians(58. * .5); // 90 degrees range (45 degrees on either side)
 
         // Check if the relative angle is within the range
         if (abs(uRelativeAngle) > maxAngle) {
@@ -69,17 +69,15 @@ const fragmentShader = `
             float col = mod(index, cols);
 
             // Calculate cell size in UV space
-            vec2 cellSize = vec2(1.0 / cols, .75 / rows);
-
+            vec2 cellSize = vec2(1. / cols, 1. / rows);
             vec2 cellOffset = vec2(col / cols, row / rows);
 
-            vec2 texUv = vUv * vec2(-1., 1.) * (1./3.) + vec2(0.5, (2./3.));
+            vec2 texUv = vUv * vec2(-1., 1.);// * (1./3.) + vec2(0.5, (2./3.));
             // Calculate UV coordinates
             vec2 cellUv = texUv * cellSize + cellOffset;
-            cellUv = clamp(cellUv, 0.0, 1.0);
 
-            gl_FragColor = vec4(cellUv,0.,1.);
-            //gl_FragColor = texture2D(uTexture, cellUv);
+            //gl_FragColor = vec4(vUv,0.,1.);
+            gl_FragColor = texture2D(uTexture, cellUv);
         }
     }
 
@@ -101,7 +99,7 @@ shaderMaterial = new THREE.ShaderMaterial({
 });
 
 // Add a mesh using the shader material
-const geometry = new THREE.PlaneGeometry(4, 4);
+const geometry = new THREE.PlaneGeometry(3,4);
 plane = new THREE.Mesh(geometry, shaderMaterial);
 scene.add(plane);
 
