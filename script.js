@@ -61,7 +61,7 @@ const fragmentShader = `
 
             float row = floor(index / 8.0);
             float col = mod(index, 8.0);
-            vec2 cellSize = vec2(1.0 / 8.0, 1.0 / 8.0);
+            vec2 cellSize = vec2(1.0, 1.0);
             vec2 cellOffset = vec2(col / 8.0, row / 12.0);
             vec2 uv = (gl_FragCoord.xy / uTextureSize) * cellSize + cellOffset;
 
@@ -85,7 +85,7 @@ shaderMaterial = new THREE.ShaderMaterial({
 });
 
 // Add a mesh using the shader material
-const geometry = new THREE.PlaneGeometry(5, 5);
+const geometry = new THREE.PlaneGeometry(3, 4);
 plane = new THREE.Mesh(geometry, shaderMaterial);
 scene.add(plane);
 
