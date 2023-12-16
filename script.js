@@ -65,13 +65,13 @@ const fragmentShader = `
             float col = mod(index, cols);
 
             // Calculate cell size in UV space
-            vec2 cellSize = vec2(1.0 / cols, 1.0 / rows);
+            vec2 cellSize = vec2(1.0 / cols, .75 / rows);
 
             vec2 cellOffset = vec2(col / cols, row / rows);
 
             // Calculate UV coordinates
             //vec2 uv = (gl_FragCoord.xy / (cellOffset * cellSize) + cellSize * 0.5); // Adding 0.5 to center on the middle of each image
-             vec2 uv = (gl_FragCoord.xy / uTextureSize) + cellOffset + (cellSize * vec2(0.25, 0.0));
+             vec2 uv = (gl_FragCoord.xy / uTextureSize) * cellSize * 25. + cellOffset + (cellSize * 25. * vec2(.0, .0));
 
             gl_FragColor = texture2D(uTexture, uv);
         }
@@ -95,7 +95,7 @@ shaderMaterial = new THREE.ShaderMaterial({
 });
 
 // Add a mesh using the shader material
-const geometry = new THREE.PlaneGeometry(6, 8);
+const geometry = new THREE.PlaneGeometry(3, 4);
 plane = new THREE.Mesh(geometry, shaderMaterial);
 scene.add(plane);
 
