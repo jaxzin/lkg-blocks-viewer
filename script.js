@@ -29,6 +29,8 @@ renderer.xr.enabled = true;
 document.body.appendChild(VRButton.createButton(renderer));
 
 function onSessionStart() {
+    camera.position.z = -5;
+
     // Add event listeners for controllers and other session start related setup
     const controllerModelFactory = new XRControllerModelFactory();
 
@@ -57,10 +59,10 @@ function onSessionStart() {
         // Define a threshold distance within which the plane can be grabbed
         const grabThreshold = 0.5; // Adjust based on your scale
 
-        if (distanceToPlane < grabThreshold) {
+        //if (distanceToPlane < grabThreshold) {
             planeGrabbed = true;
             grabbedController = controller;
-        }
+        //}
     }
 
     function onSelectEnd(event) {
@@ -224,6 +226,10 @@ function animate(time) {
     shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, plane);
 
     renderer.render(scene, camera);
+  
+    renderer.setAnimationLoop(() => {
+        renderer.render(scene, camera);
+    });
 }
 
 animate(0);
