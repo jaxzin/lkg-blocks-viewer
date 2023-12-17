@@ -79,17 +79,11 @@ function onSelectStart(event) {
 
 function onSelectEnd(event) {
   const controller = event.target;
+  quiltViewer.material.emissive.b = 0;
+  group.attach( quiltViewer );
+  controller.remove( quiltViewer );
 
-  if ( controller.userData.selected !== undefined ) {
-
-    const object = controller.userData.selected;
-    object.material.emissive.b = 0;
-    group.attach( object );
-    controller.remove( object );
-
-    controller.userData.selected = undefined;
-
-  }
+  controller.userData.selected = undefined;
 }  
   
   
@@ -320,7 +314,9 @@ const quiltViewerGeometry = new THREE.PlaneGeometry(3,4);
 quiltViewer = new THREE.Mesh(quiltViewerGeometry, quiltViewerMaterial);
 quiltViewer.castShadow = true;
 quiltViewer.onBeforeRender = function( renderer, scene, camera, geometry, material, group ) {
-  quiltVier
+  quiltViewer.updateMatrix();
+  quiltViewer.updateMatrixWorld(true);
+  quiltViewer.updateWorldMatrix(true,true);
   quiltViewerMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, quiltViewer);
 };
 group.add( quiltViewer );
