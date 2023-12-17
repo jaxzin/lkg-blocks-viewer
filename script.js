@@ -372,8 +372,6 @@ const halfAngleLimit = angleLimit / 2;
 function animate(timestamp, frame) {
     if (renderer.xr.isPresenting) {
       intersectController();
-      shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, plane);
-      renderer.render(scene, camera);
       
       if (frame) {
         const session = renderer.xr.getSession();
@@ -390,6 +388,7 @@ function animate(timestamp, frame) {
             }
         }
       }
+      
     } else {
       shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, plane);
       renderer.render(scene, camera);
