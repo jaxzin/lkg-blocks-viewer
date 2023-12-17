@@ -210,8 +210,9 @@ plane = new THREE.Mesh(geometry, shaderMaterial);
 plane.castShadow = true;
 scene.add(plane);
   
-plane.rotation.y = Math.PI;
-camera.position.z = -5;
+//plane.rotation.y = Math.PI;
+plane.position.z = -4;
+camera.position.z = 1;
 
 function calculateRelativeAngle(camera, object) {
     // Camera direction in world space
@@ -262,7 +263,7 @@ const halfAngleLimit = angleLimit / 2;
 function animate(time) {
     requestAnimationFrame(animate);
   
-    controls.update();
+    //controls.update();
 
     //if (planeGrabbed && grabbedController) {
     if(controller1) {
@@ -274,8 +275,6 @@ function animate(time) {
     // Update relative angle uniform
     shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, plane);
 
-    renderer.render(scene, camera);
-  
     renderer.setAnimationLoop(() => {
         renderer.render(scene, camera);
     });
