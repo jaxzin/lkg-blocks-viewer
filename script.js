@@ -65,32 +65,36 @@ scene.add( marker );
   
 raycaster = new THREE.Raycaster();
   
-// function onSelectStart(event) {
-//     const controller = event.target;
-//     const distanceToPlane = controller.position.distanceTo(plane.position);
+function onSelectStart(event) {
+  const controller = event.target;
+  controller.attach( quiltViewer );
+  controller.userData.selected = quiltViewer;
+  quiltViewer.material.emissive.b = 1;
+  controller.userData.targetRayMode = event.data.targetRayMode;
+}
 
-//     // Define a threshold distance within which the plane can be grabbed
-//     const grabThreshold = 0.5; // Adjust based on your scale
+function onSelectEnd(event) {
+  const controller = event.target;
 
-//     //if (distanceToPlane < grabThreshold) {
-//         planeGrabbed = true;
-//         grabbedController = controller;
-//     //}
-// }
+  if ( controller.userData.selected !== undefined ) {
 
-// function onSelectEnd(event) {
-//     if (planeGrabbed && grabbedController === event.target) {
-//         planeGrabbed = false;
-//         grabbedController = null;
-//     }
-// }  
-function onSelectStart() {
+    const object = controller.userData.selected;
+    object.material.emissive.b = 0;
+    group.attach( object );
+
+    controller.userData.selected = undefined;
+
+  }
+}  
+  
+  
+function onSelectStart2() {
 
   this.userData.isSelecting = true;
 
 }
 
-function onSelectEnd() {
+function onSelectEnd2() {
 
   this.userData.isSelecting = false;
 
@@ -240,7 +244,7 @@ const quiltRes = new THREE.Vector2(6400.0, 7462.0);
 const maxViewingAngle = 58.; // max viewing angle image (degrees)
   
 // Define vertex shader
-const quiltViewerVertexShader = `
+const vertexShader = `
     varying vec2 vUv;
 
     void main() {
@@ -250,7 +254,7 @@ const quiltViewerVertexShader = `
 `;
 
 // Define fragment shader
-const quiltViewerfragmentShader = `
+const fragmentShader = `
     uniform sampler2D uTexture;
     uniform vec2 uTextureSize;
     uniform float uRelativeAngle; // Relative angle between camera and object
@@ -316,6 +320,7 @@ scene.add(quiltViewer);
   
 //quiltViewer.rotation.y = Math.PI;
 quiltViewer.position.set(0,0,-5);
+
   
 function calculateRelativeAngle(camera, object) {
     // Calculate the direction from the object to the camera
