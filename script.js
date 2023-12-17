@@ -80,8 +80,8 @@ function onSelectStart(event) {
 function onSelectEnd(event) {
   const controller = event.target;
   quiltViewer.material.emissive.b = 0;
-  group.attach( quiltViewer );
-  controller.remove( quiltViewer );
+  quiltViewer.removeFromParent();
+  group.attach(quiltViewer);
 
   controller.userData.selected = undefined;
 }  
