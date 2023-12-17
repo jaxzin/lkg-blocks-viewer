@@ -115,7 +115,7 @@ function onSelectEnd2() {
   
 function onSessionStart() {
     let quiltPosition = new THREE.Vector3(0,0,0);
-    camera.getWorldPosition(quiltPosition);
+    renderer.xr.getCamera().getWorldPosition(quiltPosition);
     quiltPosition.z -= 0.5;
     quiltViewer.position.set( quiltPosition.x, quiltPosition.y, quiltPosition.z );
 
