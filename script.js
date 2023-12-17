@@ -228,7 +228,7 @@ textureQuilt = textureLoader.load('https://cdn.glitch.global/98b2b4e8-ce2c-4c4f-
 const quiltDims = new THREE.Vector2(8, 12); // quilt col & row count
 const quiltRes = new THREE.Vector2(6400.0, 7462.0);
 
-const maxViewingAngle = 25.; // max viewing angle image (degrees)
+const maxViewingAngle = 58.; // max viewing angle image (degrees)
   
 // Define vertex shader
 const vertexShader = `
@@ -310,7 +310,7 @@ plane.position.set(0,2,-2.9);
 camera.position.z = 1;
 camera.position.y = 5;
 
-function calculateRelativeAngle(camera, object) {
+function calculateRelativeAngleOld(camera, object) {
     // Camera direction in world space
     let cameraDirection = new THREE.Vector3();
     camera.getWorldDirection(cameraDirection);
@@ -338,6 +338,34 @@ function calculateRelativeAngle(camera, object) {
     // The angle is now between 0 (facing each other) and PI (facing away)
     return angle;
 }
+  
+function calculateRelativeAngle(camera, object) {
+    // Calculate the direction from the object to the camera
+    let toCameraDirection = new THREE.Vector3().subVectors(camera.position, object.position);
+    toCameraDirection.y = 0; // Project onto the XZ plane by zeroing the Y component
+    toCameraDirection.normalize(); // Re-normalize the vector
+
+    // Get the forward normal of the object in world space
+    let objectNormal = new THREE.Vector3(0, 0, 1); // Default forward in local space
+    objectNormal.applyQuaternion(object.quaternion).normalize();
+    objectNormal.y = 0; // Project onto the XZ plane
+    objectNormal.normalize(); // Re-normalize the vector
+
+    // Calculate the dot product
+    let dot = toCameraDirection.dot(objectNormal);
+
+    // Calculate the angle
+    let angle = Math.acos(THREE.MathUtils.clamp(dot, -1.0, 1.0));
+
+    // Determine the sign of the angle based on the cross product
+    let cross = new THREE.Vector3().crossVectors(toCameraDirection, objectNormal);
+    if (cross.dot(new THREE.Vector3(0, 1, 0)) < 0) {
+        angle = -angle;
+    }
+
+    // The angle is now between -PI (facing away) and PI (facing towards)
+    return angle;
+}
 
   
 const controls = 
@@ -357,35 +385,6 @@ const halfAngleLimit = angleLimit / 2;
 // controls.minAzimuthAngle = Math.PI - halfAngleLimit;
 // controls.maxAzimuthAngle = Math.PI + halfAngleLimit;
 
-// // Animation loop
-// function animate(time) {
-//     requestAnimationFrame(animate);
-  
-//     //controls.update();
-
-//     //if (planeGrabbed && grabbedController) {
-//     if(controller1) {
-//         // Assuming you want the plane to follow the controller's position and rotation
-//         plane.position.copy(controller1.position);
-//         plane.quaternion.copy(controller1.quaternion);
-//     }
-  
-//     // Update relative angle uniform
-//     shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, plane);
-
-//     renderer.setAnimationLoop(() => {
-//         renderer.render(scene, camera);
-//     });
-// }
-
-// animate(0);
-  
-function animate(timestamp, frame) {
-    if (renderer.xr.isPresenting) {
-      intersectController();
-    }
-    renderer.render(scene, camera);
-}
   
 function intersectController() {
   INTERSECTION = undefined;
@@ -427,10 +426,16 @@ function intersectController() {
   marker.visible = INTERSECTION !== undefined;
 }
   
-// animate();
+function animate(timestamp, frame) {
+    if (renderer.xr.isPresenting) {
+      intersectController();
+    }
+    renderer.render(scene, camera);
+}
 renderer.setAnimationLoop(animate);
-
+  
 });
+
 
 window.addEventListener( 'resize', onWindowResize, false );
 
