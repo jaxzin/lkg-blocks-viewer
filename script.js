@@ -9,9 +9,9 @@ import { BoxLineGeometry } from 'three/addons/geometries/BoxLineGeometry.js';
 // globals shared between the two main event listeners
 let camera;
 let renderer;
-let plane;
-let shaderMaterial;
-let textureQuilt;
+let quiltViewer;
+let quiltViewerMaterial;
+let quiltTexture;
 let planeGrabbed = false;
 let grabbedController = null;
 let hand1, hand2;
@@ -108,7 +108,7 @@ function onSelectEnd() {
 }  
   
 function onSessionStart() {
-    plane.position.set(0,2,-2.9);
+    quiltViewer.position.set(0,2,-2.9);
     floor.visible = true;
     room.visible = true;
 
@@ -170,10 +170,10 @@ function onSessionStart() {
 
 function onSessionEnd() {
   // Clean up when the VR session ends
-  plane.position.set(0,0,-5);
-  plane.scale.set(3,4,1);
+  quiltViewer.position.set(0,0,-5);
+  quiltViewer.scale.set(3,4,1);
   camera.position.set(0,0,0);
-  controls.target.set(plane.position.x, plane.position.y, plane.position.z);
+  controls.target.copy(quiltViewer.position);
   floor.visible = false;
   room.visible = false;
 }
@@ -233,14 +233,14 @@ scene.add(ambientLight);
 
 // Load the texture atlas
 const textureLoader = new THREE.TextureLoader();
-textureQuilt = textureLoader.load('https://cdn.glitch.global/98b2b4e8-ce2c-4c4f-8e0c-3e762cb48276/christmas_tree_2023_qs8x12a0.75.jpg?v=1702708834115');
+quiltTexture = textureLoader.load('https://cdn.glitch.global/98b2b4e8-ce2c-4c4f-8e0c-3e762cb48276/christmas_tree_2023_qs8x12a0.75.jpg?v=1702708834115');
 const quiltDims = new THREE.Vector2(8, 12); // quilt col & row count
 const quiltRes = new THREE.Vector2(6400.0, 7462.0);
 
 const maxViewingAngle = 58.; // max viewing angle image (degrees)
   
 // Define vertex shader
-const vertexShader = `
+const quiltViewerVertexShader = `
     varying vec2 vUv;
 
     void main() {
@@ -250,7 +250,7 @@ const vertexShader = `
 `;
 
 // Define fragment shader
-const fragmentShader = `
+const quiltViewerfragmentShader = `
     uniform sampler2D uTexture;
     uniform vec2 uTextureSize;
     uniform float uRelativeAngle; // Relative angle between camera and object
@@ -292,9 +292,9 @@ const fragmentShader = `
 
   
 // Create a ShaderMaterial
-shaderMaterial = new THREE.ShaderMaterial({
+quiltViewerMaterial = new THREE.ShaderMaterial({
     uniforms: {
-        uTexture: { value: textureQuilt },
+        uTexture: { value: quiltTexture },
         uTextureSize: { value: quiltRes }, 
         uRelativeAngle: { value: 0.0 },
         quiltDims: { value: quiltDims }, 
@@ -306,45 +306,16 @@ shaderMaterial = new THREE.ShaderMaterial({
 });
 
 // Add a mesh using the shader material
-const geometry = new THREE.PlaneGeometry(3,4);
-plane = new THREE.Mesh(geometry, shaderMaterial);
-plane.castShadow = true;
-plane.onBeforeRender = function( renderer, scene, camera, geometry, material, group ) {
-  shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, plane);
+const quiltViewerGeometry = new THREE.PlaneGeometry(3,4);
+quiltViewer = new THREE.Mesh(quiltViewerGeometry, quiltViewerMaterial);
+quiltViewer.castShadow = true;
+quiltViewer.onBeforeRender = function( renderer, scene, camera, geometry, material, group ) {
+  quiltViewerMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, quiltViewer);
 };
-scene.add(plane);
+scene.add(quiltViewer);
   
-//plane.rotation.y = Math.PI;
-plane.position.set(0,0,-5);
-
-function calculateRelativeAngleOld(camera, object) {
-    // Camera direction in world space
-    let cameraDirection = new THREE.Vector3();
-    camera.getWorldDirection(cameraDirection);
-    cameraDirection.y = 0; // Project onto the XZ plane by zeroing the Z component
-    cameraDirection.normalize(); // Re-normalize the vector
-
-    // Get the normal of the plane in world space
-    let objectNormal = new THREE.Vector3(0, 0, -1); // Default normal in local space
-    objectNormal.applyQuaternion(plane.quaternion).normalize();
-    objectNormal.y = 0; // Project onto the XZ plane
-    objectNormal.normalize(); // Re-normalize the vector
-  
-    // Calculate the dot product
-    let dot = cameraDirection.dot(objectNormal);
-
-     // Calculate the angle
-    let angle = Math.acos(THREE.MathUtils.clamp(dot, -1.0, 1.0));
-
-    //Determine the sign of the angle based on the cross product
-    let cross = new THREE.Vector3().crossVectors(cameraDirection, objectNormal);
-    if (cross.dot(object.up) < 0) {
-        angle = -angle;
-    }
-  
-    // The angle is now between 0 (facing each other) and PI (facing away)
-    return angle;
-}
+//quiltViewer.rotation.y = Math.PI;
+quiltViewer.position.set(0,0,-5);
   
 function calculateRelativeAngle(camera, object) {
     // Calculate the direction from the object to the camera
@@ -379,7 +350,7 @@ const controls =
       new OrbitControls( camera, renderer.domElement );
 controls.enableDamping = true;
 controls.dampingFactor = 0.025;
-controls.target.set(plane.position.x, plane.position.y, plane.position.z);
+controls.target.copy(quiltViewer.position);
 controls.update();
 
 // Lock rotation around the X axis
