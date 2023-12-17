@@ -385,12 +385,10 @@ function animate(timestamp, frame) {
         const pose = frame.getViewerPose(baseReferenceSpace);
 
         if (pose) {
-            for (const view of pose.views) {
-                const camera2 = renderer.xr.getCameraForEye(view.eye);
+            for (const eyeCamera of renderer.xr.getCamera().cameras) {
                 // Calculate the relative angle using this camera
-                shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera2, plane);
-
-                renderer.render(scene, camera2);
+                shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(eyeCamera, plane);
+                renderer.render(scene, eyeCamera);
             }
         }
       }
