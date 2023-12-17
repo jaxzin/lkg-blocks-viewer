@@ -65,12 +65,16 @@ scene.add( marker );
   
 raycaster = new THREE.Raycaster();
   
+  
+group = new THREE.Group();
+scene.add( group );
+  
 function onSelectStart(event) {
   const controller = event.target;
   controller.attach( quiltViewer );
   controller.userData.selected = quiltViewer;
   quiltViewer.material.emissive.b = 1;
-  controller.userData.targetRayMode = event.data.targetRayMode;
+  //controller.userData.targetRayMode = event.data.targetRayMode;
 }
 
 function onSelectEnd(event) {
@@ -80,7 +84,8 @@ function onSelectEnd(event) {
 
     const object = controller.userData.selected;
     object.material.emissive.b = 0;
-    controller.detach( object );
+    group.attach( object );
+    controller.remove( object );
 
     controller.userData.selected = undefined;
 
@@ -316,7 +321,8 @@ quiltViewer.castShadow = true;
 quiltViewer.onBeforeRender = function( renderer, scene, camera, geometry, material, group ) {
   quiltViewerMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, quiltViewer);
 };
-scene.add(quiltViewer);
+group.add( quiltViewer );
+//scene.add(quiltViewer);
   
 //quiltViewer.rotation.y = Math.PI;
 quiltViewer.position.set(0,0,-5);
