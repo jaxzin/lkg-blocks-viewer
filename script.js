@@ -295,8 +295,9 @@ plane.castShadow = true;
 scene.add(plane);
   
 //plane.rotation.y = Math.PI;
-plane.position.z = -4;
+plane.position.set(0,2,-2.9);
 camera.position.z = 1;
+camera.position.y = 5;
 
 function calculateRelativeAngle(camera, object) {
     // Camera direction in world space
@@ -331,7 +332,9 @@ function calculateRelativeAngle(camera, object) {
 const controls = 
       new OrbitControls( camera, renderer.domElement );
 controls.enableDamping = true;
-controls.dampingFactor = 0.025;  
+controls.dampingFactor = 0.025;
+controls.target.set(plane.position.x, plane.position.y, plane.position.z);
+controls.update();
 
 // Lock rotation around the X axis
 // controls.minPolarAngle = Math.PI / 2;
@@ -411,6 +414,9 @@ function render() {
   if ( INTERSECTION ) marker.position.copy( INTERSECTION );
 
   marker.visible = INTERSECTION !== undefined;
+
+  // Update relative angle uniform
+  shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, plane);
 
   renderer.render( scene, camera );
 
