@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { VRButton } from 'three/addons/webxr/VRButton.js';
+import { XRControllerModelFactory } from 'three/addons/webxr/XRControllerModelFactory.js';
+
 
 
 // globals shared between the two main event listeners
@@ -28,11 +30,19 @@ document.body.appendChild(VRButton.createButton(renderer));
 
 function onSessionStart() {
     // Add event listeners for controllers and other session start related setup
+    const controllerModelFactory = new XRControllerModelFactory();
+
     const controller1 = renderer.xr.getController(0);
+    const controllerGrip1 = renderer.xr.getControllerGrip(0);
+    controllerGrip1.add(controllerModelFactory.createControllerModel(controllerGrip1));
     scene.add(controller1);
+    scene.add(controllerGrip1);
 
     const controller2 = renderer.xr.getController(1);
+    const controllerGrip2 = renderer.xr.getControllerGrip(1);
+    controllerGrip2.add(controllerModelFactory.createControllerModel(controllerGrip2));
     scene.add(controller2);
+    scene.add(controllerGrip2);
   
     controller1.addEventListener('selectstart', onSelectStart);
     controller1.addEventListener('selectend', onSelectEnd);
