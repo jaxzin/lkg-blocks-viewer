@@ -3,6 +3,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { VRButton } from 'three/addons/webxr/VRButton.js';
 import { XRControllerModelFactory } from 'three/addons/webxr/XRControllerModelFactory.js';
 import { XRHandModelFactory } from 'three/addons/webxr/XRHandModelFactory.js';
+import { BoxLineGeometry } from 'three/addons/geometries/BoxLineGeometry.js';
 
 
 // globals shared between the two main event listeners
@@ -16,6 +17,9 @@ let grabbedController = null;
 let hand1, hand2;
 let controller1, controller2;
 let controllerGrip1, controllerGrip2;
+
+let INTERSECTION;
+const tempMatrix = new THREE.Matrix4();
 
 
 document.addEventListener('DOMContentLoaded', (event) => {
@@ -35,24 +39,46 @@ document.body.appendChild(VRButton.createButton(renderer));
 renderer.shadowMap.enabled = true;
 
   
-function onSelectStart(event) {
-    const controller = event.target;
-    const distanceToPlane = controller.position.distanceTo(plane.position);
+// function onSelectStart(event) {
+//     const controller = event.target;
+//     const distanceToPlane = controller.position.distanceTo(plane.position);
 
-    // Define a threshold distance within which the plane can be grabbed
-    const grabThreshold = 0.5; // Adjust based on your scale
+//     // Define a threshold distance within which the plane can be grabbed
+//     const grabThreshold = 0.5; // Adjust based on your scale
 
-    //if (distanceToPlane < grabThreshold) {
-        planeGrabbed = true;
-        grabbedController = controller;
-    //}
+//     //if (distanceToPlane < grabThreshold) {
+//         planeGrabbed = true;
+//         grabbedController = controller;
+//     //}
+// }
+
+// function onSelectEnd(event) {
+//     if (planeGrabbed && grabbedController === event.target) {
+//         planeGrabbed = false;
+//         grabbedController = null;
+//     }
+// }  
+function onSelectStart() {
+
+  this.userData.isSelecting = true;
+
 }
 
-function onSelectEnd(event) {
-    if (planeGrabbed && grabbedController === event.target) {
-        planeGrabbed = false;
-        grabbedController = null;
-    }
+function onSelectEnd() {
+
+  this.userData.isSelecting = false;
+
+  if ( INTERSECTION ) {
+
+    const offsetPosition = { x: - INTERSECTION.x, y: - INTERSECTION.y, z: - INTERSECTION.z, w: 1 };
+    const offsetRotation = new THREE.Quaternion();
+    const transform = new XRRigidTransform( offsetPosition, offsetRotation );
+    const teleportSpaceOffset = baseReferenceSpace.getOffsetReferenceSpace( transform );
+
+    renderer.xr.setReferenceSpace( teleportSpaceOffset );
+
+  }
+
 }  
   
 function onSessionStart() {
@@ -69,12 +95,34 @@ function onSessionStart() {
     controllerGrip1.add(controllerModelFactory.createControllerModel(controllerGrip1));
     scene.add(controller1);
     scene.add(controllerGrip1);
+  
+    controller1.addEventListener( 'connected', function ( event ) {
+
+      this.add( buildController( event.data ) );
+
+    } );
+    controller1.addEventListener( 'disconnected', function () {
+
+      this.remove( this.children[ 0 ] );
+
+    } );
 
     controller2 = renderer.xr.getController(1);
     controllerGrip2 = renderer.xr.getControllerGrip(1);
     controllerGrip2.add(controllerModelFactory.createControllerModel(controllerGrip2));
     scene.add(controller2);
     scene.add(controllerGrip2);
+  
+    controller2.addEventListener( 'connected', function ( event ) {
+
+      this.add( buildController( event.data ) );
+
+    } );
+    controller2.addEventListener( 'disconnected', function () {
+
+      this.remove( this.children[ 0 ] );
+
+    } );
   
     hand1 = renderer.xr.getHand( 0 );
     hand1.add( handModelFactory.createHandModel( hand1 ) );
@@ -101,6 +149,32 @@ function onSessionEnd() {
 renderer.xr.addEventListener('sessionstart', onSessionStart);
 renderer.xr.addEventListener('sessionend', onSessionEnd);
 
+
+function buildController( data ) {
+
+  let geometry, material;
+
+  switch ( data.targetRayMode ) {
+
+    case 'tracked-pointer':
+
+      geometry = new THREE.BufferGeometry();
+      geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( [ 0, 0, 0, 0, 0, - 1 ], 3 ) );
+      geometry.setAttribute( 'color', new THREE.Float32BufferAttribute( [ 0.5, 0.5, 0.5, 0, 0, 0 ], 3 ) );
+
+      material = new THREE.LineBasicMaterial( { vertexColors: true, blending: THREE.AdditiveBlending } );
+
+      return new THREE.Line( geometry, material );
+
+    case 'gaze':
+
+      geometry = new THREE.RingGeometry( 0.02, 0.04, 32 ).translate( 0, 0, - 1 );
+      material = new THREE.MeshBasicMaterial( { opacity: 0.5, transparent: true } );
+      return new THREE.Mesh( geometry, material );
+
+  }
+
+}  
   
 const floorGeometry = new THREE.PlaneGeometry(100, 100);
 const floorMaterial = new THREE.MeshStandardMaterial({
