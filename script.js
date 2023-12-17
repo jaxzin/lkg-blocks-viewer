@@ -9,6 +9,9 @@ let renderer;
 let plane;
 let shaderMaterial;
 let textureQuilt;
+let planeGrabbed = false;
+let grabbedController = null;
+
 
 document.addEventListener('DOMContentLoaded', (event) => {
 
@@ -34,13 +37,29 @@ function onSessionStart() {
     controller1.addEventListener('selectstart', onSelectStart);
     controller1.addEventListener('selectend', onSelectEnd);
 
+    controller2.addEventListener('selectstart', onSelectStart);
+    controller2.addEventListener('selectend', onSelectEnd);
+
     function onSelectStart(event) {
-        // Handle grabbing an object, like the plane
+        const controller = event.target;
+        const distanceToPlane = controller.position.distanceTo(plane.position);
+
+        // Define a threshold distance within which the plane can be grabbed
+        const grabThreshold = 0.5; // Adjust based on your scale
+
+        if (distanceToPlane < grabThreshold) {
+            planeGrabbed = true;
+            grabbedController = controller;
+        }
     }
 
     function onSelectEnd(event) {
-        // Handle releasing the object
+        if (planeGrabbed && grabbedController === event.target) {
+            planeGrabbed = false;
+            grabbedController = null;
+        }
     }
+
 
 }
 
@@ -138,11 +157,15 @@ function calculateRelativeAngle(camera, object) {
     // Camera direction in world space
     let cameraDirection = new THREE.Vector3();
     camera.getWorldDirection(cameraDirection);
+    cameraDirection.y = 0; // Project onto the XZ plane by zeroing the Z component
+    cameraDirection.normalize(); // Re-normalize the vector
 
     // Get the normal of the plane in world space
     let objectNormal = new THREE.Vector3(0, 0, -1); // Default normal in local space
     objectNormal.applyQuaternion(plane.quaternion).normalize();
-
+    objectNormal.y = 0; // Project onto the XZ plane
+    objectNormal.normalize(); // Re-normalize the vector
+  
     // Calculate the dot product
     let dot = cameraDirection.dot(objectNormal);
 
@@ -166,8 +189,8 @@ controls.enableDamping = true;
 controls.dampingFactor = 0.025;  
 
 // Lock rotation around the X axis
-controls.minPolarAngle = Math.PI / 2;
-controls.maxPolarAngle = Math.PI / 2;
+// controls.minPolarAngle = Math.PI / 2;
+// controls.maxPolarAngle = Math.PI / 2;
 
 // Lock rotation around the Z axis
 const angleLimit = maxViewingAngle * Math.PI / 180;
@@ -180,7 +203,13 @@ function animate(time) {
     requestAnimationFrame(animate);
   
     controls.update();
-    
+
+    if (planeGrabbed && grabbedController) {
+        // Assuming you want the plane to follow the controller's position and rotation
+        plane.position.copy(grabbedController.position);
+        plane.quaternion.copy(grabbedController.quaternion);
+    }
+  
     // Update relative angle uniform
     shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, plane);
 
