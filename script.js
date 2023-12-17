@@ -53,12 +53,14 @@ room = new THREE.LineSegments(
   new BoxLineGeometry( 6, 6, 6, 10, 10, 10 ).translate( 0, 3, 0 ),
   new THREE.LineBasicMaterial( { color: 0xbcbcbc } )
 );
+room.visible = false;
 scene.add( room );
 
 marker = new THREE.Mesh(
   new THREE.CircleGeometry( 0.25, 32 ).rotateX( - Math.PI / 2 ),
   new THREE.MeshBasicMaterial( { color: 0xbcbcbc } )
 );
+marker.visible = false;
 scene.add( marker );
   
 raycaster = new THREE.Raycaster();
@@ -106,10 +108,10 @@ function onSelectEnd() {
 }  
   
 function onSessionStart() {
+    plane.position.set(0,2,-2.9);
+    floor.visible = true;
+    room.visible = true;
 
-    // plane.position.z = 5;
-    // camera.rotation.y = Math.PI;
-  
     // Add event listeners for controllers and other session start related setup
     const controllerModelFactory = new XRControllerModelFactory();
     const handModelFactory = new XRHandModelFactory();
@@ -168,6 +170,9 @@ function onSessionStart() {
 
 function onSessionEnd() {
     // Clean up when the VR session ends
+    plane.position.set(0,0,-5);
+    floor.visible = false;
+    room.visible = false;
 }
 
 renderer.xr.addEventListener('sessionstart', onSessionStart);
@@ -204,6 +209,7 @@ floor = new THREE.Mesh(
   new THREE.PlaneGeometry( 4.8, 4.8, 2, 2 ).rotateX( - Math.PI / 2 ),
   new THREE.MeshBasicMaterial( { color: 0xbcbcbc, transparent: true, opacity: 0.25 } )
 );
+floor.visible = false;
 scene.add( floor );
 
 scene.add(new THREE.HemisphereLight(0x808080, 0x606060));
@@ -306,9 +312,7 @@ plane.onBeforeRender = function( renderer, scene, camera, geometry, material, gr
 scene.add(plane);
   
 //plane.rotation.y = Math.PI;
-plane.position.set(0,2,-2.9);
-camera.position.z = 1;
-camera.position.y = 5;
+plane.position.set(0,0,-5);
 
 function calculateRelativeAngleOld(camera, object) {
     // Camera direction in world space
@@ -376,14 +380,14 @@ controls.target.set(plane.position.x, plane.position.y, plane.position.z);
 controls.update();
 
 // Lock rotation around the X axis
-// controls.minPolarAngle = Math.PI / 2;
-// controls.maxPolarAngle = Math.PI / 2;
+controls.minPolarAngle = Math.PI / 2;
+controls.maxPolarAngle = Math.PI / 2;
 
 // Lock rotation around the Z axis
 const angleLimit = maxViewingAngle * Math.PI / 180;
 const halfAngleLimit = angleLimit / 2;
-// controls.minAzimuthAngle = Math.PI - halfAngleLimit;
-// controls.maxAzimuthAngle = Math.PI + halfAngleLimit;
+controls.minAzimuthAngle = - halfAngleLimit;
+controls.maxAzimuthAngle = halfAngleLimit;
 
   
 function intersectController() {
@@ -429,6 +433,8 @@ function intersectController() {
 function animate(timestamp, frame) {
     if (renderer.xr.isPresenting) {
       intersectController();
+    } else {
+      controls.update();
     }
     renderer.render(scene, camera);
 }
