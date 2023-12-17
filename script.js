@@ -370,12 +370,12 @@ const halfAngleLimit = angleLimit / 2;
 // animate(0);
   
 function animate() {
-  requestAnimationFrame(animate);
+  //requestAnimationFrame(animate);
   // if (renderer.xr.isPresenting) {
-    intersectController();
+    //intersectController();
     // WebXR rendering
-    shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, plane);
-    renderer.render(scene, camera);
+    //shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, plane);
+    //renderer.render(scene, camera);
     renderer.setAnimationLoop(render);
   // } else {
   //   // Standard rendering
@@ -387,21 +387,28 @@ function animate() {
 
 function render(timestamp, frame) {
 
-    //if (frame) {
-      const session = renderer.xr.getSession();
-      const pose = frame.getViewerPose(baseReferenceSpace);
+    if (renderer.xr.isPresenting) {
+      shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, plane);
+      renderer.render(scene, camera);
+//       if (frame) {
+//         const session = renderer.xr.getSession();
+//         const pose = frame.getViewerPose(baseReferenceSpace);
 
-      //if (pose) {
-          for (const view of pose.views) {
-              const camera = renderer.xr.getCameraForEye(view.eye);
+//         if (pose) {
+//             for (const view of pose.views) {
+//                 const camera = renderer.xr.getCameraForEye(view.eye);
 
-              // Calculate the relative angle using this camera
-              shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, plane);
+//                 // Calculate the relative angle using this camera
+//                 shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, plane);
 
-              renderer.render(scene, camera);
-          }
-      //}
-    //}
+//                 renderer.render(scene, camera);
+//             }
+//         }
+//       }
+    } else {
+      shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, plane);
+      renderer.render(scene, camera);
+    }
 }
   
 function intersectController() {
