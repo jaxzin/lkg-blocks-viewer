@@ -18,6 +18,8 @@ let hand1, hand2;
 let controller1, controller2;
 let controllerGrip1, controllerGrip2;
 
+let room, marker, floor, baseReferenceSpace, raycaster;
+
 let INTERSECTION;
 const tempMatrix = new THREE.Matrix4();
 
@@ -33,11 +35,25 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
   
 // Turn on WebXR support
+renderer.xr.addEventListener( 'sessionstart', () => baseReferenceSpace = renderer.xr.getReferenceSpace() );
 renderer.xr.enabled = true;
 document.body.appendChild(VRButton.createButton(renderer));
 
 renderer.shadowMap.enabled = true;
 
+room = new THREE.LineSegments(
+  new BoxLineGeometry( 6, 6, 6, 10, 10, 10 ).translate( 0, 3, 0 ),
+  new THREE.LineBasicMaterial( { color: 0xbcbcbc } )
+);
+scene.add( room );
+
+marker = new THREE.Mesh(
+  new THREE.CircleGeometry( 0.25, 32 ).rotateX( - Math.PI / 2 ),
+  new THREE.MeshBasicMaterial( { color: 0xbcbcbc } )
+);
+scene.add( marker );
+  
+raycaster = new THREE.Raycaster();
   
 // function onSelectStart(event) {
 //     const controller = event.target;
@@ -176,17 +192,11 @@ function buildController( data ) {
 
 }  
   
-const floorGeometry = new THREE.PlaneGeometry(100, 100);
-const floorMaterial = new THREE.MeshStandardMaterial({
-    color: 0xeeeeee,
-    roughness: 1.0,
-    metalness: 0.0
-});
-const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-floor.rotation.x = -Math.PI / 2;
-floor.position.y = -10.;
-floor.receiveShadow = true;
-scene.add(floor);
+floor = new THREE.Mesh(
+  new THREE.PlaneGeometry( 4.8, 4.8, 2, 2 ).rotateX( - Math.PI / 2 ),
+  new THREE.MeshBasicMaterial( { color: 0xbcbcbc, transparent: true, opacity: 0.25 } )
+);
+scene.add( floor );
 
 scene.add(new THREE.HemisphereLight(0x808080, 0x606060));
 
@@ -333,28 +343,80 @@ const halfAngleLimit = angleLimit / 2;
 // controls.minAzimuthAngle = Math.PI - halfAngleLimit;
 // controls.maxAzimuthAngle = Math.PI + halfAngleLimit;
 
-// Animation loop
-function animate(time) {
-    requestAnimationFrame(animate);
+// // Animation loop
+// function animate(time) {
+//     requestAnimationFrame(animate);
   
-    //controls.update();
+//     //controls.update();
 
-    //if (planeGrabbed && grabbedController) {
-    if(controller1) {
-        // Assuming you want the plane to follow the controller's position and rotation
-        plane.position.copy(controller1.position);
-        plane.quaternion.copy(controller1.quaternion);
-    }
+//     //if (planeGrabbed && grabbedController) {
+//     if(controller1) {
+//         // Assuming you want the plane to follow the controller's position and rotation
+//         plane.position.copy(controller1.position);
+//         plane.quaternion.copy(controller1.quaternion);
+//     }
   
-    // Update relative angle uniform
-    shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, plane);
+//     // Update relative angle uniform
+//     shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, plane);
 
-    renderer.setAnimationLoop(() => {
-        renderer.render(scene, camera);
-    });
+//     renderer.setAnimationLoop(() => {
+//         renderer.render(scene, camera);
+//     });
+// }
+
+// animate(0);
+  
+function animate() {
+
+  renderer.setAnimationLoop( render );
+
 }
 
-animate(0);
+function render() {
+
+  INTERSECTION = undefined;
+
+  if ( controller1 && controller1.userData.isSelecting === true ) {
+
+    tempMatrix.identity().extractRotation( controller1.matrixWorld );
+
+    raycaster.ray.origin.setFromMatrixPosition( controller1.matrixWorld );
+    raycaster.ray.direction.set( 0, 0, - 1 ).applyMatrix4( tempMatrix );
+
+    const intersects = raycaster.intersectObjects( [ floor ] );
+
+    if ( intersects.length > 0 ) {
+
+      INTERSECTION = intersects[ 0 ].point;
+
+    }
+
+  } else if ( controller2 && controller2.userData.isSelecting === true ) {
+
+    tempMatrix.identity().extractRotation( controller2.matrixWorld );
+
+    raycaster.ray.origin.setFromMatrixPosition( controller2.matrixWorld );
+    raycaster.ray.direction.set( 0, 0, - 1 ).applyMatrix4( tempMatrix );
+
+    const intersects = raycaster.intersectObjects( [ floor ] );
+
+    if ( intersects.length > 0 ) {
+
+      INTERSECTION = intersects[ 0 ].point;
+
+    }
+
+  }
+
+  if ( INTERSECTION ) marker.position.copy( INTERSECTION );
+
+  marker.visible = INTERSECTION !== undefined;
+
+  renderer.render( scene, camera );
+
+}
+  
+animate();
 
 });
 
