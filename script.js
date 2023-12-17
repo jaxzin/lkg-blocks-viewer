@@ -79,11 +79,16 @@ function onSelectStart(event) {
 
 function onSelectEnd(event) {
   const controller = event.target;
-  quiltViewer.material.emissive.b = 0;
-  quiltViewer.removeFromParent();
-  group.attach(quiltViewer);
-
-  controller.userData.selected = undefined;
+  
+  if( controller.userData.selected !== undefined ) {
+    const object = controller.userData.selected;
+    object.material.emissive.b = 0;
+    object.removeFromParent();
+    controller.remove( object );
+    group.attach( object );
+    
+    controller.userData.selected = undefined;
+  }
 }  
   
   
@@ -164,8 +169,8 @@ function onSessionStart() {
 
     scene.add( hand2 );
   
-    controller1.addEventListener('selectstart', onSelectStart);
-    controller1.addEventListener('selectend', onSelectEnd);
+    controller1.addEventListener('squeezestart', onSelectStart);
+    controller1.addEventListener('squeezeend', onSelectEnd);
 
     controller2.addEventListener('selectstart', onSelectStart);
     controller2.addEventListener('selectend', onSelectEnd);
