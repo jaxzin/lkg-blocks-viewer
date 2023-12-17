@@ -382,8 +382,11 @@ quiltViewer.onBeforeRender = function( renderer, scene, camera, geometry, materi
   quiltViewerMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, quiltViewer);
 };
   
-const borderGeometry = createRoundedRectGeometry(width+.1, height, radius);
-  
+const borderWidth = 0.25
+const borderGeometry = createRoundedRectGeometry(width+borderWidth, height+borderWidth, radius);
+const border = new THREE.Mesh(borderGeometry, new THREE.MeshPhongMaterial({color: "#AAAAFF", side: THREE.DoubleSide}));
+border.position.z = -0.001;
+quiltViewer.add( border );
   
 group.add( quiltViewer );
   
