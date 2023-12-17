@@ -297,8 +297,12 @@ const fragmentShader = `
         // Calculate fade factor (1 at the edges of the cone, 0 at the center)
         float fadeFactor = clamp(pow(abs(uRelativeAngle) / maxAngle, 5.), 0., 1.);
 
+        vec2 centerCellOffset = vec2(0.5, 0.5);
+        vec2 centerCellUv = vUv * cellSize + centerCellOffset;
+        vec4 standin = texture2D(uTexture, vUv * cellSize + centerCellOffset);
+        standin = mix(standin, vec4(0.,0.,0.,1.), 0.5);
         // Fade to black as it approaches the bounds of the viewing cone
-        gl_FragColor = mix(textureColor, vec4(0.5, 0.5, 0.5, 1.0), fadeFactor);
+        gl_FragColor = mix(textureColor, standin, fadeFactor);
     }
 
 
