@@ -316,30 +316,39 @@ quiltViewerMaterial = new THREE.ShaderMaterial({
 function createRoundedRectShape(width, height, radius) {
     var shape = new THREE.Shape();
     
+    // Calculate the offsets
+    var offsetX = -width / 2;
+    var offsetY = -height / 2;
+
     // Starting point
-    shape.moveTo(0, radius);
+    shape.moveTo(offsetX, offsetY + radius);
 
     // Top line and top-right corner
-    shape.lineTo(0, height - radius);
-    shape.quadraticCurveTo(0, height, radius, height);
+    shape.lineTo(offsetX, offsetY + height - radius);
+    shape.quadraticCurveTo(offsetX, offsetY + height, offsetX + radius, offsetY + height);
 
     // Right line and bottom-right corner
-    shape.lineTo(width - radius, height);
-    shape.quadraticCurveTo(width, height, width, height - radius);
+    shape.lineTo(offsetX + width - radius, offsetY + height);
+    shape.quadraticCurveTo(offsetX + width, offsetY + height, offsetX + width, offsetY + height - radius);
 
     // Bottom line and bottom-left corner
-    shape.lineTo(width, radius);
-    shape.quadraticCurveTo(width, 0, width - radius, 0);
+    shape.lineTo(offsetX + width, offsetY + radius);
+    shape.quadraticCurveTo(offsetX + width, offsetY, offsetX + width - radius, offsetY);
 
     // Left line and top-left corner
-    shape.lineTo(radius, 0);
-    shape.quadraticCurveTo(0, 0, 0, radius);
+    shape.lineTo(offsetX + radius, offsetY);
+    shape.quadraticCurveTo(offsetX, offsetY, offsetX, offsetY + radius);
 
     return shape;
 }  
+
+const width = 3, height = 4, radius = 0.25;
+const roundedRectShape = createRoundedRectShape(width, height, radius);
+
+const quiltViewerGeometry = new THREE.ShapeGeometry(roundedRectShape);  
   
 // Add a mesh using the shader material
-const quiltViewerGeometry = new THREE.PlaneGeometry(3,4);
+//const quiltViewerGeometry = new THREE.PlaneGeometry(3,4);
 quiltViewer = new THREE.Mesh(quiltViewerGeometry, quiltViewerMaterial);
 quiltViewer.castShadow = true;
 quiltViewer.onBeforeRender = function( renderer, scene, camera, geometry, material, group ) {
