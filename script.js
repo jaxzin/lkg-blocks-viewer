@@ -29,8 +29,8 @@ renderer.xr.enabled = true;
 document.body.appendChild(VRButton.createButton(renderer));
 
 function onSessionStart() {
-    camera.position.z = -5;
 
+  
     // Add event listeners for controllers and other session start related setup
     const controllerModelFactory = new XRControllerModelFactory();
 
@@ -81,6 +81,34 @@ function onSessionEnd() {
 
 renderer.xr.addEventListener('sessionstart', onSessionStart);
 renderer.xr.addEventListener('sessionend', onSessionEnd);
+
+  
+const floorGeometry = new THREE.PlaneGeometry(100, 100);
+const floorMaterial = new THREE.MeshStandardMaterial({
+    color: 0xeeeeee,
+    roughness: 1.0,
+    metalness: 0.0
+});
+const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+floor.rotation.x = -Math.PI / 2;
+floor.position.y = -10.;
+floor.receiveShadow = true;
+scene.add(floor);
+
+scene.add(new THREE.HemisphereLight(0x808080, 0x606060));
+
+const light = new THREE.DirectionalLight(0xffffff);
+light.position.set(0, 200, 0);           // MODIFIED SIZE OF SCENE AND SHADOW
+light.castShadow = true;
+light.shadow.camera.top = 200;           // MODIFIED FOR LARGER SCENE
+light.shadow.camera.bottom = -200;       // MODIFIED FOR LARGER SCENE
+light.shadow.camera.right = 200;         // MODIFIED FOR LARGER SCENE
+light.shadow.camera.left = -200;         // MODIFIED FOR LARGER SCENE
+light.shadow.mapSize.set(4096, 4096);
+scene.add(light);
+
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+scene.add(ambientLight);
 
 
 // Load the texture atlas
