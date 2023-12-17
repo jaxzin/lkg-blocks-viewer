@@ -73,7 +73,7 @@ function onSelectStart(event) {
   const controller = event.target;
   controller.attach( quiltViewer );
   controller.userData.selected = quiltViewer;
-  quiltViewer.material.emissive.b = 1;
+  //quiltViewer.material.emissive.b = 1;
   controller.userData.targetRayMode = event.data.targetRayMode;
 }
 
@@ -82,9 +82,7 @@ function onSelectEnd(event) {
   
   if( controller.userData.selected !== undefined ) {
     const object = controller.userData.selected;
-    object.material.emissive.b = 0;
-    object.removeFromParent();
-    controller.remove( object );
+    //object.material.emissive.b = 0;
     group.attach( object );
     
     controller.userData.selected = undefined;
