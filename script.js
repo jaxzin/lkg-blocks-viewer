@@ -28,8 +28,31 @@ document.body.appendChild(renderer.domElement);
 renderer.xr.enabled = true;
 document.body.appendChild(VRButton.createButton(renderer));
 
+  
+function onSelectStart(event) {
+    const controller = event.target;
+    const distanceToPlane = controller.position.distanceTo(plane.position);
+
+    // Define a threshold distance within which the plane can be grabbed
+    const grabThreshold = 0.5; // Adjust based on your scale
+
+    //if (distanceToPlane < grabThreshold) {
+        planeGrabbed = true;
+        grabbedController = controller;
+    //}
+}
+
+function onSelectEnd(event) {
+    if (planeGrabbed && grabbedController === event.target) {
+        planeGrabbed = false;
+        grabbedController = null;
+    }
+}  
+  
 function onSessionStart() {
 
+    plane.position.z = 5;
+    camera.rotation.y = Math.PI;
   
     // Add event listeners for controllers and other session start related setup
     const controllerModelFactory = new XRControllerModelFactory();
@@ -51,27 +74,6 @@ function onSessionStart() {
 
     controller2.addEventListener('selectstart', onSelectStart);
     controller2.addEventListener('selectend', onSelectEnd);
-
-    function onSelectStart(event) {
-        const controller = event.target;
-        const distanceToPlane = controller.position.distanceTo(plane.position);
-
-        // Define a threshold distance within which the plane can be grabbed
-        const grabThreshold = 0.5; // Adjust based on your scale
-
-        //if (distanceToPlane < grabThreshold) {
-            planeGrabbed = true;
-            grabbedController = controller;
-        //}
-    }
-
-    function onSelectEnd(event) {
-        if (planeGrabbed && grabbedController === event.target) {
-            planeGrabbed = false;
-            grabbedController = null;
-        }
-    }
-
 
 }
 
