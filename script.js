@@ -370,37 +370,41 @@ const halfAngleLimit = angleLimit / 2;
 // animate(0);
   
 function animate() {
-
-  if (renderer.xr.isPresenting) {
+  requestAnimationFrame(animate);
+  // if (renderer.xr.isPresenting) {
+    intersectController();
     // WebXR rendering
-    renderer.setAnimationLoop((timestamp, frame) => {
-        if (frame) {
-            const session = renderer.xr.getSession();
-            const pose = frame.getViewerPose(baseReferenceSpace);
-
-            if (pose) {
-                for (const view of pose.views) {
-                    const camera = renderer.xr.getCameraForEye(view.eye);
-
-                    // Calculate the relative angle using this camera
-                    shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, plane);
-
-                    renderer.render(scene, camera);
-                }
-            }
-        }
-    });
-  } else {
-    // Standard rendering
     shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, plane);
-    requestAnimationFrame(render);
     renderer.render(scene, camera);
-  }
+    renderer.setAnimationLoop(render);
+  // } else {
+  //   // Standard rendering
+  //   shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, plane);
+  //   renderer.render(scene, camera);
+  // }
 
 }
 
 function render(timestamp, frame) {
+
+    //if (frame) {
+      const session = renderer.xr.getSession();
+      const pose = frame.getViewerPose(baseReferenceSpace);
+
+      //if (pose) {
+          for (const view of pose.views) {
+              const camera = renderer.xr.getCameraForEye(view.eye);
+
+              // Calculate the relative angle using this camera
+              shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, plane);
+
+              renderer.render(scene, camera);
+          }
+      //}
+    //}
+}
   
+function intersectController() {
   INTERSECTION = undefined;
 
   if ( controller1 && controller1.userData.isSelecting === true ) {
@@ -438,12 +442,6 @@ function render(timestamp, frame) {
   if ( INTERSECTION ) marker.position.copy( INTERSECTION );
 
   marker.visible = INTERSECTION !== undefined;
-
-  // Update relative angle uniform
-  shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, plane);
-
-  renderer.render( scene, camera );
-
 }
   
 animate();
