@@ -312,6 +312,32 @@ quiltViewerMaterial = new THREE.ShaderMaterial({
     side: THREE.DoubleSide // Make the material double-sided
 });
 
+// Function to create a rounded rectangle shape
+function createRoundedRectShape(width, height, radius) {
+    var shape = new THREE.Shape();
+    
+    // Starting point
+    shape.moveTo(0, radius);
+
+    // Top line and top-right corner
+    shape.lineTo(0, height - radius);
+    shape.quadraticCurveTo(0, height, radius, height);
+
+    // Right line and bottom-right corner
+    shape.lineTo(width - radius, height);
+    shape.quadraticCurveTo(width, height, width, height - radius);
+
+    // Bottom line and bottom-left corner
+    shape.lineTo(width, radius);
+    shape.quadraticCurveTo(width, 0, width - radius, 0);
+
+    // Left line and top-left corner
+    shape.lineTo(radius, 0);
+    shape.quadraticCurveTo(0, 0, 0, radius);
+
+    return shape;
+}  
+  
 // Add a mesh using the shader material
 const quiltViewerGeometry = new THREE.PlaneGeometry(3,4);
 quiltViewer = new THREE.Mesh(quiltViewerGeometry, quiltViewerMaterial);
