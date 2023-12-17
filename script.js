@@ -291,7 +291,14 @@ const fragmentShader = `
         // Calculate UV coordinates
         vec2 cellUv = vUv * cellSize + cellOffset;
 
-        gl_FragColor = texture2D(uTexture, cellUv);
+        // Get the color from the texture
+        vec4 textureColor = texture2D(uTexture, cellUv);
+
+        // Calculate fade factor (1 at the edges of the cone, 0 at the center)
+        float fadeFactor = clamp(pow(abs(uRelativeAngle) / maxAngle, 5.), 0., 1.);
+
+        // Fade to black as it approaches the bounds of the viewing cone
+        gl_FragColor = mix(textureColor, vec4(0.5, 0.5, 0.5, 1.0), fadeFactor);
     }
 
 
