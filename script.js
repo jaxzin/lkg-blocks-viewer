@@ -117,7 +117,8 @@ function onSelectEnd2() {
 }  
   
 function onSessionStart() {
-    quiltViewer.position.set(0,2,-2.9);
+    quiltViewer.position.set(0,2,-1);
+    quiltViewer.scale.set(.1,.1,.1);
     floor.visible = true;
     room.visible = true;
 
@@ -319,6 +320,7 @@ const quiltViewerGeometry = new THREE.PlaneGeometry(3,4);
 quiltViewer = new THREE.Mesh(quiltViewerGeometry, quiltViewerMaterial);
 quiltViewer.castShadow = true;
 quiltViewer.onBeforeRender = function( renderer, scene, camera, geometry, material, group ) {
+  quiltVier
   quiltViewerMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, quiltViewer);
 };
 group.add( quiltViewer );
