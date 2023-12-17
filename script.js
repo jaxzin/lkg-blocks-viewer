@@ -114,11 +114,7 @@ function onSelectEnd2() {
 }  
   
 function onSessionStart() {
-    let quiltPosition = new THREE.Vector3(0,0,0);
-    renderer.xr.getCamera().getWorldPosition(quiltPosition);
-    quiltPosition.z -= 0.5;
-    quiltViewer.position.set( quiltPosition.x, quiltPosition.y, quiltPosition.z );
-
+    quiltViewer.position.set( 0, 1, -.5 );
     quiltViewer.scale.set(.05,.05,.05);
     floor.visible = true;
     room.visible = true;
