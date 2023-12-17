@@ -381,36 +381,38 @@ function animate(timestamp, frame) {
     if (renderer.xr.isPresenting) {
       intersectController();
       
-      if (frame) {
-        let session = frame.session;
-        let pose = frame.getViewerPose(baseReferenceSpace);
+//       if (frame) {
+//         let session = frame.session;
+//         let pose = frame.getViewerPose(baseReferenceSpace);
 
-        if (pose) {
-            for (let view of pose.views) {
-                let xrView = view; // This is your XRView
-                let eye = xrView.eye; // 'left' or 'right'
-                let cameras = renderer.xr.getCamera().cameras;
-                let eyeCamera = xrView.eye == "left" ? cameras[0] : cameras[1]
+//         if (pose) {
+//             for (let view of pose.views) {
+//                 let xrView = view; // This is your XRView
+//                 let eye = xrView.eye; // 'left' or 'right'
+//                 let cameras = renderer.xr.getCamera().cameras;
+//                 let eyeCamera = xrView.eye == "left" ? cameras[0] : cameras[1]
 
-                // Set camera matrices here
-                eyeCamera.matrixWorldInverse.fromArray(xrView.viewMatrix);
-                eyeCamera.projectionMatrix.fromArray(xrView.projectionMatrix);
+//                 // Set camera matrices here
+//                 eyeCamera.matrixWorldInverse.fromArray(xrView.viewMatrix);
+//                 eyeCamera.projectionMatrix.fromArray(xrView.projectionMatrix);
 
-                // Calculate the relative angle using this camera
-                shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(eyeCamera, plane);
+//                 // Calculate the relative angle using this camera
+//                 shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(eyeCamera, plane);
 
-                // Render your scene for each view
-                renderer.render(scene, eyeCamera);
-            }
-        }
+//                 // Render your scene for each view
+//                 renderer.render(scene, eyeCamera);
+//             }
+//         }
 
         
         // if (pose) {
-        //     for (const eyeCamera of renderer.xr.getCamera().cameras) {
-        //         renderer.render(scene, eyeCamera);
-        //     }
+        for (let eyeCamera of renderer.xr.getCamera().cameras) {
+            // Calculate the relative angle using this camera
+            shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(eyeCamera, plane);
+            renderer.render(scene, eyeCamera);
+        }
         // }
-      }
+      // }
       
     } else {
       shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, plane);
