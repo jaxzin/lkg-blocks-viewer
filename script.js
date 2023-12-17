@@ -370,35 +370,30 @@ const halfAngleLimit = angleLimit / 2;
 // animate(0);
   
 function animate(timestamp, frame) {
-  // requestAnimationFrame(animate);
-  shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, plane);
-  renderer.render(scene, camera);
-
-  
-//     if (renderer.xr.isPresenting) {
-//       //intersectController();
-//       shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, plane);
-//       renderer.render(scene, camera);
+    if (renderer.xr.isPresenting) {
+      intersectController();
+      shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, plane);
+      renderer.render(scene, camera);
       
-//       if (frame) {
-// //         const session = renderer.xr.getSession();
-// //         const pose = frame.getViewerPose(baseReferenceSpace);
+      if (frame) {
+        const session = renderer.xr.getSession();
+        const pose = frame.getViewerPose(baseReferenceSpace);
 
-// //         if (pose) {
-// //             for (const view of pose.views) {
-// //                 const camera = renderer.xr.getCameraForEye(view.eye);
+        if (pose) {
+            for (const view of pose.views) {
+                const camera = renderer.xr.getCameraForEye(view.eye);
 
-// //                 // Calculate the relative angle using this camera
-// //                 shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, plane);
+                // Calculate the relative angle using this camera
+                shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, plane);
 
-// //                 renderer.render(scene, camera);
-// //             }
-// //         }
-//       }
-//     } else {
-//       shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, plane);
-//       renderer.render(scene, camera);
-//     }
+                renderer.render(scene, camera);
+            }
+        }
+      }
+    } else {
+      shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, plane);
+      renderer.render(scene, camera);
+    }
 }
   
 function intersectController() {
