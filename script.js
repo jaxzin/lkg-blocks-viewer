@@ -329,7 +329,9 @@ const fragmentShader = `
         float cols = quiltDims.x;
         float rows = quiltDims.y;
         float totalImages = float(rows * cols); // Total number of images in the quilt
-        float index = floor(normalizedAngle * totalImages);
+
+        // Calculate cell size in UV space
+        vec2 cellSize = vec2(1. / cols, 1. / rows);
         
         // Calculate the normalized angle and use fract() to get the fractional part for interpolation
         float index = fract(normalizedAngle * totalImages);
@@ -354,6 +356,7 @@ const fragmentShader = `
         // Fetch the colors from the current and next cells
         vec4 currentColor = texture2D(uTexture, currentCellUv);
         vec4 nextColor = texture2D(uTexture, nextCellUv);
+        vec4 centerColor = texture2D(uTexture, centerCellUv);
 
         // Interpolate between the current and next cell based on the fractional index
         vec4 textureColor = mix(currentColor, nextColor, index);
@@ -361,11 +364,8 @@ const fragmentShader = `
         // Calculate fade factor (1 at the edges of the cone, 0 at the center)
         float fadeFactor = clamp(pow(abs(uRelativeAngle) / maxAngle, 5.), 0., 1.);
 
-        vec2 centerCellOffset = vec2(0.5, 0.5);
-        vec2 centerCellUv = vUv * cellSize + centerCellOffset;
-        vec4 standin = texture2D(uTexture, vUv * cellSize + centerCellOffset);
         // Fade the off-axis stand-in to about 50% brightness
-        standin = mix(standin, vec4(0.,0.,0.,1.), 0.5);
+        vec4 standin = mix(centerColor, vec4(0.,0.,0.,1.), 0.5);
         
         // Fade to the standin as the viewing angle approaches the bounds of the viewing cone
         gl_FragColor = mix(textureColor, standin, fadeFactor);
