@@ -323,9 +323,7 @@ quiltViewer.onBeforeRender = function( renderer, scene, camera, geometry, materi
   quiltViewerMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, quiltViewer);
 };
 group.add( quiltViewer );
-//scene.add(quiltViewer);
   
-//quiltViewer.rotation.y = Math.PI;
 quiltViewer.position.set(0,0,-5);
 
   
