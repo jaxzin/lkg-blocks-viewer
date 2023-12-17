@@ -341,11 +341,35 @@ function createRoundedRectShape(width, height, radius) {
 
     return shape;
 }  
+function createRoundedRectGeometry(width, height, radius) {
+  const shape = createRoundedRectShape(width, height, radius);
+  const geometry = new THREE.ShapeGeometry(shape);  
+
+  // If the geometry is not already a BufferGeometry, convert it
+  if (!(geometry instanceof THREE.BufferGeometry)) {
+      geometry = new THREE.BufferGeometry().fromGeometry(geometry);
+  }
+
+  // Access the UV attribute
+  var uvs = geometry.attributes.uv;
+  for (let i = 0; i < uvs.array.length; i += 2) {
+      // Scale UVs
+      uvs.array[i] /= width;      // u coordinate
+      uvs.array[i + 1] /= height; // v coordinate
+
+      // Center the UVs
+      uvs.array[i] += 0.5;       // u coordinate
+      uvs.array[i + 1] += 0.5    // v coordinate
+
+  }
+
+  // Update the UV attribute
+  uvs.needsUpdate = true;  
+  return geometry;
+}
 
 const width = 3, height = 4, radius = 0.25;
-const roundedRectShape = createRoundedRectShape(width, height, radius);
-
-const quiltViewerGeometry = new THREE.ShapeGeometry(roundedRectShape);  
+const quiltViewerGeometry = createRoundedRectGeometry(width, height, radius);
   
 // Add a mesh using the shader material
 //const quiltViewerGeometry = new THREE.PlaneGeometry(3,4);
@@ -357,6 +381,10 @@ quiltViewer.onBeforeRender = function( renderer, scene, camera, geometry, materi
   quiltViewer.updateWorldMatrix(true,true);
   quiltViewerMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, quiltViewer);
 };
+  
+const borderGeometry = createRoundedRectGeometry(width+.1, height, radius);
+  
+  
 group.add( quiltViewer );
   
 quiltViewer.position.set(0,0,-5);
