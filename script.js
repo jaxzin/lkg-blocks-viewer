@@ -371,32 +371,36 @@ const halfAngleLimit = angleLimit / 2;
   
 function animate() {
 
-  renderer.setAnimationLoop( render );
+  if (renderer.xr.isPresenting) {
+    // WebXR rendering
+    renderer.setAnimationLoop((timestamp, frame) => {
+        if (frame) {
+            const session = renderer.xr.getSession();
+            const pose = frame.getViewerPose(baseReferenceSpace);
+
+            if (pose) {
+                for (const view of pose.views) {
+                    const camera = renderer.xr.getCameraForEye(view.eye);
+
+                    // Calculate the relative angle using this camera
+                    shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, plane);
+
+                    renderer.render(scene, camera);
+                }
+            }
+        }
+    });
+  } else {
+    // Standard rendering
+    shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, plane);
+    requestAnimationFrame(render);
+    renderer.render(scene, camera);
+  }
 
 }
 
 function render(timestamp, frame) {
   
-  if (frame) {
-    const session = renderer.xr.getSession();
-    const pose = frame.getViewerPose(referenceSpace);
-    if (pose) {
-      for (const view of pose.views) {
-          const eye = view.eye; // 'left' or 'right'
-          const camera = renderer.xr.getCameraForEye(eye);
-
-          // Adjust your shader uniform based on the eye
-          if (eye === 'left') {
-              // Update relative angle uniform
-              shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, plane);
-          } else if (eye === 'right') {
-              // Update relative angle uniform
-              shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, plane);
-          }
-      }
-    }
-  }
-
   INTERSECTION = undefined;
 
   if ( controller1 && controller1.userData.isSelecting === true ) {
