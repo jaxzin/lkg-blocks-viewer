@@ -99,8 +99,8 @@ function onSelectEnd() {
   
 function onSessionStart() {
 
-    plane.position.z = 5;
-    camera.rotation.y = Math.PI;
+    // plane.position.z = 5;
+    // camera.rotation.y = Math.PI;
   
     // Add event listeners for controllers and other session start related setup
     const controllerModelFactory = new XRControllerModelFactory();
@@ -375,7 +375,27 @@ function animate() {
 
 }
 
-function render() {
+function render(timestamp, frame) {
+  
+  if (frame) {
+    const session = renderer.xr.getSession();
+    const pose = frame.getViewerPose(referenceSpace);
+    if (pose) {
+      for (const view of pose.views) {
+          const eye = view.eye; // 'left' or 'right'
+          const camera = renderer.xr.getCameraForEye(eye);
+
+          // Adjust your shader uniform based on the eye
+          if (eye === 'left') {
+              // Update relative angle uniform
+              shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, plane);
+          } else if (eye === 'right') {
+              // Update relative angle uniform
+              shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, plane);
+          }
+      }
+    }
+  }
 
   INTERSECTION = undefined;
 
