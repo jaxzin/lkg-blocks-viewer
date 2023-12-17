@@ -74,7 +74,7 @@ function onSelectStart(event) {
   controller.attach( quiltViewer );
   controller.userData.selected = quiltViewer;
   quiltViewer.material.emissive.b = 1;
-  //controller.userData.targetRayMode = event.data.targetRayMode;
+  controller.userData.targetRayMode = event.data.targetRayMode;
 }
 
 function onSelectEnd(event) {
