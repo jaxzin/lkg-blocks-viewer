@@ -18,7 +18,7 @@ let hand1, hand2;
 let controller1, controller2;
 let controllerGrip1, controllerGrip2;
 
-let room, marker, floor, baseReferenceSpace, raycaster;
+let room, marker, floor, baseReferenceSpace, raycaster, group;
 
 let INTERSECTION;
 const tempMatrix = new THREE.Matrix4();
@@ -80,7 +80,7 @@ function onSelectEnd(event) {
 
     const object = controller.userData.selected;
     object.material.emissive.b = 0;
-    group.attach( object );
+    controller.detach( object );
 
     controller.userData.selected = undefined;
 
