@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-
+import { VRButton } from 'three/addons/webxr/VRButton.js';
 
 
 // globals shared between the two main event listeners
@@ -18,6 +18,39 @@ camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight,
 renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
+  
+// Turn on WebXR support
+renderer.xr.enabled = true;
+document.body.appendChild(VRButton.createButton(renderer));
+
+function onSessionStart() {
+    // Add event listeners for controllers and other session start related setup
+    const controller1 = renderer.xr.getController(0);
+    scene.add(controller1);
+
+    const controller2 = renderer.xr.getController(1);
+    scene.add(controller2);
+  
+    controller1.addEventListener('selectstart', onSelectStart);
+    controller1.addEventListener('selectend', onSelectEnd);
+
+    function onSelectStart(event) {
+        // Handle grabbing an object, like the plane
+    }
+
+    function onSelectEnd(event) {
+        // Handle releasing the object
+    }
+
+}
+
+function onSessionEnd() {
+    // Clean up when the VR session ends
+}
+
+renderer.xr.addEventListener('sessionstart', onSessionStart);
+renderer.xr.addEventListener('sessionend', onSessionEnd);
+
 
 // Load the texture atlas
 const textureLoader = new THREE.TextureLoader();
@@ -139,8 +172,8 @@ controls.maxPolarAngle = Math.PI / 2;
 // Lock rotation around the Z axis
 const angleLimit = maxViewingAngle * Math.PI / 180;
 const halfAngleLimit = angleLimit / 2;
-controls.minAzimuthAngle = Math.PI - halfAngleLimit;
-controls.maxAzimuthAngle = Math.PI + halfAngleLimit;
+// controls.minAzimuthAngle = Math.PI - halfAngleLimit;
+// controls.maxAzimuthAngle = Math.PI + halfAngleLimit;
 
 // Animation loop
 function animate(time) {
