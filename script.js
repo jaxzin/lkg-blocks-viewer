@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { VRButton } from 'three/addons/webxr/VRButton.js';
 import { XRControllerModelFactory } from 'three/addons/webxr/XRControllerModelFactory.js';
-
+import { XRHandModelFactory } from 'three/addons/webxr/XRHandModelFactory.js';
 
 
 // globals shared between the two main event listeners
@@ -13,6 +13,9 @@ let shaderMaterial;
 let textureQuilt;
 let planeGrabbed = false;
 let grabbedController = null;
+let hand1, hand2;
+let controller1, controller2;
+let controllerGrip1, controllerGrip2;
 
 
 document.addEventListener('DOMContentLoaded', (event) => {
@@ -20,13 +23,16 @@ document.addEventListener('DOMContentLoaded', (event) => {
 // Setup the scene, camera, and renderer
 const scene = new THREE.Scene();
 camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-renderer = new THREE.WebGLRenderer();
+renderer = new THREE.WebGLRenderer( { antialias: true } );
+renderer.setPixelRatio( window.devicePixelRatio );
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
   
 // Turn on WebXR support
 renderer.xr.enabled = true;
 document.body.appendChild(VRButton.createButton(renderer));
+
+renderer.shadowMap.enabled = true;
 
   
 function onSelectStart(event) {
@@ -56,18 +62,29 @@ function onSessionStart() {
   
     // Add event listeners for controllers and other session start related setup
     const controllerModelFactory = new XRControllerModelFactory();
+    const handModelFactory = new XRHandModelFactory();
 
-    const controller1 = renderer.xr.getController(0);
-    const controllerGrip1 = renderer.xr.getControllerGrip(0);
+    controller1 = renderer.xr.getController(0);
+    controllerGrip1 = renderer.xr.getControllerGrip(0);
     controllerGrip1.add(controllerModelFactory.createControllerModel(controllerGrip1));
     scene.add(controller1);
     scene.add(controllerGrip1);
 
-    const controller2 = renderer.xr.getController(1);
-    const controllerGrip2 = renderer.xr.getControllerGrip(1);
+    controller2 = renderer.xr.getController(1);
+    controllerGrip2 = renderer.xr.getControllerGrip(1);
     controllerGrip2.add(controllerModelFactory.createControllerModel(controllerGrip2));
     scene.add(controller2);
     scene.add(controllerGrip2);
+  
+    hand1 = renderer.xr.getHand( 0 );
+    hand1.add( handModelFactory.createHandModel( hand1 ) );
+
+    scene.add( hand1 );
+
+    hand2 = renderer.xr.getHand( 1 );
+    hand2.add( handModelFactory.createHandModel( hand2 ) );
+
+    scene.add( hand2 );
   
     controller1.addEventListener('selectstart', onSelectStart);
     controller1.addEventListener('selectend', onSelectEnd);
@@ -190,6 +207,7 @@ shaderMaterial = new THREE.ShaderMaterial({
 // Add a mesh using the shader material
 const geometry = new THREE.PlaneGeometry(3,4);
 plane = new THREE.Mesh(geometry, shaderMaterial);
+plane.castShadow = true;
 scene.add(plane);
   
 plane.rotation.y = Math.PI;
@@ -246,10 +264,11 @@ function animate(time) {
   
     controls.update();
 
-    if (planeGrabbed && grabbedController) {
+    //if (planeGrabbed && grabbedController) {
+    if(controller1) {
         // Assuming you want the plane to follow the controller's position and rotation
-        plane.position.copy(grabbedController.position);
-        plane.quaternion.copy(grabbedController.quaternion);
+        plane.position.copy(controller1.position);
+        plane.quaternion.copy(controller1.quaternion);
     }
   
     // Update relative angle uniform
