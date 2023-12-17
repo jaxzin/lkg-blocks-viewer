@@ -300,6 +300,9 @@ shaderMaterial = new THREE.ShaderMaterial({
 const geometry = new THREE.PlaneGeometry(3,4);
 plane = new THREE.Mesh(geometry, shaderMaterial);
 plane.castShadow = true;
+plane.onBeforeRender = function( renderer, scene, camera, geometry, material, group ) {
+  shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, plane);
+};
 scene.add(plane);
   
 //plane.rotation.y = Math.PI;
@@ -380,44 +383,8 @@ const halfAngleLimit = angleLimit / 2;
 function animate(timestamp, frame) {
     if (renderer.xr.isPresenting) {
       intersectController();
-      
-//       if (frame) {
-//         let session = frame.session;
-//         let pose = frame.getViewerPose(baseReferenceSpace);
-
-//         if (pose) {
-//             for (let view of pose.views) {
-//                 let xrView = view; // This is your XRView
-//                 let eye = xrView.eye; // 'left' or 'right'
-//                 let cameras = renderer.xr.getCamera().cameras;
-//                 let eyeCamera = xrView.eye == "left" ? cameras[0] : cameras[1]
-
-//                 // Set camera matrices here
-//                 eyeCamera.matrixWorldInverse.fromArray(xrView.viewMatrix);
-//                 eyeCamera.projectionMatrix.fromArray(xrView.projectionMatrix);
-
-//                 // Calculate the relative angle using this camera
-//                 shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(eyeCamera, plane);
-
-//                 // Render your scene for each view
-//                 renderer.render(scene, eyeCamera);
-//             }
-//         }
-
-        
-        // if (pose) {
-        for (let eyeCamera of renderer.xr.getCamera().cameras) {
-            // Calculate the relative angle using this camera
-            shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(eyeCamera, plane);
-            renderer.render(scene, eyeCamera);
-        }
-        // }
-      // }
-      
-    } else {
-      shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, plane);
-      renderer.render(scene, camera);
     }
+    renderer.render(scene, camera);
 }
   
 function intersectController() {
