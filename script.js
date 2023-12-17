@@ -35,8 +35,16 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
   
 // Turn on WebXR support
-renderer.xr.addEventListener( 'sessionstart', () => baseReferenceSpace = renderer.xr.getReferenceSpace() );
+let referenceSpaceType = 'local-floor'; // or 'local', 'unbounded', etc.
+let xrSession;
+
 renderer.xr.enabled = true;
+renderer.xr.addEventListener('sessionstart', (event) => {
+    xrSession = renderer.xr.getSession();
+    xrSession.requestReferenceSpace(referenceSpaceType).then((refSpace) => {
+        baseReferenceSpace = refSpace;
+    });
+});  
 document.body.appendChild(VRButton.createButton(renderer));
 
 renderer.shadowMap.enabled = true;
@@ -374,17 +382,15 @@ function animate(timestamp, frame) {
       intersectController();
       
       if (frame) {
-        const session = renderer.xr.getSession();
         const pose = frame.getViewerPose(baseReferenceSpace);
 
         if (pose) {
             for (const view of pose.views) {
-                const camera = renderer.xr.getCameraForEye(view.eye);
-
+                const camera2 = renderer.xr.getCameraForEye(view.eye);
                 // Calculate the relative angle using this camera
-                shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, plane);
+                shaderMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera2, plane);
 
-                renderer.render(scene, camera);
+                renderer.render(scene, camera2);
             }
         }
       }
