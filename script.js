@@ -169,10 +169,13 @@ function onSessionStart() {
 }
 
 function onSessionEnd() {
-    // Clean up when the VR session ends
-    plane.position.set(0,0,-5);
-    floor.visible = false;
-    room.visible = false;
+  // Clean up when the VR session ends
+  plane.position.set(0,0,-5);
+  plane.scale.set(3,4,1);
+  camera.position.set(0,0,0);
+  controls.target.set(plane.position.x, plane.position.y, plane.position.z);
+  floor.visible = false;
+  room.visible = false;
 }
 
 renderer.xr.addEventListener('sessionstart', onSessionStart);
