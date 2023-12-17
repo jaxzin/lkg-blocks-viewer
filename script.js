@@ -114,8 +114,9 @@ function onSelectEnd2() {
 }  
   
 function onSessionStart() {
-    quiltViewer.position.set(0,2,-1);
-    quiltViewer.scale.set(.1,.1,.1);
+    quiltViewer.position.copy(renderer.xr.getCamera().cameras[0])
+    quiltViewer.position.set(0.,1.,-.5);
+    quiltViewer.scale.set(.05,.05,.05);
     floor.visible = true;
     room.visible = true;
 
