@@ -326,12 +326,10 @@ const fragmentShader = `
         float normalizedAngle = (maxAngle - uRelativeAngle) / (2.0 * maxAngle);
 
         // Calculate the index
-        float cols = quiltDims.x;
-        float rows = quiltDims.y;
-        float totalImages = float(rows * cols); // Total number of images in the quilt
+        float totalImages = float(quiltDims.x * quiltDims.y); // Total number of images in the quilt
 
         // Calculate cell size in UV space
-        vec2 cellSize = vec2(1. / cols, 1. / rows);
+        vec2 cellSize = 1. / quiltDims;
         
         // Calculate the normalized angle and use fract() to get the fractional part for interpolation
         float index = fract(normalizedAngle * totalImages);
@@ -340,23 +338,21 @@ const fragmentShader = `
         float currentCellIndex = floor(normalizedAngle * totalImages);
         float nextCellIndex = currentCellIndex + 1.0;
 
-        // Ensure the next cell index is within bounds
+        // Ensure the cell index is within bounds
+        currentCellIndex = clamp(currentCellIndex, 0.0, totalImages - 1.0);
         nextCellIndex = clamp(nextCellIndex, 0.0, totalImages - 1.0);
 
         // Calculate the row and column for the current and next cells
-        vec2 currentCell = vec2(mod(currentCellIndex, cols), floor(currentCellIndex / cols));
-        vec2 nextCell = vec2(mod(nextCellIndex, cols), floor(nextCellIndex / cols));
-        vec2 centerCell = vec2(cols / 2., floor( cols / 2.));
+        vec2 currentCell = vec2(mod(currentCellIndex, quiltDims.x), floor(currentCellIndex / quiltDims.x));
+        vec2 nextCell = vec2(mod(nextCellIndex, quiltDims.x), floor(nextCellIndex / quiltDims.x));
 
         // Calculate UV coordinates for the current and next cells
         vec2 currentCellUv = (vUv * cellSize) + (currentCell / quiltDims);
         vec2 nextCellUv = (vUv * cellSize) + (nextCell / quiltDims);
-        vec2 centerCellUv = (vUv * cellSize) + (centerCell / quiltDims);
 
         // Fetch the colors from the current and next cells
         vec4 currentColor = texture2D(uTexture, currentCellUv);
         vec4 nextColor = texture2D(uTexture, nextCellUv);
-        vec4 centerColor = texture2D(uTexture, centerCellUv);
 
         // Interpolate between the current and next cell based on the fractional index
         vec4 textureColor = mix(currentColor, nextColor, index);
