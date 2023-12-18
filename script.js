@@ -89,7 +89,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
   
   // Our Christmas Tree 2023
   let blockCard1 = createBlockCard(
-    'https://cdn.glitch.global/98b2b4e8-ce2c-4c4f-8e0c-3e762cb48276/christmas_tree_2023_qs8x12a0.75.jpg?v=1702708834115',
+    "https://cdn.glitch.global/98b2b4e8-ce2c-4c4f-8e0c-3e762cb48276/christmas_tree_2023_qs8x12a0.75.jpg?v=1702708834115",
     new THREE.Vector2(8, 12) // quilt col & row count
   );
   blockCard1.position.x = -0.2;
