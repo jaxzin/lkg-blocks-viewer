@@ -174,35 +174,22 @@ document.addEventListener("DOMContentLoaded", (event) => {
   const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
   scene.add(ambientLight);
 
-  // Load the texture atlas
-  const textureLoader = new THREE.TextureLoader();
-  // Our Christmas Tree 2023
-  //quiltTexture = textureLoader.load('https://cdn.glitch.global/98b2b4e8-ce2c-4c4f-8e0c-3e762cb48276/christmas_tree_2023_qs8x12a0.75.jpg?v=1702708834115');
-  //const quiltDims = new THREE.Vector2(8, 12); // quilt col & row count
-  //const quiltRes = new THREE.Vector2(6400.0, 7462.0);
-
-  // Our Christmas Tree 2023 Close-up
-  // quiltTexture = textureLoader.load(
-  //   "https://lkg-blocks.imgix.net/u/0dee4e8cdbd947a5/quilt.png"
-  // );
-  // const quiltDims = new THREE.Vector2(8, 7); // quilt col & row count
-  // const quiltRes = new THREE.Vector2(6400.0, 7462.0);
-
-  // Jupiter
-  quiltTexture = textureLoader.load(
-    "https://lkg-blocks.imgix.net/u/052ce5cfe2ad4595/julpiterLGS_v002__qs8x6a0.75.png?ixlib=js-3.7.0&fm=webp&auto=format&fit=max&w=3360"
-  );
-  const quiltDims = new THREE.Vector2(8, 6); // quilt col & row count
-  const quiltRes = new THREE.Vector2(6400.0, 7462.0);
-
+  // Setup some shared properties of all cards
   const maxViewingAngle = 58; // max viewing angle image (degrees)
 
   const cardWidth = 3,
     cardHeight = 4,
     cardCornerRadius = 0.2;
   const borderWidth = 0.25;
-
-  const blockCard = new BlockCard(
+  
+  
+  // Load the texture atlas
+  const textureLoader = new THREE.TextureLoader();
+  // Our Christmas Tree 2023
+  quiltTexture = textureLoader.load('https://cdn.glitch.global/98b2b4e8-ce2c-4c4f-8e0c-3e762cb48276/christmas_tree_2023_qs8x12a0.75.jpg?v=1702708834115');
+  let quiltDims = new THREE.Vector2(8, 12); // quilt col & row count
+  let quiltRes = new THREE.Vector2(6400.0, 7462.0);
+  let blockCard = new BlockCard(
     quiltTexture,
     cardWidth,
     cardHeight,
@@ -213,8 +200,48 @@ document.addEventListener("DOMContentLoaded", (event) => {
     maxViewingAngle
   );
   cardGroup.add(blockCard);
-  blockCard.position.set(0, 0, -5);
+  
+  // Our Christmas Tree 2023 Close-up
+  quiltTexture = textureLoader.load(
+    "https://lkg-blocks.imgix.net/u/0dee4e8cdbd947a5/quilt.png"
+  );
+  quiltDims = new THREE.Vector2(8, 7); // quilt col & row count
+  quiltRes = new THREE.Vector2(6400.0, 7462.0);
+  blockCard = new BlockCard(
+    quiltTexture,
+    cardWidth,
+    cardHeight,
+    cardCornerRadius,
+    borderWidth,
+    quiltDims,
+    quiltRes,
+    maxViewingAngle
+  );
+  blockCard.position.x = 1; // sticking it in a separate place from the other cards as a test
+  cardGroup.add(blockCard);
 
+  // Jupiter
+  quiltTexture = textureLoader.load(
+    "https://lkg-blocks.imgix.net/u/052ce5cfe2ad4595/julpiterLGS_v002__qs8x6a0.75.png?ixlib=js-3.7.0&fm=webp&auto=format&fit=max&w=3360"
+  );
+  quiltDims = new THREE.Vector2(8, 6); // quilt col & row count
+  quiltRes = new THREE.Vector2(6400.0, 7462.0);
+  blockCard = new BlockCard(
+    quiltTexture,
+    cardWidth,
+    cardHeight,
+    cardCornerRadius,
+    borderWidth,
+    quiltDims,
+    quiltRes,
+    maxViewingAngle
+  );
+  cardGroup.add(blockCard);
+  
+  // setup up the first card as the one visible in the 2D view
+  cardGroup.children[0].position.set(0, 0, -5);
+  
+  // Setup camera controls for the 2D view
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   controls.dampingFactor = 0.025;
