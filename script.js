@@ -17,7 +17,7 @@ let hand1, hand2;
 let controller1, controller2;
 let controllerGrip1, controllerGrip2;
 
-let room, marker, floor, baseReferenceSpace, raycaster;
+let xrEnvironment, room, marker, floor, baseReferenceSpace, raycaster;
 let cardGroup;
 
 document.addEventListener("DOMContentLoaded", (event) => {
@@ -48,15 +48,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
   document.body.appendChild(VRButton.createButton(renderer));
 
   renderer.shadowMap.enabled = true;
-
-  // In VR mode, show a basic floor and walls
-  //   since a black void can be a little disorienting
-  room = new THREE.LineSegments(
-    new BoxLineGeometry(6, 6, 6, 10, 10, 10).translate(0, 3, 0),
-    new THREE.LineBasicMaterial({ color: 0xbcbcbc })
-  );
-  room.visible = false;
-  scene.add(room);
 
   raycaster = new THREE.Raycaster();
 
@@ -90,13 +81,9 @@ document.addEventListener("DOMContentLoaded", (event) => {
   }
 
   function onSessionStart() {
-    cardGroup.children[0].position.set(-0.2, 0, 0);
-    cardGroup.children[1].position.set(0, 0, 0);
-    cardGroup.children[2].position.set(0.2, 0, 0);
+    // Put the group of cards near the player
     cardGroup.position.set(0, 1, -0.5);
-    //card.scale.set(0.05, 0.05, 0.05);
-    floor.visible = true;
-    room.visible = true;
+    xrEnvironment.visible = true;
 
     // Add event listeners for controllers and other session start related setup
     const controllerModelFactory = new XRControllerModelFactory();
@@ -136,20 +123,37 @@ document.addEventListener("DOMContentLoaded", (event) => {
   }
 
   function onSessionEnd() {
-    let card = cardGroup.children[0];
+    cardGroup.children[0].position.set(-0.2, 0, 0);
+    cardGroup.children[1].position.set(0, 0, 0);
+    cardGroup.children[2].position.set(0.2, 0, 0);
+
+    cardGroup.children[0].rotation.reset();
+    cardGroup.children[1].rotation.reset();
+    cardGroup.children[2].rotation.reset();
+
 
     // Clean up when the VR session ends
-    card.position.set(0, 0, -.5);
-    //card.scale.set(3, 4, 1);
+    cardGroup.position.set(0, 0, -.5);
     camera.position.set(0, 0, 0);
-    controls.target.copy(card.position);
-    floor.visible = false;
-    room.visible = false;
+    controls.target.copy(cardGroup.position);
+    xrEnvironment.visible = false;
   }
 
   renderer.xr.addEventListener("sessionstart", onSessionStart);
   renderer.xr.addEventListener("sessionend", onSessionEnd);
 
+  // In VR mode, show a basic floor and walls
+  //   since a black void can be a little disorienting
+  xrEnvironment = new THREE.Group();
+  xrEnvironment.visible = false;
+  scene.add( xrEnvironment );
+  
+  room = new THREE.LineSegments(
+    new BoxLineGeometry(6, 6, 6, 10, 10, 10).translate(0, 3, 0),
+    new THREE.LineBasicMaterial({ color: 0xbcbcbc })
+  );
+  xrEnvironment.add(room);
+  
   floor = new THREE.Mesh(
     new THREE.PlaneGeometry(4.8, 4.8, 2, 2).rotateX(-Math.PI / 2),
     new THREE.MeshBasicMaterial({
@@ -158,8 +162,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
       opacity: 0.25,
     })
   );
-  floor.visible = false;
-  scene.add(floor);
+  xrEnvironment.add(floor);
 
   scene.add(new THREE.HemisphereLight(0x808080, 0x606060));
 
@@ -176,6 +179,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
   const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
   scene.add(ambientLight);
 
+  
+  
   // Setup some shared properties of all cards
   const maxViewingAngle = 58; // max viewing angle image (degrees)
 
@@ -185,65 +190,51 @@ document.addEventListener("DOMContentLoaded", (event) => {
   const borderWidth = 0.0125;
   
   
-  function createBlockCard(url, )
+  function createBlockCard(textureUrl, quiltDims, quiltRes) {
+    // Load the texture atlas
+    const textureLoader = new THREE.TextureLoader();
+    // Our Christmas Tree 2023
+    let quiltTexture = textureLoader.load(textureUrl);
+    let blockCard = new BlockCard(
+      quiltTexture,
+      cardWidth,
+      cardHeight,
+      cardCornerRadius,
+      borderWidth,
+      quiltDims,
+      quiltRes,
+      maxViewingAngle
+    );
+    return blockCard;
+  }
   
-  // Load the texture atlas
-  const textureLoader = new THREE.TextureLoader();
   // Our Christmas Tree 2023
-  quiltTexture = textureLoader.load('https://cdn.glitch.global/98b2b4e8-ce2c-4c4f-8e0c-3e762cb48276/christmas_tree_2023_qs8x12a0.75.jpg?v=1702708834115');
-  let quiltDims = new THREE.Vector2(8, 12); // quilt col & row count
-  let quiltRes = new THREE.Vector2(6400.0, 7462.0);
-  let blockCard = new BlockCard(
-    quiltTexture,
-    cardWidth,
-    cardHeight,
-    cardCornerRadius,
-    borderWidth,
-    quiltDims,
-    quiltRes,
-    maxViewingAngle
+  let blockCard1 = createBlockCard(
+    'https://cdn.glitch.global/98b2b4e8-ce2c-4c4f-8e0c-3e762cb48276/christmas_tree_2023_qs8x12a0.75.jpg?v=1702708834115',
+    new THREE.Vector2(8, 12), // quilt col & row count
+    new THREE.Vector2(6400.0, 7462.0) // texture size
   );
-  blockCard.position.x = -0.2;
-  cardGroup.add(blockCard);
+  blockCard1.position.x = -0.2;
+  cardGroup.add(blockCard1);
   
   // Our Christmas Tree 2023 Close-up
-  quiltTexture = textureLoader.load(
-    "https://cdn.glitch.global/98b2b4e8-ce2c-4c4f-8e0c-3e762cb48276/closeup_qs8x12a0.75.png?v=1702865989253"
+  let blockCard2 = createBlockCard(
+    "https://cdn.glitch.global/98b2b4e8-ce2c-4c4f-8e0c-3e762cb48276/closeup_qs8x12a0.75.png?v=1702865989253",
+    new THREE.Vector2(8, 7), // quilt col & row count
+    new THREE.Vector2(6400.0, 7462.0) // texture size
   );
-  quiltDims = new THREE.Vector2(8, 7); // quilt col & row count
-  quiltRes = new THREE.Vector2(6400.0, 7462.0);
-  blockCard = new BlockCard(
-    quiltTexture,
-    cardWidth,
-    cardHeight,
-    cardCornerRadius,
-    borderWidth,
-    quiltDims,
-    quiltRes,
-    maxViewingAngle
-  );
-  cardGroup.add(blockCard);
+  cardGroup.add(blockCard2);
 
   // Jupiter
-  quiltTexture = textureLoader.load(
-    "https://lkg-blocks.imgix.net/u/052ce5cfe2ad4595/julpiterLGS_v002__qs8x6a0.75.png?ixlib=js-3.7.0&fm=webp&auto=format&fit=max&w=3360"
+  let blockCard3 = createBlockCard(
+    "https://lkg-blocks.imgix.net/u/052ce5cfe2ad4595/julpiterLGS_v002__qs8x6a0.75.png?ixlib=js-3.7.0&fm=webp&auto=format&fit=max&w=3360",
+    new THREE.Vector2(8, 6), // quilt col & row count
+    new THREE.Vector2(6400.0, 7462.0) // texture size
   );
-  quiltDims = new THREE.Vector2(8, 6); // quilt col & row count
-  quiltRes = new THREE.Vector2(6400.0, 7462.0);
-  blockCard = new BlockCard(
-    quiltTexture,
-    cardWidth,
-    cardHeight,
-    cardCornerRadius,
-    borderWidth,
-    quiltDims,
-    quiltRes,
-    maxViewingAngle
-  );
-  blockCard.position.x = 0.2;
-  cardGroup.add(blockCard);
-  
-  // Set it up as visible
+  blockCard3.position.x = 0.2;
+  cardGroup.add(blockCard3);
+    
+  // Set the cards up as visible
   cardGroup.position.z = -2.5;
   camera.fov = 5;
   camera.updateProjectionMatrix();
