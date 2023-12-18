@@ -2,7 +2,7 @@ import * as THREE from 'three';
 
 // A Material that can display a light field quilt texture in a similar way to physical Looking Glass display.
 export class QuiltMaterial extends THREE.ShaderMaterial {
-  constructor(texture, quiltDims, quiltRes, maxViewingAngle) {
+  constructor(texture, quiltDims, maxViewingAngle) {
     const vertexShader = `
         varying vec2 vUv;
 
@@ -14,7 +14,6 @@ export class QuiltMaterial extends THREE.ShaderMaterial {
     
     const fragmentShader = `
         uniform sampler2D uTexture;
-        uniform vec2 uTextureSize;
         uniform float uRelativeAngle; // Relative angle between camera and object
         uniform vec2 quiltDims;
         uniform float viewCone;
@@ -74,7 +73,6 @@ export class QuiltMaterial extends THREE.ShaderMaterial {
     super({
       uniforms: {
         uTexture: { value: texture },
-        uTextureSize: { value: quiltRes },
         uRelativeAngle: { value: 0.0 },
         quiltDims: { value: quiltDims },
         viewCone: { value: maxViewingAngle }

@@ -316,7 +316,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
       cardHeight,
       cardCornerRadius,
       borderWidth,
-      quiltDims,
       quiltRes,
       maxViewingAngle
     );
@@ -339,7 +338,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
   let blockCard2 = createBlockCard(
     "https://cdn.glitch.global/98b2b4e8-ce2c-4c4f-8e0c-3e762cb48276/closeup_qs8x12a0.75.png?v=1702865989253",
     new THREE.Vector2(8, 7), // quilt col & row count
-    new THREE.Vector2(6400.0, 7462.0) // texture size
+    new THREE.Vector2(1.0, 7462.0) // texture size
   );
   cardGroup.add(blockCard2);
 
@@ -347,7 +346,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
   let blockCard3 = createBlockCard(
     "https://lkg-blocks.imgix.net/u/052ce5cfe2ad4595/julpiterLGS_v002__qs8x6a0.75.png?ixlib=js-3.7.0&fm=webp&auto=format&fit=max&w=3360",
     new THREE.Vector2(8, 6), // quilt col & row count
-    new THREE.Vector2(6400.0, 7462.0) // texture size
+    new THREE.Vector2(3360.0, 3360.0) // texture size
   );
   blockCard3.position.x = 0.2;
   cardGroup.add(blockCard3);
@@ -374,16 +373,31 @@ document.addEventListener("DOMContentLoaded", (event) => {
   controls.minAzimuthAngle = -halfAngleLimit;
   controls.maxAzimuthAngle = halfAngleLimit;
 
+  
+  // The main animation and render loop
   function animate(timestamp, frame) {
     if (renderer.xr.isPresenting) {
-      //intersectController();
+      // In VR mode, highlight any card(s) being pointed at
+      cleanIntersected();
+
+      intersectObjects( controller1 );
+      intersectObjects( controller2 );
     } else {
+      // In 2D mode, the orbit controls need this for damping to work
       controls.update();
     }
+    
+    // Render the scene on each frame!!
     renderer.render(scene, camera);
   }
+  
+  // Start the loop!!
   renderer.setAnimationLoop(animate);
+  
+  
 });
+
+
 
 window.addEventListener("resize", onWindowResize, false);
 

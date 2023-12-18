@@ -3,8 +3,8 @@ import { QuiltMaterial } from './QuiltMaterial.js';
 import { RoundedRectGeometry } from './RoundedRect.js';
 
 export class BlockCard extends THREE.Mesh {
-  constructor(texture, width, height, radius, borderWidth, quiltDims, quiltRes, maxViewingAngle) {
-    let material = new QuiltMaterial(texture, quiltDims, quiltRes, maxViewingAngle);
+  constructor(texture, width, height, radius, borderWidth, quiltDims, maxViewingAngle) {
+    let material = new QuiltMaterial(texture, quiltDims, maxViewingAngle);
     let geometry = new RoundedRectGeometry(width, height, radius);
     super(geometry, material)
     this.castShadow = true;
