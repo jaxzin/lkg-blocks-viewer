@@ -56,9 +56,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
   renderer.shadowMap.enabled = true;
   
-  
-  
-
   // This is a collection of all the cards in the scene
   cardGroup = new THREE.Group();
   scene.add(cardGroup);
@@ -157,7 +154,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
       const intersection = intersections[ 0 ];
 
       const object = intersection.object;
-      object.material.emissive.r = 1;
+      object.border.material.emissive.r = 1;
       intersected.push( object );
 
       line.scale.z = intersection.distance;
@@ -221,7 +218,19 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
     controller2.addEventListener("selectstart", onSelectStart);
     controller2.addEventListener("selectend", onSelectEnd);
-        
+
+    // Attach laser pointers to both controllers
+    const geometry = new THREE.BufferGeometry().setFromPoints( [ new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, 0, - 1 ) ] );
+
+    const line = new THREE.Line( geometry );
+    line.name = 'line';
+    line.scale.z = 5;
+
+    controller1.add( line.clone() );
+    controller2.add( line.clone() );
+
+    raycaster = new THREE.Raycaster();
+
   }
 
   function onSessionEnd() {
