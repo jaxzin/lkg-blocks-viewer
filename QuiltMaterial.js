@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 
+// A Material that can display a light field quilt texture in a similar way to physical Looking Glass display.
 export class QuiltMaterial extends THREE.ShaderMaterial {
   constructor(texture, quiltDims, quiltRes, maxViewingAngle) {
     const vertexShader = `
