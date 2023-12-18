@@ -5,6 +5,7 @@ import { XRControllerModelFactory } from 'three/addons/webxr/XRControllerModelFa
 import { XRHandModelFactory } from 'three/addons/webxr/XRHandModelFactory.js';
 import { BoxLineGeometry } from 'three/addons/geometries/BoxLineGeometry.js';
 
+import BlockCard from 'BlockCard';
 
 // globals shared between the two main event listeners
 let camera;
@@ -114,6 +115,7 @@ function onSelectEnd2() {
 }  
   
 function onSessionStart() {
+    let quiltViewer = group.children[0];
     quiltViewer.position.set( 0, 1, -.5 );
     quiltViewer.scale.set(.05,.05,.05);
     floor.visible = true;
@@ -456,7 +458,9 @@ const border = new THREE.Mesh(borderGeometry, new THREE.MeshPhongMaterial({color
 border.position.z = -0.001;
 quiltViewer.add( border );
   
-group.add( quiltViewer );
+  let blockCard = new BlockCard(quiltTexture, width, height, radius, borderWidth, quiltDims, quiltRes, maxViewingAngle);
+  group.add( blockCard );
+//group.add( quiltViewer );
   
 quiltViewer.position.set(0,0,-5);
 
