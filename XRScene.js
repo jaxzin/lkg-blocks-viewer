@@ -11,9 +11,10 @@ export class XRScene {
     this.baseReferenceSpace = ref;
   }
   
-  constructor(renderer, document, scene, cardGroup) {
+  constructor(renderer, document, scene, camera, cardGroup) {
     this.renderer = renderer;
     this.scene = scene;
+    this.camera = camera;
     this.cardGroup = cardGroup;
     
     this.raycaster = new THREE.Raycaster();
@@ -32,6 +33,9 @@ export class XRScene {
         requestReferenceSpace(referenceSpaceType).
         then(this.setBaseReferenceSpace.bind(this)); // TODO, I don't think this is going to bind to the right 'this'
     });
+    renderer.xr.addEventListener("sessionstart", this.onSessionStart.bind(this));
+    renderer.xr.addEventListener("sessionend", this.onSessionEnd.bind(this));
+
     document.body.appendChild(VRButton.createButton(renderer));
   }
 
@@ -39,7 +43,7 @@ export class XRScene {
 
     const controller = event.target;
 
-    const intersections = getIntersections( controller );
+    const intersections = this.getIntersections( controller );
 
     if ( intersections.length > 0 ) {
 
@@ -80,7 +84,7 @@ export class XRScene {
     this.tempMatrix.identity().extractRotation( controller.matrixWorld );
 
     this.raycaster.ray.origin.setFromMatrixPosition( controller.matrixWorld );
-    this.raycaster.ray.direction.set( 0, 0, - 1 ).applyMatrix4( tempMatrix );
+    this.raycaster.ray.direction.set( 0, 0, - 1 ).applyMatrix4( this.tempMatrix );
 
     return this.raycaster.intersectObjects( this.cardGroup.children, false );
 
@@ -97,7 +101,7 @@ export class XRScene {
     if ( controller.userData.selected !== undefined ) return;
 
     const line = controller.getObjectByName( 'line' );
-    const intersections = getIntersections( controller );
+    const intersections = this.getIntersections( controller );
 
     if ( intersections.length > 0 ) {
 
@@ -105,7 +109,7 @@ export class XRScene {
 
       const object = intersection.object;
       object.border.material.emissive.r = 1;
-      intersected.push( object );
+      this.intersected.push( object );
 
       line.scale.z = intersection.distance;
 
@@ -119,9 +123,9 @@ export class XRScene {
 
   cleanIntersected() {
 
-    while ( intersected.length ) {
+    while ( this.intersected.length ) {
 
-      const object = intersected.pop();
+      const object = this.intersected.pop();
       object.border.material.emissive.r = 0;
 
     }
@@ -133,15 +137,15 @@ export class XRScene {
     //   since a black void can be a little disorienting
     this.xrEnvironment = new THREE.Group();
     this.xrEnvironment.visible = false;
-    scene.add( xrEnvironment );
+    this.scene.add( this.xrEnvironment );
 
-    room = new THREE.LineSegments(
+    let room = new THREE.LineSegments(
       new BoxLineGeometry(6, 6, 6, 10, 10, 10).translate(0, 3, 0),
       new THREE.LineBasicMaterial({ color: 0xbcbcbc })
     );
     this.xrEnvironment.add(room);
 
-    floor = new THREE.Mesh(
+    let floor = new THREE.Mesh(
       new THREE.PlaneGeometry(4.8, 4.8, 2, 2).rotateX(-Math.PI / 2),
       new THREE.MeshBasicMaterial({
         color: 0xbcbcbc,
@@ -153,40 +157,81 @@ export class XRScene {
     this.xrEnvironment.add(floor);
   }
   
-  createControllers
+  createControllerAvatars() {
+        // Add event listeners for controllers and other session start related setup
+    const controllerModelFactory = new XRControllerModelFactory();
+    const handModelFactory = new XRHandModelFactory();
+
+    let controller1 = this.renderer.xr.getController(0);
+    let controllerGrip1 = this.renderer.xr.getControllerGrip(0);
+    controllerGrip1.add(
+      controllerModelFactory.createControllerModel(controllerGrip1)
+    );
+    this.scene.add(controller1);
+    this.scene.add(controllerGrip1);
+
+    let controller2 = this.renderer.xr.getController(1);
+    let controllerGrip2 = this.renderer.xr.getControllerGrip(1);
+    controllerGrip2.add(
+      controllerModelFactory.createControllerModel(controllerGrip2)
+    );
+    this.scene.add(controller2);
+    this.scene.add(controllerGrip2);
+
+    let hand1 = this.renderer.xr.getHand(0);
+    hand1.add(handModelFactory.createHandModel(hand1));
+
+    this.scene.add(hand1);
+
+    let hand2 = this.renderer.xr.getHand(1);
+    hand2.add(handModelFactory.createHandModel(hand2));
+
+    this.scene.add(hand2);
+
+    controller1.addEventListener("selectstart", this.onSelectStart.bind(this));
+    controller1.addEventListener("selectend", this.onSelectEnd.bind(this));
+
+    controller2.addEventListener("selectstart", this.onSelectStart.bind(this));
+    controller2.addEventListener("selectend", this.onSelectEnd.bind(this));
+
+    // Attach laser pointers to both controllers
+    const geometry = new THREE.BufferGeometry().setFromPoints( [ new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, 0, - 1 ) ] );
+
+    const line = new THREE.Line( geometry );
+    line.name = 'line';
+    line.scale.z = 5;
+
+    controller1.add( line.clone() );
+    controller2.add( line.clone() );
+  }
 
   onSessionStart() {
-    createXRScene();
+    this.createXRScene();
+    this.createControllerAvatars();
     
     // Put the group of cards near the player
     this.cardGroup.position.set(0, 1, -0.5);
-    xrEnvironment.visible = true;
+    this.xrEnvironment.visible = true;
 
   }
 
-  function onSessionEnd() {
+  onSessionEnd() {
     // Reset the cards back to an order set for the 2D view
-    cardGroup.children[0].position.set(-0.2, 0, 0);
-    cardGroup.children[1].position.set(0, 0, 0);
-    cardGroup.children[2].position.set(0.2, 0, 0);
+    this.cardGroup.children[0].position.set(-0.2, 0, 0);
+    this.cardGroup.children[1].position.set(0, 0, 0);
+    this.cardGroup.children[2].position.set(0.2, 0, 0);
 
-    cardGroup.children[0].rotation.set(0,0,0);
-    cardGroup.children[1].rotation.set(0,0,0);
-    cardGroup.children[2].rotation.set(0,0,0);
+    this.cardGroup.children[0].rotation.set(0,0,0);
+    this.cardGroup.children[1].rotation.set(0,0,0);
+    this.cardGroup.children[2].rotation.set(0,0,0);
 
 
     // Clean up when the VR session ends
-    cardGroup.position.set(0, 0, -2.5);
-    camera.position.set(0, 0, 0);
-    camera.fov = 5;
-    camera.updateProjectionMatrix();
-    controls.target.copy(cardGroup.position);
-    xrEnvironment.visible = false;
-  }
-
-  renderer.xr.addEventListener("sessionstart", onSessionStart);
-  renderer.xr.addEventListener("sessionend", onSessionEnd);
-
-    
+    this.cardGroup.position.set(0, 0, -2.5);
+    this.camera.position.set(0, 0, 0);
+    this.camera.fov = 5;
+    this.camera.updateProjectionMatrix();
+    //controls.target.copy(cardGroup.position);
+    this.xrEnvironment.visible = false;
   }
 }
