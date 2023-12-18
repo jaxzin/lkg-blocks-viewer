@@ -460,11 +460,12 @@ const border = new THREE.Mesh(borderGeometry, new THREE.MeshPhongMaterial({color
 border.position.z = -0.001;
 quiltViewer.add( border );
   
-  let blockCard = new BlockCard(quiltTexture, width, height, radius, borderWidth, quiltDims, quiltRes, maxViewingAngle);
-  group.add( blockCard.getMesh() );
+const blockCard = new BlockCard(quiltTexture, width, height, radius, borderWidth, quiltDims, quiltRes, maxViewingAngle);
+group.add( blockCard );
 //group.add( quiltViewer );
   
-quiltViewer.position.set(0,0,-5);
+//quiltViewer.position.set(0,0,-5);
+blockCard.position.set(0,0,-5);
 
   
 function calculateRelativeAngle(camera, object) {
