@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-class QuiltMaterial extends THREE.ShaderMaterial {
+export class QuiltMaterial extends THREE.ShaderMaterial {
   constructor(texture, quiltDims, quiltRes, maxViewingAngle) {
     const vertexShader = `
         varying vec2 vUv;

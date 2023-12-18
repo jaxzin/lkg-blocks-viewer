@@ -1,11 +1,11 @@
 import * as THREE from 'three';
-import QuiltMaterial from 'QuiltMaterial';
+import { QuiltMaterial } from './QuiltMaterial.js';
 
-class BlockCard {
+export class BlockCard {
   constructor(texture, width, height, radius, borderWidth, quiltDims, quiltRes, maxViewingAngle) {
     this.texture = texture;
     this.material = new QuiltMaterial(texture, quiltDims, quiltRes, maxViewingAngle);
-    this.geometry = this.createRoundRectGeometry(width, height, radius);
+    this.geometry = this.createRoundedRectGeometry(width, height, radius);
     this.mesh = new THREE.Mesh(this.geometry, this.material);
     this.mesh.castShadow = true;
     this.mesh.onBeforeRender = this.updateAngle;
@@ -79,7 +79,7 @@ class BlockCard {
   }
     
   addBorder(width, height, borderWidth) {
-    const borderGeometry = this.createRoundedRechGeometry(width + borderWidth, height + borderWidth, borderWidth);
+    const borderGeometry = this.createRoundedRectGeometry(width + borderWidth, height + borderWidth, borderWidth);
     const border = new THREE.Mesh(
       borderGeometry, 
       new THREE.MeshPhongMaterial({
@@ -93,7 +93,8 @@ class BlockCard {
   
   updateAngle(renderer, scene, camera, geometry, material, group ) {
     // Update the viewing angle so the quilt viewer shader knows which quilt cell(s) to display
-    material.setRelativeAngle(this.calculateRelativeAngle(camera, this));
+    let angle = this.calculateRelativeAngle(camera, this.mesh)
+    material.setRelativeAngle( angle );
   }
   
   calculateRelativeAngle(camera, object) {

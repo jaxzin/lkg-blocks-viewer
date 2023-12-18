@@ -5,7 +5,7 @@ import { XRControllerModelFactory } from 'three/addons/webxr/XRControllerModelFa
 import { XRHandModelFactory } from 'three/addons/webxr/XRHandModelFactory.js';
 import { BoxLineGeometry } from 'three/addons/geometries/BoxLineGeometry.js';
 
-import BlockCard from 'BlockCard';
+import { BlockCard } from './BlockCard.js';
 
 // globals shared between the two main event listeners
 let camera;
@@ -178,6 +178,8 @@ function onSessionStart() {
 }
 
 function onSessionEnd() {
+  let quiltViewer = group.children[0];
+  
   // Clean up when the VR session ends
   quiltViewer.position.set(0,0,-5);
   quiltViewer.scale.set(3,4,1);
@@ -459,7 +461,7 @@ border.position.z = -0.001;
 quiltViewer.add( border );
   
   let blockCard = new BlockCard(quiltTexture, width, height, radius, borderWidth, quiltDims, quiltRes, maxViewingAngle);
-  group.add( blockCard );
+  group.add( blockCard.getMesh() );
 //group.add( quiltViewer );
   
 quiltViewer.position.set(0,0,-5);
@@ -504,7 +506,7 @@ const controls =
       new OrbitControls( camera, renderer.domElement );
 controls.enableDamping = true;
 controls.dampingFactor = 0.025;
-controls.target.copy(quiltViewer.position);
+controls.target.copy(group.children[0].position);
 controls.update();
 
 // Lock rotation around the X axis
