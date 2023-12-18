@@ -13,6 +13,10 @@ export class BlockCard extends THREE.Mesh {
     this.addBorder(width, height, borderWidth);
   }
     
+  getBorder() {
+    this.border;
+  }
+  
   //===================================
   // Helper functions
   //===================================
@@ -20,15 +24,15 @@ export class BlockCard extends THREE.Mesh {
     
   addBorder(width, height, borderWidth) {
     const borderGeometry = new RoundedRectGeometry(width + borderWidth, height + borderWidth, borderWidth);
-    const border = new THREE.Mesh(
+    this.border = new THREE.Mesh(
       borderGeometry, 
       new THREE.MeshPhongMaterial({
         color: "#AAAAFF",
         side: THREE.DoubleSide
       })
     );
-    border.position.z = -0.001;
-    this.add( border );
+    this.border.position.z = -0.001;
+    this.add( this.border );
   }
   
   updateAngle(renderer, scene, camera, geometry, material, group ) {

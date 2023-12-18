@@ -17,8 +17,14 @@ let hand1, hand2;
 let controller1, controller2;
 let controllerGrip1, controllerGrip2;
 
-let xrEnvironment, room, marker, floor, baseReferenceSpace, raycaster;
+let xrEnvironment, room, marker, floor, baseReferenceSpace;
 let cardGroup;
+
+let raycaster;
+
+const intersected = [];
+const tempMatrix = new THREE.Matrix4();
+
 
 document.addEventListener("DOMContentLoaded", (event) => {
   // Setup the scene, camera, and renderer
@@ -32,6 +38,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
   renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.shadowMap.enabled = true;
   document.body.appendChild(renderer.domElement);
 
   // Turn on WebXR support
@@ -48,37 +55,131 @@ document.addEventListener("DOMContentLoaded", (event) => {
   document.body.appendChild(VRButton.createButton(renderer));
 
   renderer.shadowMap.enabled = true;
-
-  raycaster = new THREE.Raycaster();
+  
+  
+  
 
   // This is a collection of all the cards in the scene
   cardGroup = new THREE.Group();
   scene.add(cardGroup);
 
-  function onSelectStart(event) {
+  function onSelectStart( event ) {
+
+    const controller = event.target;
+
+    const intersections = getIntersections( controller );
+
+    if ( intersections.length > 0 ) {
+
+      const intersection = intersections[ 0 ];
+
+      const card = intersection.object;
+      card.border.material.emissive.b = 1;
+      controller.attach( card );
+
+      controller.userData.selected = card;
+
+    }
+
+    controller.userData.targetRayMode = event.data.targetRayMode;
+
+  }  
+  
+  function onSelectEnd( event ) {
+
+  const controller = event.target;
+
+  if ( controller.userData.selected !== undefined ) {
+
+    const card = controller.userData.selected;
+    card.border.material.emissive.b = 0;
+    cardGroup.attach( card );
+
+    controller.userData.selected = undefined;
+
+  }
+
+}
+  
+  function onSelectStart2(event) {
     this.userData.isSelecting = true;
 
     const controller = event.target;
     const object = cardGroup.children[0];
     controller.attach(object);
     controller.userData.selected = object;
-    object.children[0].material.emissive.b = 1;
+    object.border.material.emissive.b = 1;
     controller.userData.targetRayMode = event.data.targetRayMode;
   }
 
-  function onSelectEnd(event) {
+  function onSelectEnd2(event) {
     this.userData.isSelecting = false;
 
     const controller = event.target;
 
     if (controller.userData.selected !== undefined) {
       const object = controller.userData.selected;
-      object.children[0].material.emissive.b = 0;
+      object.border.material.emissive.b = 0;
       cardGroup.attach(object);
 
       controller.userData.selected = undefined;
     }
   }
+  
+  function getIntersections( controller ) {
+
+    controller.updateMatrixWorld();
+
+    tempMatrix.identity().extractRotation( controller.matrixWorld );
+
+    raycaster.ray.origin.setFromMatrixPosition( controller.matrixWorld );
+    raycaster.ray.direction.set( 0, 0, - 1 ).applyMatrix4( tempMatrix );
+
+    return raycaster.intersectObjects( cardGroup.children, false );
+
+  }
+
+  function intersectObjects( controller ) {
+
+    // Do not highlight in mobile-ar
+
+    if ( controller.userData.targetRayMode === 'screen' ) return;
+
+    // Do not highlight when already selected
+
+    if ( controller.userData.selected !== undefined ) return;
+
+    const line = controller.getObjectByName( 'line' );
+    const intersections = getIntersections( controller );
+
+    if ( intersections.length > 0 ) {
+
+      const intersection = intersections[ 0 ];
+
+      const object = intersection.object;
+      object.material.emissive.r = 1;
+      intersected.push( object );
+
+      line.scale.z = intersection.distance;
+
+    } else {
+
+      line.scale.z = 5;
+
+    }
+
+  }
+
+  function cleanIntersected() {
+
+    while ( intersected.length ) {
+
+      const object = intersected.pop();
+      object.border.material.emissive.r = 0;
+
+    }
+
+  }  
 
   function onSessionStart() {
     // Put the group of cards near the player
@@ -120,6 +221,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
     controller2.addEventListener("selectstart", onSelectStart);
     controller2.addEventListener("selectend", onSelectEnd);
+        
   }
 
   function onSessionEnd() {
@@ -209,6 +311,9 @@ document.addEventListener("DOMContentLoaded", (event) => {
       quiltRes,
       maxViewingAngle
     );
+
+    blockCard.castShadow = true;
+    blockCard.receiveShadow = true;
     return blockCard;
   }
   
