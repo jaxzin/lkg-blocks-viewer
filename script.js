@@ -69,8 +69,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
   });
 //   document.body.appendChild(VRButton.createButton(renderer));
 
-  function onSelectStart( event ) {
-    xrScene.onSelectStart( event );
+  // function onSelectStart( event ) {
 //     const controller = event.target;
 
 //     const intersections = getIntersections( controller );
@@ -89,10 +88,9 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
 //     controller.userData.targetRayMode = event.data.targetRayMode;
 
-  }  
+  // }  
   
-  function onSelectEnd( event ) {
-    xrScene.onSelectEnd( event );
+  // function onSelectEnd( event ) {
 //     const controller = event.target;
 
 //     if ( controller.userData.selected !== undefined ) {
@@ -105,87 +103,87 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
 //     }
 
-  }
+  // }
   
-  function getIntersections( controller ) {
+//   function getIntersections( controller ) {
 
-    controller.updateMatrixWorld();
+//     controller.updateMatrixWorld();
 
-    tempMatrix.identity().extractRotation( controller.matrixWorld );
+//     tempMatrix.identity().extractRotation( controller.matrixWorld );
 
-    raycaster.ray.origin.setFromMatrixPosition( controller.matrixWorld );
-    raycaster.ray.direction.set( 0, 0, - 1 ).applyMatrix4( tempMatrix );
+//     raycaster.ray.origin.setFromMatrixPosition( controller.matrixWorld );
+//     raycaster.ray.direction.set( 0, 0, - 1 ).applyMatrix4( tempMatrix );
 
-    return raycaster.intersectObjects( cardGroup.children, false );
+//     return raycaster.intersectObjects( cardGroup.children, false );
 
-  }
+//   }
 
-  function intersectObjects( controller ) {
+//   function intersectObjects( controller ) {
 
-    // Do not highlight in mobile-ar
+//     // Do not highlight in mobile-ar
 
-    if ( controller.userData.targetRayMode === 'screen' ) return;
+//     if ( controller.userData.targetRayMode === 'screen' ) return;
 
-    // Do not highlight when already selected
+//     // Do not highlight when already selected
 
-    if ( controller.userData.selected !== undefined ) return;
+//     if ( controller.userData.selected !== undefined ) return;
 
-    const line = controller.getObjectByName( 'line' );
-    const intersections = getIntersections( controller );
+//     const line = controller.getObjectByName( 'line' );
+//     const intersections = getIntersections( controller );
 
-    if ( intersections.length > 0 ) {
+//     if ( intersections.length > 0 ) {
 
-      const intersection = intersections[ 0 ];
+//       const intersection = intersections[ 0 ];
 
-      const object = intersection.object;
-      object.border.material.emissive.r = 1;
-      intersected.push( object );
+//       const object = intersection.object;
+//       object.border.material.emissive.r = 1;
+//       intersected.push( object );
 
-      line.scale.z = intersection.distance;
+//       line.scale.z = intersection.distance;
 
-    } else {
+//     } else {
 
-      line.scale.z = 5;
+//       line.scale.z = 5;
 
-    }
+//     }
 
-  }
+//   }
 
-  function cleanIntersected() {
+//   function cleanIntersected() {
 
-    while ( intersected.length ) {
+//     while ( intersected.length ) {
 
-      const object = intersected.pop();
-      object.border.material.emissive.r = 0;
+//       const object = intersected.pop();
+//       object.border.material.emissive.r = 0;
 
-    }
+//     }
 
-  }  
+//   }  
   
   function onSessionStart() {
     // Put the group of cards near the player
-    cardGroup.position.set(0, 1, -0.5);
+    // cardGroup.position.set(0, 1, -0.5);
     xrScene.onSessionStart();
 
     // Add event listeners for controllers and other session start related setup
-    const controllerModelFactory = new XRControllerModelFactory();
-    const handModelFactory = new XRHandModelFactory();
-
+    // const controllerModelFactory = new XRControllerModelFactory();
+    // const handModelFactory = new XRHandModelFactory();
+    
     controller1 = renderer.xr.getController(0);
-    controllerGrip1 = renderer.xr.getControllerGrip(0);
-    controllerGrip1.add(
-      controllerModelFactory.createControllerModel(controllerGrip1)
-    );
-    scene.add(controller1);
-    scene.add(controllerGrip1);
+    // controllerGrip1 = renderer.xr.getControllerGrip(0);
+    // controllerGrip1.add(
+    //   controllerModelFactory.createControllerModel(controllerGrip1)
+    // );
+    // scene.add(controller1);
+    // scene.add(controllerGrip1);
 
     controller2 = renderer.xr.getController(1);
-    controllerGrip2 = renderer.xr.getControllerGrip(1);
-    controllerGrip2.add(
-      controllerModelFactory.createControllerModel(controllerGrip2)
-    );
-    scene.add(controller2);
-    scene.add(controllerGrip2);
+    // controllerGrip2 = renderer.xr.getControllerGrip(1);
+    // controllerGrip2.add(
+    //   controllerModelFactory.createControllerModel(controllerGrip2)
+    // );
+    // scene.add(controller2);
+    // scene.add(controllerGrip2);
 
 //     hand1 = renderer.xr.getHand(0);
 //     hand1.add(handModelFactory.createHandModel(hand1));
@@ -197,11 +195,11 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
 //     scene.add(hand2);
 
-    controller1.addEventListener("selectstart", onSelectStart);
-    controller1.addEventListener("selectend", onSelectEnd);
+    // controller1.addEventListener("selectstart", onSelectStart);
+    // controller1.addEventListener("selectend", onSelectEnd);
 
-    controller2.addEventListener("selectstart", onSelectStart);
-    controller2.addEventListener("selectend", onSelectEnd);
+    // controller2.addEventListener("selectstart", onSelectStart);
+    // controller2.addEventListener("selectend", onSelectEnd);
 
 //     // Attach laser pointers to both controllers
 //     const geometry = new THREE.BufferGeometry().setFromPoints( [ new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, 0, - 1 ) ] );
@@ -220,22 +218,22 @@ document.addEventListener("DOMContentLoaded", (event) => {
   function onSessionEnd() {
     xrScene.onSessionEnd();
     // Reset the cards back to an order set for the 2D view
-    cardGroup.children[0].position.set(-0.2, 0, 0);
-    cardGroup.children[1].position.set(0, 0, 0);
-    cardGroup.children[2].position.set(0.2, 0, 0);
+//     cardGroup.children[0].position.set(-0.2, 0, 0);
+//     cardGroup.children[1].position.set(0, 0, 0);
+//     cardGroup.children[2].position.set(0.2, 0, 0);
 
-    cardGroup.children[0].rotation.set(0,0,0);
-    cardGroup.children[1].rotation.set(0,0,0);
-    cardGroup.children[2].rotation.set(0,0,0);
+//     cardGroup.children[0].rotation.set(0,0,0);
+//     cardGroup.children[1].rotation.set(0,0,0);
+//     cardGroup.children[2].rotation.set(0,0,0);
 
 
-    // Clean up when the VR session ends
-    cardGroup.position.set(0, 0, -2.5);
-    camera.position.set(0, 0, 0);
-    camera.fov = 5;
-    camera.updateProjectionMatrix();
-    controls.target.copy(cardGroup.position);
-    xrScene.xrEnvironment.visible = false;
+//     // Clean up when the VR session ends
+//     cardGroup.position.set(0, 0, -2.5);
+//     camera.position.set(0, 0, 0);
+//     camera.fov = 5;
+//     camera.updateProjectionMatrix();
+//     controls.target.copy(cardGroup.position);
+//     xrScene.xrEnvironment.visible = false;
   }
 
   renderer.xr.addEventListener("sessionstart", onSessionStart);
