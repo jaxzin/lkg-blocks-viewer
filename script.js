@@ -201,6 +201,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     quiltRes,
     maxViewingAngle
   );
+  blockCard.position.x = -0.2;
   cardGroup.add(blockCard);
   
   // Our Christmas Tree 2023 Close-up
@@ -219,7 +220,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
     quiltRes,
     maxViewingAngle
   );
-  blockCard.position.x = 1; // sticking it in a separate place from the other cards as a test
   cardGroup.add(blockCard);
 
   // Jupiter
@@ -238,16 +238,17 @@ document.addEventListener("DOMContentLoaded", (event) => {
     quiltRes,
     maxViewingAngle
   );
+  blockCard.position.x = 0.2;
   cardGroup.add(blockCard);
   
   // setup up the first card as the one visible in the 2D view
-  cardGroup.children[0].position.set(0, 0, -.25);
+  cardGroup.position.z = -.25;
   
   // Setup camera controls for the 2D view
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   controls.dampingFactor = 0.025;
-  controls.target.copy(cardGroup.children[0].position);
+  controls.target.copy(cardGroup.position);
   controls.update();
 
   // Lock rotation around the X axis
