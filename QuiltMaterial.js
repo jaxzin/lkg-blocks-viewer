@@ -24,15 +24,20 @@ export class QuiltMaterial extends THREE.ShaderMaterial {
 
         // Static values we calc in JS rather then on each iteration of the shader
         uniform float totalImages;
-        vec2 cellSize;
+        uniform vec2 cellSize;
+
 
         varying vec2 vUv;
 
+        void cellColor(float viewIndex, out vec4 color) {
+          viewIndex = clamp(viewIndex, 0., totalImages - 1.);
+          vec2 cellIndex = vec2(mod(viewIndex, quiltDims.x), floor(viewIndex / quiltDims.x));
+          vec2 cellUv = (vUv * cellSize) + (cellIndex / quiltDims);
 
-
-        vec4 cellColor(float cell) {
-          cell = clamp(cell, 0., totalImages - 1.);
+          color = texture2D(uTexture, cellUv);
         }
+        
+        void lerp
 
         void main() {
             // Define the viewing angle range (in radians)
@@ -41,31 +46,18 @@ export class QuiltMaterial extends THREE.ShaderMaterial {
             // Normalize the angle to be within [0, 1]
             float normalizedAngle = (maxAngle - uRelativeAngle) / (2.0 * maxAngle);
 
-            // Since the quilt is already in normalized UV space [0, 1], calculate cell size in UV space
-            vec2 cellSize = 1. / quiltDims;
-
             // Calculate the normalized angle and use fract() to get the fractional part for interpolation
             float index = fract(normalizedAngle * totalImages);
 
             // Determine the current cell's index and the next cell's index
-            float currentCellIndex = floor(normalizedAngle * totalImages);
-            float nextCellIndex = currentCellIndex + 1.;
-
-            // Ensure the cell index is within bounds
-            currentCellIndex = clamp(currentCellIndex, 0., totalImages - 1.);
-            nextCellIndex = clamp(nextCellIndex, 0., totalImages - 1.);
-
-            // Calculate the row and column for the current and next cells
-            vec2 currentCell = vec2(mod(currentCellIndex, quiltDims.x), floor(currentCellIndex / quiltDims.x));
-            vec2 nextCell = vec2(mod(nextCellIndex, quiltDims.x), floor(nextCellIndex / quiltDims.x));
-
-            // Calculate UV coordinates for the current and next cells
-            vec2 currentCellUv = (vUv * cellSize) + (currentCell / quiltDims);
-            vec2 nextCellUv = (vUv * cellSize) + (nextCell / quiltDims);
+            float currentViewIndex = floor(normalizedAngle * totalImages);
+            float nextViewIndex = currentViewIndex + 1.;
 
             // Fetch the colors from the current and next cells
-            vec4 currentColor = texture2D(uTexture, currentCellUv);
-            vec4 nextColor = texture2D(uTexture, nextCellUv);
+            vec4 currentColor;
+            cellColor(currentViewIndex, currentColor);
+            vec4 nextColor;
+            cellColor(nextViewIndex, nextColor);
 
             // Interpolate between the current and next cell based on the fractional index
             vec4 textureColor = mix(currentColor, nextColor, index);
@@ -83,9 +75,12 @@ export class QuiltMaterial extends THREE.ShaderMaterial {
       uniforms: {
         uTexture: { value: texture },
         uRelativeAngle: { value: 0.0 },
-        quiltDims: { value: quiltDims },
-        totalImages: {value: quiltDims.x * quiltDims.y },
-        viewCone: { value: maxViewingAngle }
+        quiltDims: { value: quiltDims },        
+        viewCone: { value: maxViewingAngle },
+        
+        // Dependent static values
+        totalImages: { value: (quiltDims.x * quiltDims.y) },
+        cellSize: { value: new THREE.Vector2( 1. / quiltDims.x, 1. / quiltDims.y )}
       },
       vertexShader: vertexShader,
       fragmentShader: fragmentShader
