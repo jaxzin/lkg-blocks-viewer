@@ -23,16 +23,16 @@ export class XRScene {
     this.tempMatrix = new THREE.Matrix4();
     
     // Turn on WebXR support
-    let referenceSpaceType = "local-floor"; // or 'local', 'unbounded', etc.
-    let xrSession;
+    // let referenceSpaceType = "local-floor"; // or 'local', 'unbounded', etc.
+    // let xrSession;
 
     renderer.xr.enabled = true;
-    renderer.xr.addEventListener("sessionstart", (event) => {
-      xrSession = renderer.xr.getSession();
-      xrSession.
-        requestReferenceSpace(referenceSpaceType).
-        then(this.setBaseReferenceSpace.bind(this)); // TODO, I don't think this is going to bind to the right 'this'
-    });
+    // renderer.xr.addEventListener("sessionstart", (event) => {
+      // xrSession = renderer.xr.getSession();
+      // xrSession.
+        // requestReferenceSpace(referenceSpaceType).
+        // then(this.setBaseReferenceSpace.bind(this)); // TODO, I don't think this is going to bind to the right 'this'
+    // });
     renderer.xr.addEventListener("sessionstart", this.onSessionStart.bind(this));
     renderer.xr.addEventListener("sessionend", this.onSessionEnd.bind(this));
 
