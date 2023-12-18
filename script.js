@@ -71,19 +71,26 @@ group = new THREE.Group();
 scene.add( group );
   
 function onSelectStart(event) {
+
+  this.userData.isSelecting = true;
+  
   const controller = event.target;
-  controller.attach( quiltViewer );
-  controller.userData.selected = quiltViewer;
-  //quiltViewer.material.emissive.b = 1;
+  const object = group.children[0];
+  controller.attach( object );
+  controller.userData.selected = object;
+  object.children[0].material.emissive.b = 1;
   controller.userData.targetRayMode = event.data.targetRayMode;
 }
 
 function onSelectEnd(event) {
+
+  this.userData.isSelecting = false;
+
   const controller = event.target;
   
   if( controller.userData.selected !== undefined ) {
     const object = controller.userData.selected;
-    //object.material.emissive.b = 0;
+    object.children[0].material.emissive.b = 0;
     group.attach( object );
     
     controller.userData.selected = undefined;
@@ -115,9 +122,9 @@ function onSelectEnd2() {
 }  
   
 function onSessionStart() {
-    let quiltViewer = group.children[0];
-    quiltViewer.position.set( 0, 1, -.5 );
-    quiltViewer.scale.set(.05,.05,.05);
+    let card = group.children[0];
+    card.position.set( 0, 1, -.5 );
+    card.scale.set(.05,.05,.05);
     floor.visible = true;
     room.visible = true;
 
@@ -169,8 +176,8 @@ function onSessionStart() {
 
     scene.add( hand2 );
   
-    controller1.addEventListener('squeezestart', onSelectStart);
-    controller1.addEventListener('squeezeend', onSelectEnd);
+    controller1.addEventListener('selectstart', onSelectStart);
+    controller1.addEventListener('selectend', onSelectEnd);
 
     controller2.addEventListener('selectstart', onSelectStart);
     controller2.addEventListener('selectend', onSelectEnd);
@@ -178,13 +185,13 @@ function onSessionStart() {
 }
 
 function onSessionEnd() {
-  let quiltViewer = group.children[0];
+  let card = group.children[0];
   
   // Clean up when the VR session ends
-  quiltViewer.position.set(0,0,-5);
-  quiltViewer.scale.set(3,4,1);
+  card.position.set(0,0,-5);
+  card.scale.set(3,4,1);
   camera.position.set(0,0,0);
-  controls.target.copy(quiltViewer.position);
+  controls.target.copy(card.position);
   floor.visible = false;
   room.visible = false;
 }
