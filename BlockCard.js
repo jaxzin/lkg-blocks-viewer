@@ -1,9 +1,10 @@
 import * as THREE from 'three';
+import Qui
 
 class BlockCard {
   constructor(texture, width, height, radius, borderWidth, quiltDims, quiltRes, maxViewingAngle) {
     this.texture = texture;
-    this.material = this.createShaderMaterial(quiltDims, quiltRes, maxViewingAngle);
+    this.material = new QuiltMaterial(texture, quiltDims, quiltRes, maxViewingAngle);
     this.geometry = this.createRoundRectGeometry(width, height, radius);
     this.mesh = new THREE.Mesh(this.geometry, this.material);
     this.mesh.castShadow = true;
@@ -33,7 +34,7 @@ class BlockCard {
   
   updateAngle(renderer, scene, camera, geometry, material, group ) {
     // Update the viewing angle so the quilt viewer shader knows which quilt cell(s) to display
-    material.uniforms.uRelativeAngle.value = this.calculateRelativeAngle(camera, this);
+    material.setRelativeAngle(this.calculateRelativeAngle(camera, this));
   }
   
   calculateRelativeAngle(camera, object) {
