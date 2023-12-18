@@ -1,29 +1,41 @@
 import * as THREE from 'three';
+import { VRButton } from "three/addons/webxr/VRButton.js";
+import { XRControllerModelFactory } from "three/addons/webxr/XRControllerModelFactory.js";
+import { XRHandModelFactory } from "three/addons/webxr/XRHandModelFactory.js";
+import { BoxLineGeometry } from "three/addons/geometries/BoxLineGeometry.js";
 
 // Responsible for setting up the VR/XR specific bits
-class XRScene {
+export class XRScene {
   
   setBaseReferenceSpace(ref) {
     this.baseReferenceSpace = ref;
   }
   
-  constructor(renderer, document) {
+  constructor(renderer, document, scene, cardGroup) {
+    this.renderer = renderer;
+    this.scene = scene;
+    this.cardGroup = cardGroup;
+    
+    this.raycaster = new THREE.Raycaster();
 
-  // Turn on WebXR support
-  let referenceSpaceType = "local-floor"; // or 'local', 'unbounded', etc.
-  let xrSession;
+    this.intersected = [];
+    this.tempMatrix = new THREE.Matrix4();
+    
+    // Turn on WebXR support
+    let referenceSpaceType = "local-floor"; // or 'local', 'unbounded', etc.
+    let xrSession;
 
-  renderer.xr.enabled = true;
-  renderer.xr.addEventListener("sessionstart", (event) => {
-    xrSession = renderer.xr.getSession();
-    xrSession.
-      requestReferenceSpace(referenceSpaceType).
-      then(this.setBaseReferenceSpace().bind(this)); // TODO, I don't think this is going to bind to the right 'this'
+    renderer.xr.enabled = true;
+    renderer.xr.addEventListener("sessionstart", (event) => {
+      xrSession = renderer.xr.getSession();
+      xrSession.
+        requestReferenceSpace(referenceSpaceType).
+        then(this.setBaseReferenceSpace.bind(this)); // TODO, I don't think this is going to bind to the right 'this'
     });
-  });
-  document.body.appendChild(VRButton.createButton(renderer));
+    document.body.appendChild(VRButton.createButton(renderer));
+  }
 
-  function onSelectStart( event ) {
+  onSelectStart( event ) {
 
     const controller = event.target;
 
@@ -45,7 +57,7 @@ class XRScene {
 
   }  
   
-  function onSelectEnd( event ) {
+  onSelectEnd( event ) {
 
     const controller = event.target;
 
@@ -53,7 +65,7 @@ class XRScene {
 
       const card = controller.userData.selected;
       card.border.material.emissive.b = 0;
-      cardGroup.attach( card );
+      this.cardGroup.attach( card );
 
       controller.userData.selected = undefined;
 
@@ -61,20 +73,20 @@ class XRScene {
 
   }
   
-  function getIntersections( controller ) {
+  getIntersections( controller ) {
 
     controller.updateMatrixWorld();
 
-    tempMatrix.identity().extractRotation( controller.matrixWorld );
+    this.tempMatrix.identity().extractRotation( controller.matrixWorld );
 
-    raycaster.ray.origin.setFromMatrixPosition( controller.matrixWorld );
-    raycaster.ray.direction.set( 0, 0, - 1 ).applyMatrix4( tempMatrix );
+    this.raycaster.ray.origin.setFromMatrixPosition( controller.matrixWorld );
+    this.raycaster.ray.direction.set( 0, 0, - 1 ).applyMatrix4( tempMatrix );
 
-    return raycaster.intersectObjects( cardGroup.children, false );
+    return this.raycaster.intersectObjects( this.cardGroup.children, false );
 
   }
 
-  function intersectObjects( controller ) {
+  intersectObjects( controller ) {
 
     // Do not highlight in mobile-ar
 
@@ -105,7 +117,7 @@ class XRScene {
 
   }
 
-  function cleanIntersected() {
+  cleanIntersected() {
 
     while ( intersected.length ) {
 
@@ -115,59 +127,40 @@ class XRScene {
     }
 
   }  
+  
+  createXRScene() {
+    // In VR mode, show a basic floor and walls
+    //   since a black void can be a little disorienting
+    this.xrEnvironment = new THREE.Group();
+    this.xrEnvironment.visible = false;
+    scene.add( xrEnvironment );
 
-  function onSessionStart() {
+    room = new THREE.LineSegments(
+      new BoxLineGeometry(6, 6, 6, 10, 10, 10).translate(0, 3, 0),
+      new THREE.LineBasicMaterial({ color: 0xbcbcbc })
+    );
+    this.xrEnvironment.add(room);
+
+    floor = new THREE.Mesh(
+      new THREE.PlaneGeometry(4.8, 4.8, 2, 2).rotateX(-Math.PI / 2),
+      new THREE.MeshBasicMaterial({
+        color: 0xbcbcbc,
+        transparent: true,
+        opacity: 0.25,
+      })
+    );
+    floor.receiveShadow = true;
+    this.xrEnvironment.add(floor);
+  }
+  
+  createControllers
+
+  onSessionStart() {
+    createXRScene();
+    
     // Put the group of cards near the player
-    cardGroup.position.set(0, 1, -0.5);
+    this.cardGroup.position.set(0, 1, -0.5);
     xrEnvironment.visible = true;
-
-    // Add event listeners for controllers and other session start related setup
-    const controllerModelFactory = new XRControllerModelFactory();
-    const handModelFactory = new XRHandModelFactory();
-
-    controller1 = renderer.xr.getController(0);
-    controllerGrip1 = renderer.xr.getControllerGrip(0);
-    controllerGrip1.add(
-      controllerModelFactory.createControllerModel(controllerGrip1)
-    );
-    scene.add(controller1);
-    scene.add(controllerGrip1);
-
-    controller2 = renderer.xr.getController(1);
-    controllerGrip2 = renderer.xr.getControllerGrip(1);
-    controllerGrip2.add(
-      controllerModelFactory.createControllerModel(controllerGrip2)
-    );
-    scene.add(controller2);
-    scene.add(controllerGrip2);
-
-    hand1 = renderer.xr.getHand(0);
-    hand1.add(handModelFactory.createHandModel(hand1));
-
-    scene.add(hand1);
-
-    hand2 = renderer.xr.getHand(1);
-    hand2.add(handModelFactory.createHandModel(hand2));
-
-    scene.add(hand2);
-
-    controller1.addEventListener("selectstart", onSelectStart);
-    controller1.addEventListener("selectend", onSelectEnd);
-
-    controller2.addEventListener("selectstart", onSelectStart);
-    controller2.addEventListener("selectend", onSelectEnd);
-
-    // Attach laser pointers to both controllers
-    const geometry = new THREE.BufferGeometry().setFromPoints( [ new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, 0, - 1 ) ] );
-
-    const line = new THREE.Line( geometry );
-    line.name = 'line';
-    line.scale.z = 5;
-
-    controller1.add( line.clone() );
-    controller2.add( line.clone() );
-
-    raycaster = new THREE.Raycaster();
 
   }
 
@@ -194,28 +187,6 @@ class XRScene {
   renderer.xr.addEventListener("sessionstart", onSessionStart);
   renderer.xr.addEventListener("sessionend", onSessionEnd);
 
-  // In VR mode, show a basic floor and walls
-  //   since a black void can be a little disorienting
-  xrEnvironment = new THREE.Group();
-  xrEnvironment.visible = false;
-  scene.add( xrEnvironment );
-  
-  room = new THREE.LineSegments(
-    new BoxLineGeometry(6, 6, 6, 10, 10, 10).translate(0, 3, 0),
-    new THREE.LineBasicMaterial({ color: 0xbcbcbc })
-  );
-  xrEnvironment.add(room);
-  
-  floor = new THREE.Mesh(
-    new THREE.PlaneGeometry(4.8, 4.8, 2, 2).rotateX(-Math.PI / 2),
-    new THREE.MeshBasicMaterial({
-      color: 0xbcbcbc,
-      transparent: true,
-      opacity: 0.25,
-    })
-  );
-  floor.receiveShadow = true;
-  xrEnvironment.add(floor);
     
   }
 }
