@@ -162,58 +162,66 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
   }  
 
+  function onSessionStart2() {
+    xrScene.onSessionStart();
+  }
+  function onSessionEnd2() {
+    xrScene.onSessionEnd();
+  }
+  
   function onSessionStart() {
     // Put the group of cards near the player
     cardGroup.position.set(0, 1, -0.5);
     xrScene.xrEnvironment.visible = true;
+    xrScene.onSessionStart();
 
-    // Add event listeners for controllers and other session start related setup
-    const controllerModelFactory = new XRControllerModelFactory();
-    const handModelFactory = new XRHandModelFactory();
+//     // Add event listeners for controllers and other session start related setup
+//     const controllerModelFactory = new XRControllerModelFactory();
+//     const handModelFactory = new XRHandModelFactory();
 
-    controller1 = renderer.xr.getController(0);
-    controllerGrip1 = renderer.xr.getControllerGrip(0);
-    controllerGrip1.add(
-      controllerModelFactory.createControllerModel(controllerGrip1)
-    );
-    scene.add(controller1);
-    scene.add(controllerGrip1);
+//     controller1 = renderer.xr.getController(0);
+//     controllerGrip1 = renderer.xr.getControllerGrip(0);
+//     controllerGrip1.add(
+//       controllerModelFactory.createControllerModel(controllerGrip1)
+//     );
+//     scene.add(controller1);
+//     scene.add(controllerGrip1);
 
-    controller2 = renderer.xr.getController(1);
-    controllerGrip2 = renderer.xr.getControllerGrip(1);
-    controllerGrip2.add(
-      controllerModelFactory.createControllerModel(controllerGrip2)
-    );
-    scene.add(controller2);
-    scene.add(controllerGrip2);
+//     controller2 = renderer.xr.getController(1);
+//     controllerGrip2 = renderer.xr.getControllerGrip(1);
+//     controllerGrip2.add(
+//       controllerModelFactory.createControllerModel(controllerGrip2)
+//     );
+//     scene.add(controller2);
+//     scene.add(controllerGrip2);
 
-    hand1 = renderer.xr.getHand(0);
-    hand1.add(handModelFactory.createHandModel(hand1));
+//     hand1 = renderer.xr.getHand(0);
+//     hand1.add(handModelFactory.createHandModel(hand1));
 
-    scene.add(hand1);
+//     scene.add(hand1);
 
-    hand2 = renderer.xr.getHand(1);
-    hand2.add(handModelFactory.createHandModel(hand2));
+//     hand2 = renderer.xr.getHand(1);
+//     hand2.add(handModelFactory.createHandModel(hand2));
 
-    scene.add(hand2);
+//     scene.add(hand2);
 
-    controller1.addEventListener("selectstart", onSelectStart);
-    controller1.addEventListener("selectend", onSelectEnd);
+    controller1.addEventListener("selectstart", xrScene.onSelectStart.bind(this));
+    controller1.addEventListener("selectend", xrScene.onSelectEnd.bind(this));
 
-    controller2.addEventListener("selectstart", onSelectStart);
-    controller2.addEventListener("selectend", onSelectEnd);
+    controller2.addEventListener("selectstart", xrScene.onSelectStart.bind(xrScene));
+    controller2.addEventListener("selectend", xrScene.onSelectEnd);
 
-    // Attach laser pointers to both controllers
-    const geometry = new THREE.BufferGeometry().setFromPoints( [ new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, 0, - 1 ) ] );
+//     // Attach laser pointers to both controllers
+//     const geometry = new THREE.BufferGeometry().setFromPoints( [ new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, 0, - 1 ) ] );
 
-    const line = new THREE.Line( geometry );
-    line.name = 'line';
-    line.scale.z = 5;
+//     const line = new THREE.Line( geometry );
+//     line.name = 'line';
+//     line.scale.z = 5;
 
-    controller1.add( line.clone() );
-    controller2.add( line.clone() );
+//     controller1.add( line.clone() );
+//     controller2.add( line.clone() );
 
-    raycaster = new THREE.Raycaster();
+//     raycaster = new THREE.Raycaster();
 
   }
 
@@ -237,8 +245,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
     xrScene.xrEnvironment.visible = false;
   }
 
-  // renderer.xr.addEventListener("sessionstart", onSessionStart);
-  // renderer.xr.addEventListener("sessionend", onSessionEnd);
+  renderer.xr.addEventListener("sessionstart", onSessionStart);
+  renderer.xr.addEventListener("sessionend", onSessionEnd);
 
 //   // In VR mode, show a basic floor and walls
 //   //   since a black void can be a little disorienting
