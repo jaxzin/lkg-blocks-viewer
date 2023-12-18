@@ -26,15 +26,15 @@ export class XRScene {
     // let referenceSpaceType = "local-floor"; // or 'local', 'unbounded', etc.
     // let xrSession;
 
-    renderer.xr.enabled = true;
+    this.renderer.xr.enabled = true;
     // renderer.xr.addEventListener("sessionstart", (event) => {
       // xrSession = renderer.xr.getSession();
       // xrSession.
         // requestReferenceSpace(referenceSpaceType).
         // then(this.setBaseReferenceSpace.bind(this)); // TODO, I don't think this is going to bind to the right 'this'
     // });
-    renderer.xr.addEventListener("sessionstart", this.onSessionStart.bind(this));
-    renderer.xr.addEventListener("sessionend", this.onSessionEnd.bind(this));
+    this.renderer.xr.addEventListener("sessionstart", this.onSessionStart.bind(this));
+    this.renderer.xr.addEventListener("sessionend", this.onSessionEnd.bind(this));
 
     document.body.appendChild(VRButton.createButton(renderer));
   }

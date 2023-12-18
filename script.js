@@ -237,8 +237,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
     xrScene.xrEnvironment.visible = false;
   }
 
-  renderer.xr.addEventListener("sessionstart", onSessionStart);
-  renderer.xr.addEventListener("sessionend", onSessionEnd);
+  // renderer.xr.addEventListener("sessionstart", onSessionStart);
+  // renderer.xr.addEventListener("sessionend", onSessionEnd);
 
 //   // In VR mode, show a basic floor and walls
 //   //   since a black void can be a little disorienting
