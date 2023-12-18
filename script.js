@@ -439,22 +439,19 @@ function createRoundedRectGeometry(width, height, radius) {
   return geometry;
 }
 
-const width = 3, height = 4, radius = 0.25;
+const width = 3, height = 4, radius = 0.2;
 const quiltViewerGeometry = createRoundedRectGeometry(width, height, radius);
   
 // Add a mesh using the shader material
-//const quiltViewerGeometry = new THREE.PlaneGeometry(3,4);
 quiltViewer = new THREE.Mesh(quiltViewerGeometry, quiltViewerMaterial);
 quiltViewer.castShadow = true;
 quiltViewer.onBeforeRender = function( renderer, scene, camera, geometry, material, group ) {
-  quiltViewer.updateMatrix();
-  quiltViewer.updateMatrixWorld(true);
-  quiltViewer.updateWorldMatrix(true,true);
-  quiltViewerMaterial.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, quiltViewer);
+  // Update the viewing angle so the quilt viewer shader knows which quilt cell(s) to display
+  material.uniforms.uRelativeAngle.value = calculateRelativeAngle(camera, this);
 };
   
 const borderWidth = 0.25
-const borderGeometry = createRoundedRectGeometry(width+borderWidth, height+borderWidth, radius);
+const borderGeometry = createRoundedRectGeometry(width+borderWidth, height+borderWidth, borderWidth);
 const border = new THREE.Mesh(borderGeometry, new THREE.MeshPhongMaterial({color: "#AAAAFF", side: THREE.DoubleSide}));
 border.position.z = -0.001;
 quiltViewer.add( border );
