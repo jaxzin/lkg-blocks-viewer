@@ -169,7 +169,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     // const controllerModelFactory = new XRControllerModelFactory();
     // const handModelFactory = new XRHandModelFactory();
     
-    controller1 = renderer.xr.getController(0);
+    // controller1 = renderer.xr.getController(0);
     // controllerGrip1 = renderer.xr.getControllerGrip(0);
     // controllerGrip1.add(
     //   controllerModelFactory.createControllerModel(controllerGrip1)
@@ -177,7 +177,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     // scene.add(controller1);
     // scene.add(controllerGrip1);
 
-    controller2 = renderer.xr.getController(1);
+    // controller2 = renderer.xr.getController(1);
     // controllerGrip2 = renderer.xr.getControllerGrip(1);
     // controllerGrip2.add(
     //   controllerModelFactory.createControllerModel(controllerGrip2)
@@ -236,8 +236,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
 //     xrScene.xrEnvironment.visible = false;
   }
 
-  renderer.xr.addEventListener("sessionstart", onSessionStart);
-  renderer.xr.addEventListener("sessionend", onSessionEnd);
+  // renderer.xr.addEventListener("sessionstart", onSessionStart);
+  // renderer.xr.addEventListener("sessionend", onSessionEnd);
 
 //   // In VR mode, show a basic floor and walls
 //   //   since a black void can be a little disorienting
@@ -360,10 +360,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
   function animate(timestamp, frame) {
     if (renderer.xr.isPresenting) {
       // In VR mode, highlight any card(s) being pointed at
-      xrScene.cleanIntersected();
-
-      xrScene.intersectObjects( controller1 );
-      xrScene.intersectObjects( controller2 );
+      xrScene.highlightIntersects();
     } else {
       // In 2D mode, the orbit controls need this for damping to work
       controls.update();

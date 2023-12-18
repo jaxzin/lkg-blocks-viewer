@@ -89,6 +89,12 @@ export class XRScene {
     return this.raycaster.intersectObjects( this.cardGroup.children, false );
 
   }
+  
+  highlightIntersects() {
+    this.cleanIntersected();
+    this.intersectObjects( this.renderer.xr.getController(0) );
+    this.intersectObjects( this.renderer.xr.getController(1) );
+  }
 
   intersectObjects( controller ) {
 
@@ -136,7 +142,6 @@ export class XRScene {
     // In VR mode, show a basic floor and walls
     //   since a black void can be a little disorienting
     this.xrEnvironment = new THREE.Group();
-    this.xrEnvironment.visible = false;
     this.scene.add( this.xrEnvironment );
 
     let room = new THREE.LineSegments(
@@ -211,7 +216,7 @@ export class XRScene {
     
     // Put the group of cards near the player
     this.cardGroup.position.set(0, 1, -0.5);
-    this.xrEnvironment.visible = true;
+    // this.xrEnvironment.visible = true;
 
   }
 
@@ -232,6 +237,8 @@ export class XRScene {
     this.camera.fov = 5;
     this.camera.updateProjectionMatrix();
     //controls.target.copy(cardGroup.position);
-    this.xrEnvironment.visible = false;
+    this.scene.remove( this.xrEnvironment );
+    this.xrEnvironment.removeFromParent();
+    this.xrEnvironment = null;
   }
 }
