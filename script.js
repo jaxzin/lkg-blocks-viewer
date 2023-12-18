@@ -70,40 +70,40 @@ document.addEventListener("DOMContentLoaded", (event) => {
 //   document.body.appendChild(VRButton.createButton(renderer));
 
   function onSelectStart( event ) {
+    xrScene.onSelectStart( event );
+//     const controller = event.target;
 
-    const controller = event.target;
+//     const intersections = getIntersections( controller );
 
-    const intersections = getIntersections( controller );
+//     if ( intersections.length > 0 ) {
 
-    if ( intersections.length > 0 ) {
+//       const intersection = intersections[ 0 ];
 
-      const intersection = intersections[ 0 ];
+//       const card = intersection.object;
+//       card.border.material.emissive.b = 1;
+//       controller.attach( card );
 
-      const card = intersection.object;
-      card.border.material.emissive.b = 1;
-      controller.attach( card );
+//       controller.userData.selected = card;
 
-      controller.userData.selected = card;
+//     }
 
-    }
-
-    controller.userData.targetRayMode = event.data.targetRayMode;
+//     controller.userData.targetRayMode = event.data.targetRayMode;
 
   }  
   
   function onSelectEnd( event ) {
+    xrScene.onSelectEnd( event );
+//     const controller = event.target;
 
-    const controller = event.target;
+//     if ( controller.userData.selected !== undefined ) {
 
-    if ( controller.userData.selected !== undefined ) {
+//       const card = controller.userData.selected;
+//       card.border.material.emissive.b = 0;
+//       cardGroup.attach( card );
 
-      const card = controller.userData.selected;
-      card.border.material.emissive.b = 0;
-      cardGroup.attach( card );
+//       controller.userData.selected = undefined;
 
-      controller.userData.selected = undefined;
-
-    }
+//     }
 
   }
   
@@ -161,39 +161,31 @@ document.addEventListener("DOMContentLoaded", (event) => {
     }
 
   }  
-
-  function onSessionStart2() {
-    xrScene.onSessionStart();
-  }
-  function onSessionEnd2() {
-    xrScene.onSessionEnd();
-  }
   
   function onSessionStart() {
     // Put the group of cards near the player
     cardGroup.position.set(0, 1, -0.5);
-    xrScene.xrEnvironment.visible = true;
     xrScene.onSessionStart();
 
-//     // Add event listeners for controllers and other session start related setup
-//     const controllerModelFactory = new XRControllerModelFactory();
-//     const handModelFactory = new XRHandModelFactory();
+    // Add event listeners for controllers and other session start related setup
+    const controllerModelFactory = new XRControllerModelFactory();
+    const handModelFactory = new XRHandModelFactory();
 
-//     controller1 = renderer.xr.getController(0);
-//     controllerGrip1 = renderer.xr.getControllerGrip(0);
-//     controllerGrip1.add(
-//       controllerModelFactory.createControllerModel(controllerGrip1)
-//     );
-//     scene.add(controller1);
-//     scene.add(controllerGrip1);
+    controller1 = renderer.xr.getController(0);
+    controllerGrip1 = renderer.xr.getControllerGrip(0);
+    controllerGrip1.add(
+      controllerModelFactory.createControllerModel(controllerGrip1)
+    );
+    scene.add(controller1);
+    scene.add(controllerGrip1);
 
-//     controller2 = renderer.xr.getController(1);
-//     controllerGrip2 = renderer.xr.getControllerGrip(1);
-//     controllerGrip2.add(
-//       controllerModelFactory.createControllerModel(controllerGrip2)
-//     );
-//     scene.add(controller2);
-//     scene.add(controllerGrip2);
+    controller2 = renderer.xr.getController(1);
+    controllerGrip2 = renderer.xr.getControllerGrip(1);
+    controllerGrip2.add(
+      controllerModelFactory.createControllerModel(controllerGrip2)
+    );
+    scene.add(controller2);
+    scene.add(controllerGrip2);
 
 //     hand1 = renderer.xr.getHand(0);
 //     hand1.add(handModelFactory.createHandModel(hand1));
@@ -205,11 +197,11 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
 //     scene.add(hand2);
 
-    controller1.addEventListener("selectstart", xrScene.onSelectStart.bind(this));
-    controller1.addEventListener("selectend", xrScene.onSelectEnd.bind(this));
+    controller1.addEventListener("selectstart", onSelectStart);
+    controller1.addEventListener("selectend", onSelectEnd);
 
-    controller2.addEventListener("selectstart", xrScene.onSelectStart.bind(xrScene));
-    controller2.addEventListener("selectend", xrScene.onSelectEnd);
+    controller2.addEventListener("selectstart", onSelectStart);
+    controller2.addEventListener("selectend", onSelectEnd);
 
 //     // Attach laser pointers to both controllers
 //     const geometry = new THREE.BufferGeometry().setFromPoints( [ new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, 0, - 1 ) ] );
@@ -226,6 +218,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
   }
 
   function onSessionEnd() {
+    xrScene.onSessionEnd();
     // Reset the cards back to an order set for the 2D view
     cardGroup.children[0].position.set(-0.2, 0, 0);
     cardGroup.children[1].position.set(0, 0, 0);
