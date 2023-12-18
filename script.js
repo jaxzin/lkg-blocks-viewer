@@ -365,7 +365,7 @@ const fragmentShader = `
         float fadeFactor = clamp(pow(abs(uRelativeAngle) / maxAngle, 5.), 0., 1.);
 
         // Fade the off-axis stand-in to about 50% brightness
-        vec4 standin = mix(centerColor, vec4(0.,0.,0.,1.), 0.5);
+        vec4 standin = mix(textureColor, vec4(0.,0.,0.,1.), 0.5);
         
         // Fade to the standin as the viewing angle approaches the bounds of the viewing cone
         gl_FragColor = mix(textureColor, standin, fadeFactor);
