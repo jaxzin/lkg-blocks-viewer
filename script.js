@@ -123,18 +123,21 @@ document.addEventListener("DOMContentLoaded", (event) => {
   }
 
   function onSessionEnd() {
+    // Reset the cards back to an order set for the 2D view
     cardGroup.children[0].position.set(-0.2, 0, 0);
     cardGroup.children[1].position.set(0, 0, 0);
     cardGroup.children[2].position.set(0.2, 0, 0);
 
-    cardGroup.children[0].rotation.reset();
-    cardGroup.children[1].rotation.reset();
-    cardGroup.children[2].rotation.reset();
+    cardGroup.children[0].rotation.set(0,0,0);
+    cardGroup.children[1].rotation.set(0,0,0);
+    cardGroup.children[2].rotation.set(0,0,0);
 
 
     // Clean up when the VR session ends
-    cardGroup.position.set(0, 0, -.5);
+    cardGroup.position.set(0, 0, -2.5);
     camera.position.set(0, 0, 0);
+    camera.fov = 5;
+    camera.updateProjectionMatrix();
     controls.target.copy(cardGroup.position);
     xrEnvironment.visible = false;
   }
@@ -162,6 +165,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
       opacity: 0.25,
     })
   );
+  floor.receiveShadow = true;
   xrEnvironment.add(floor);
 
   scene.add(new THREE.HemisphereLight(0x808080, 0x606060));
