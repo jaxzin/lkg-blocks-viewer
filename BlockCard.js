@@ -2,12 +2,16 @@ import * as THREE from 'three';
 import { QuiltMaterial } from './QuiltMaterial.js';
 import { RoundedRectGeometry } from './RoundedRect.js';
 
+// A textured mesh shaped like a playing card, a rectangle with rounded corners and a colored border.
+// In the center is a viewport into a stereoscopic light field.
 export class BlockCard extends THREE.Mesh {
   constructor(texture, width, height, radius, borderWidth, quiltDims, maxViewingAngle) {
     let material = new QuiltMaterial(texture, quiltDims, maxViewingAngle);
     let geometry = new RoundedRectGeometry(width, height, radius);
     super(geometry, material)
     this.castShadow = true;
+    // Important event handler, updates the relative angle in the shader.
+    // Runs once per eye (when in XR mode), leading to a stereoscopic view of the lightfield
     this.onBeforeRender = this.updateAngle.bind(this);
     
     this.addBorder(width, height, borderWidth);

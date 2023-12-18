@@ -305,7 +305,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
   const borderWidth = 0.0125;
   
   
-  function createBlockCard(textureUrl, quiltDims, quiltRes) {
+  function createBlockCard(textureUrl, quiltDims) {
     // Load the texture atlas
     const textureLoader = new THREE.TextureLoader();
     // Our Christmas Tree 2023
@@ -316,7 +316,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
       cardHeight,
       cardCornerRadius,
       borderWidth,
-      quiltRes,
+      quiltDims,
       maxViewingAngle
     );
 
@@ -328,8 +328,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
   // Our Christmas Tree 2023
   let blockCard1 = createBlockCard(
     'https://cdn.glitch.global/98b2b4e8-ce2c-4c4f-8e0c-3e762cb48276/christmas_tree_2023_qs8x12a0.75.jpg?v=1702708834115',
-    new THREE.Vector2(8, 12), // quilt col & row count
-    new THREE.Vector2(6400.0, 7462.0) // texture size
+    new THREE.Vector2(8, 12) // quilt col & row count
   );
   blockCard1.position.x = -0.2;
   cardGroup.add(blockCard1);
@@ -337,16 +336,14 @@ document.addEventListener("DOMContentLoaded", (event) => {
   // Our Christmas Tree 2023 Close-up
   let blockCard2 = createBlockCard(
     "https://cdn.glitch.global/98b2b4e8-ce2c-4c4f-8e0c-3e762cb48276/closeup_qs8x12a0.75.png?v=1702865989253",
-    new THREE.Vector2(8, 7), // quilt col & row count
-    new THREE.Vector2(1.0, 7462.0) // texture size
+    new THREE.Vector2(8, 7) // quilt col & row count
   );
   cardGroup.add(blockCard2);
 
   // Jupiter
   let blockCard3 = createBlockCard(
     "https://lkg-blocks.imgix.net/u/052ce5cfe2ad4595/julpiterLGS_v002__qs8x6a0.75.png?ixlib=js-3.7.0&fm=webp&auto=format&fit=max&w=3360",
-    new THREE.Vector2(8, 6), // quilt col & row count
-    new THREE.Vector2(3360.0, 3360.0) // texture size
+    new THREE.Vector2(8, 6) // quilt col & row count
   );
   blockCard3.position.x = 0.2;
   cardGroup.add(blockCard3);
