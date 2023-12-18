@@ -107,34 +107,12 @@ function onSessionStart() {
     scene.add(controller1);
     scene.add(controllerGrip1);
   
-    controller1.addEventListener( 'connected', function ( event ) {
-
-      this.add( buildController( event.data ) );
-
-    } );
-    controller1.addEventListener( 'disconnected', function () {
-
-      this.remove( this.children[ 0 ] );
-
-    } );
-
     controller2 = renderer.xr.getController(1);
     controllerGrip2 = renderer.xr.getControllerGrip(1);
     controllerGrip2.add(controllerModelFactory.createControllerModel(controllerGrip2));
     scene.add(controller2);
     scene.add(controllerGrip2);
-  
-    controller2.addEventListener( 'connected', function ( event ) {
-
-      this.add( buildController( event.data ) );
-
-    } );
-    controller2.addEventListener( 'disconnected', function () {
-
-      this.remove( this.children[ 0 ] );
-
-    } );
-  
+    
     hand1 = renderer.xr.getHand( 0 );
     hand1.add( handModelFactory.createHandModel( hand1 ) );
 
@@ -194,11 +172,12 @@ scene.add(ambientLight);
 
 // Load the texture atlas
 const textureLoader = new THREE.TextureLoader();
-quiltTexture = textureLoader.load('https://cdn.glitch.global/98b2b4e8-ce2c-4c4f-8e0c-3e762cb48276/christmas_tree_2023_qs8x12a0.75.jpg?v=1702708834115');
-const quiltDims = new THREE.Vector2(8, 12); // quilt col & row count
+//quiltTexture = textureLoader.load('https://cdn.glitch.global/98b2b4e8-ce2c-4c4f-8e0c-3e762cb48276/christmas_tree_2023_qs8x12a0.75.jpg?v=1702708834115');
+quiltTexture = textureLoader.load('https://lkg-blocks.imgix.net/u/0dee4e8cdbd947a5/quilt.png');
+const quiltDims = new THREE.Vector2(8, 7); // quilt col & row count
 const quiltRes = new THREE.Vector2(6400.0, 7462.0);
 
-const maxViewingAngle = 58.; // max viewing angle image (degrees)
+const maxViewingAngle = 58.*2.; // max viewing angle image (degrees)
 
 const cardWidth = 3, cardHeight = 4, cardCornerRadius = 0.2;
 const borderWidth = 0.25
