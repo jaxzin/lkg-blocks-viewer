@@ -90,9 +90,11 @@ document.addEventListener("DOMContentLoaded", (event) => {
   }
 
   function onSessionStart() {
-    let card = cardGroup.children[0];
-    card.position.set(0, 1, -0.5);
-    card.scale.set(0.05, 0.05, 0.05);
+    cardGroup.children[0].position.set(-0.2, 0, 0);
+    cardGroup.children[1].position.set(0, 0, 0);
+    cardGroup.children[2].position.set(0.2, 0, 0);
+    cardGroup.position.set(0, 1, -0.5);
+    //card.scale.set(0.05, 0.05, 0.05);
     floor.visible = true;
     room.visible = true;
 
@@ -137,8 +139,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
     let card = cardGroup.children[0];
 
     // Clean up when the VR session ends
-    card.position.set(0, 0, -5);
-    card.scale.set(3, 4, 1);
+    card.position.set(0, 0, -.5);
+    //card.scale.set(3, 4, 1);
     camera.position.set(0, 0, 0);
     controls.target.copy(card.position);
     floor.visible = false;
@@ -177,10 +179,10 @@ document.addEventListener("DOMContentLoaded", (event) => {
   // Setup some shared properties of all cards
   const maxViewingAngle = 58; // max viewing angle image (degrees)
 
-  const cardWidth = 3,
-    cardHeight = 4,
-    cardCornerRadius = 0.2;
-  const borderWidth = 0.25;
+  const cardWidth = .15,
+    cardHeight = .2,
+    cardCornerRadius = 0.01;
+  const borderWidth = 0.0125;
   
   
   // Load the texture atlas
@@ -239,7 +241,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
   cardGroup.add(blockCard);
   
   // setup up the first card as the one visible in the 2D view
-  cardGroup.children[0].position.set(0, 0, -5);
+  cardGroup.children[0].position.set(0, 0, -.25);
   
   // Setup camera controls for the 2D view
   const controls = new OrbitControls(camera, renderer.domElement);
