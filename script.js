@@ -185,6 +185,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
   const borderWidth = 0.0125;
   
   
+  function createBlockCard(url, )
+  
   // Load the texture atlas
   const textureLoader = new THREE.TextureLoader();
   // Our Christmas Tree 2023
@@ -206,7 +208,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
   
   // Our Christmas Tree 2023 Close-up
   quiltTexture = textureLoader.load(
-    "https://lkg-blocks.imgix.net/u/0dee4e8cdbd947a5/quilt.png"
+    "https://cdn.glitch.global/98b2b4e8-ce2c-4c4f-8e0c-3e762cb48276/closeup_qs8x12a0.75.png?v=1702865989253"
   );
   quiltDims = new THREE.Vector2(8, 7); // quilt col & row count
   quiltRes = new THREE.Vector2(6400.0, 7462.0);
@@ -241,8 +243,10 @@ document.addEventListener("DOMContentLoaded", (event) => {
   blockCard.position.x = 0.2;
   cardGroup.add(blockCard);
   
-  // setup up the first card as the one visible in the 2D view
-  cardGroup.position.z = -.25;
+  // Set it up as visible
+  cardGroup.position.z = -2.5;
+  camera.fov = 5;
+  camera.updateProjectionMatrix();
   
   // Setup camera controls for the 2D view
   const controls = new OrbitControls(camera, renderer.domElement);
