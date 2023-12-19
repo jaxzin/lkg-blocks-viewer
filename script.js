@@ -118,7 +118,15 @@ document.addEventListener("DOMContentLoaded", (event) => {
   blockCard4.position.x = 0.4;
   cardGroup.add(blockCard4);
   
+  // Self Portrait
+  let blockCard5 = createBlockCard(
+    "https://lkg-blocks.imgix.net/u/899f043459f149bc/headshot-f0.65_qs8x6a0.75.png?ixlib=js-3.7.0&fm=webp&fit=max&w=8192",
+    new THREE.Vector2(8, 6) // quilt col & row count
+  );
+  blockCard5.position.x = -0.4;
+  cardGroup.add(blockCard5);
     
+  
   // Set the cards up as visible in the 2D view
   cardGroup.position.z = -2.5;
   camera.fov = 5;
