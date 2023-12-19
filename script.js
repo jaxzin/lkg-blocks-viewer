@@ -109,6 +109,15 @@ document.addEventListener("DOMContentLoaded", (event) => {
   );
   blockCard3.position.x = 0.2;
   cardGroup.add(blockCard3);
+  
+  // Oscar's Painting
+  let blockCard4 = createBlockCard(
+    "https://lkg-blocks.imgix.net/u/889caacae4ab4376/output-qs8x6a0.75.jpeg?ixlib=js-3.7.0&fm=webp&auto=format&fit=max&w=3840",
+    new THREE.Vector2(8, 6) // quilt col & row count
+  );
+  blockCard4.position.x = 0.4;
+  cardGroup.add(blockCard4);
+  
     
   // Set the cards up as visible in the 2D view
   cardGroup.position.z = -2.5;
