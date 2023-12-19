@@ -120,10 +120,10 @@ document.addEventListener("DOMContentLoaded", (event) => {
   
   // Self Portrait
   let blockCard5 = createBlockCard(
-    "https://lkg-blocks.imgix.net/u/899f043459f149bc/headshot-f0.65_qs8x6a0.75.png?ixlib=js-3.7.0&fm=webp&fit=max&w=8192",
+    "https://lkg-blocks.imgix.net/u/96d42f0a9778454a/output-f0.20_qs8x6a0.75.png?ixlib=js-3.7.0&fm=webp&fit=max&w=8192",
     new THREE.Vector2(8, 6) // quilt col & row count
   );
-  blockCard5.position.x = -0.4;
+  //blockCard5.position.x = -0.4;
   cardGroup.add(blockCard5);
     
   
