@@ -5,9 +5,11 @@ import { Link } from "wouter";
 import { VRButton, ARButton, XR, Controllers, Hands } from '@react-three/xr'
 import { Canvas } from '@react-three/fiber'
 import { useLoader } from '@react-three/fiber';
-import { TextureLoader } from 'three';
+import { TextureLoader, Group } from 'three';
 
 import BlockCard from '../components/BlockCard';
+
+import { PerspectiveCamera } from '@react-three/drei'
 
 export default function XrTest() {
   
@@ -18,12 +20,13 @@ export default function XrTest() {
   return (
     <>
       <VRButton />
-      <Canvas sRGB>
+      <Canvas>
         <XR>
+          <PerspectiveCamera makeDefault fov={5} position={[0,0,0]} />
           
           <hemisphereLight 
               skyColor="0x808080" 
-              groundColor="0x606060" />
+              groundColor={0x606060} />
           <ambientLight intensity={0.7}/>
           <directionalLight 
             position={[0,200,0]}
@@ -34,17 +37,19 @@ export default function XrTest() {
 
           <Controllers />
           <Hands />
-          <BlockCard 
-              texture={texture}
-              width={5}
-              height={7.5}
-              radius={1}
-              borderWidth={1}
-              borderColor={"#AAAAFF"}
-              quiltRows={8}
-              quiltColumns={12}
-              maxViewingAngle={0.58}
-            />
+          <group position={[0, 0, -2.5]}>
+            <BlockCard 
+                texture={texture}
+                width={.15}
+                height={.2}
+                radius={.01}
+                borderWidth={.0125}
+                borderColor={"#AAAAFF"}
+                quiltRows={8}
+                quiltColumns={12}
+                maxViewingAngle={0.58}
+              />
+          </group>
         </XR>
       </Canvas>
     </>

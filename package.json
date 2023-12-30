@@ -20,7 +20,8 @@
     "graphql": "^16.8.1",
     "@react-three/xr": "^5.7.1",
     "@react-three/fiber": "^8.15.12",
-    "three": "^0.160.0"
+    "three": "^0.160.0",
+    "@react-three/drei": "^9.92.7"
   },
   "devDependencies": {
     "vite": "^4.0.0"
