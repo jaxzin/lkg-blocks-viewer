@@ -1,43 +1,42 @@
 import React, { useRef, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { useLoader } from '@react-three/fiber';
 import * as THREE from 'three';
 import { QuiltMaterial } from './QuiltMaterial.js';
 import { RoundedRectGeometry } from './RoundedRect.js';
 
 
-function BlockCard({ textureUrl, width, height, radius, borderWidth, borderColor, quiltDims, maxViewingAngle }) {
+function BlockCard({ texture, width, height, radius, borderWidth, borderColor, quiltRows, quiltColumns, maxViewingAngle }) {
   const meshRef = useRef();
   const borderRef = useRef();
 
   useEffect(() => {
     if (meshRef.current) {
-      const texture = useLoader(THREE.TextureLoader, textureUrl);
+      const quiltDims = new THREE.Vector2(quiltRows, quiltColumns);
       
-      const material = new QuiltMaterial(texture, quiltDims, maxViewingAngle);
-      const geometry = new RoundedRectGeometry(width, height, radius);
-      meshRef.current.geometry = geometry;
-      meshRef.current.material = material;
+      // const material = new QuiltMaterial(texture, quiltDims, maxViewingAngle);
+      // const geometry = new RoundedRectGeometry(width, height, radius);
+      // meshRef.current.geometry = geometry;
+      // meshRef.current.material = material;
     }
 
     if (borderRef.current) {
-      const borderGeometry = new RoundedRectGeometry(width + borderWidth, height + borderWidth, borderWidth);
-      borderRef.current.geometry = borderGeometry;
-      borderRef.current.material = new THREE.MeshPhongMaterial({
-        color: borderColor,
-        side: THREE.DoubleSide
-      });
-      borderRef.current.position.z = -0.001;
+      // const borderGeometry = new RoundedRectGeometry(width + borderWidth, height + borderWidth, borderWidth);
+      // borderRef.current.geometry = borderGeometry;
+      // borderRef.current.material = new THREE.MeshPhongMaterial({
+      //   color: borderColor,
+      //   side: THREE.DoubleSide
+      // });
+      // borderRef.current.position.z = -0.001;
     }
-  }, [textureUrl, width, height, radius, borderWidth, borderColor, quiltDims, maxViewingAngle]);
+  }, [texture, width, height, radius, borderWidth, borderColor, quiltRows, quiltColumns, maxViewingAngle]);
 
   useFrame(({ camera }) => {
     if (meshRef.current && borderRef.current) {
       // Calculate the relative angle between the camera and the object
-      const angle = calculateRelativeAngle(camera, meshRef.current);
+      //const angle = calculateRelativeAngle(camera, meshRef.current);
 
       // Assuming your QuiltMaterial has a method to update the angle
-      meshRef.current.material.setRelativeAngle(angle);
+      //meshRef.current.material.setRelativeAngle(angle);
     }
   });
   
