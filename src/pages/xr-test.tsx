@@ -13,27 +13,25 @@ export default function XrTest() {
   
   const texture = useLoader(TextureLoader, "https://cdn.glitch.global/98b2b4e8-ce2c-4c4f-8e0c-3e762cb48276/christmas_tree_2023_qs8x12a0.75.jpg?v=1702708834115");
 
+  //0x808080, 0x606060
   
   return (
     <>
       <VRButton />
-      <Canvas>
+      <Canvas sRGB>
         <XR>
+          <hemisphereLight skyColor="0x808080" groundColor="0x606060" /> 
           <Controllers />
           <Hands />
-          <mesh>
-            <boxGeometry />
-            <meshBasicMaterial color="blue" />
-          </mesh>
           <BlockCard 
               texture={texture}
-              width={2}
-              height={3}
-              radius={0.25}
-              borderWidth={0.25}
+              width={5}
+              height={7.5}
+              radius={1}
+              borderWidth={1}
               borderColor={"#AAAAFF"}
-              quiltRows={6}
-              quiltColumns={9}
+              quiltRows={8}
+              quiltColumns={12}
               maxViewingAngle={0.58}
             />
         </XR>

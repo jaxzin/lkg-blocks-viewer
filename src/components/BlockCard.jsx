@@ -13,20 +13,20 @@ function BlockCard({ texture, width, height, radius, borderWidth, borderColor, q
     if (meshRef.current) {
       const quiltDims = new THREE.Vector2(quiltRows, quiltColumns);
       
-      // const material = new QuiltMaterial(texture, quiltDims, maxViewingAngle);
-      // const geometry = new RoundedRectGeometry(width, height, radius);
-      // meshRef.current.geometry = geometry;
-      // meshRef.current.material = material;
+      const material = new QuiltMaterial(texture, quiltDims, maxViewingAngle);
+      const geometry = new RoundedRectGeometry(width, height, radius);
+      meshRef.current.geometry = geometry;
+      meshRef.current.material = material;
     }
 
     if (borderRef.current) {
-      // const borderGeometry = new RoundedRectGeometry(width + borderWidth, height + borderWidth, borderWidth);
-      // borderRef.current.geometry = borderGeometry;
-      // borderRef.current.material = new THREE.MeshPhongMaterial({
-      //   color: borderColor,
-      //   side: THREE.DoubleSide
-      // });
-      // borderRef.current.position.z = -0.001;
+      const borderGeometry = new RoundedRectGeometry(width + borderWidth, height + borderWidth, borderWidth);
+      borderRef.current.geometry = borderGeometry;
+      borderRef.current.material = new THREE.MeshPhongMaterial({
+        color: borderColor,
+        side: THREE.DoubleSide
+      });
+      borderRef.current.position.z = -0.001;
     }
   }, [texture, width, height, radius, borderWidth, borderColor, quiltRows, quiltColumns, maxViewingAngle]);
 

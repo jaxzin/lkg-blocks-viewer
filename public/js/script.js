@@ -8,8 +8,6 @@ import { BoxLineGeometry } from "three/addons/geometries/BoxLineGeometry.js";
 import { BlockCard } from "./BlockCard.js";
 import { XRScene } from "./XRScene.js";
 
-import { ApolloClient, InMemoryCache, gql } from '@apollo/client';
-
 // globals shared between the two main event listeners
 let camera;
 let renderer;
