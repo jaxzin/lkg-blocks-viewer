@@ -3,7 +3,7 @@ import { Switch, Route, Router } from "wouter";
 import Home from "../pages/home";
 import About from "../pages/about";
 import BlockTest from "../pages/block-test";
-import BlockTest from "../pages/block-test";
+import XrTest from "../pages/xr-test";
 
 /**
 * The router is imported in app.jsx
@@ -18,5 +18,6 @@ export default () => (
       <Route path="/" component={Home} />
       <Route path="/about" component={About} />
       <Route path="/block-test" component={BlockTest} />
+      <Route path="/xr-test" component={XrTest} />
     </Switch>
 );

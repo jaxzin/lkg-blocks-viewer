@@ -1,7 +1,12 @@
+import * as React from "react";
+import { animated } from "react-spring";
+import { Link } from "wouter";
+
 import { VRButton, ARButton, XR, Controllers, Hands } from '@react-three/xr'
 import { Canvas } from '@react-three/fiber'
+import { BlockCard } from './'
 
-function App() {
+export default function XrTest() {
   return (
     <>
       <VRButton />
@@ -13,6 +18,7 @@ function App() {
             <boxGeometry />
             <meshBasicMaterial color="blue" />
           </mesh>
+          
         </XR>
       </Canvas>
     </>
