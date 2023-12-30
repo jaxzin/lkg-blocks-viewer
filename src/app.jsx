@@ -39,6 +39,8 @@ export default function Home() {
           <Link href="/about">About</Link>
           <span className="divider">|</span>
           <Link href="/block-test">Block Test</Link>
+          <span className="divider">|</span>
+          <Link href="/xr-test">XR</Link>
         </div>
         <a
           className="btn--remix"

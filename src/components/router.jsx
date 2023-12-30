@@ -3,6 +3,7 @@ import { Switch, Route, Router } from "wouter";
 import Home from "../pages/home";
 import About from "../pages/about";
 import BlockTest from "../pages/block-test";
+import BlockTest from "../pages/block-test";
 
 /**
 * The router is imported in app.jsx
