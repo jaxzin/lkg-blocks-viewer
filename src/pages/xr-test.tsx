@@ -9,24 +9,23 @@ import { TextureLoader, Group } from 'three';
 
 import BlockCard from '../components/BlockCard';
 
-import { PerspectiveCamera } from '@react-three/drei'
+import { PerspectiveCamera, OrbitControls } from '@react-three/drei'
 
 export default function XrTest() {
   
   const texture = useLoader(TextureLoader, "https://cdn.glitch.global/98b2b4e8-ce2c-4c4f-8e0c-3e762cb48276/christmas_tree_2023_qs8x12a0.75.jpg?v=1702708834115");
 
-  //0x808080, 0x606060
-  
   return (
     <>
       <VRButton />
       <Canvas>
         <XR>
           <PerspectiveCamera makeDefault fov={5} position={[0,0,0]} />
+          <OrbitControls makeDefault />
           
           <hemisphereLight 
-              skyColor="0x808080" 
-              groundColor={0x606060} />
+              skyColor="#808080" 
+              groundColor="#606060" />
           <ambientLight intensity={0.7}/>
           <directionalLight 
             position={[0,200,0]}
