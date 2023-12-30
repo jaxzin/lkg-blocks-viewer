@@ -12,7 +12,7 @@ export default function LoginButton() {
   async function onLoginClick() {
     // This will automatically redirect the user to sign in.
     // The BASE_URL is what Auth0 will redirect to 
-    await loginWithRedirect(blocksAuthClient, process.env.BASE_URL);
+    await loginWithRedirect(blocksAuthClient, `https://${process.env.PROJECT_DOMAIN}.glitch.me`);
   }
 
   return <button onClick={onLoginClick}>Login</button>;

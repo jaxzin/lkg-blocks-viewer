@@ -38,7 +38,7 @@ export default function Home() {
           <span className="divider">|</span>
           <Link href="/about">About</Link>
           <span className="divider">|</span>
-          <Link href="/block-test">About</Link>
+          <Link href="/block-test">Block Test</Link>
         </div>
         <a
           className="btn--remix"
