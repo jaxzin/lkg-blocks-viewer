@@ -1,6 +1,6 @@
-import Head from "next/head";
-import LoginButton from "./components/LoginButton";
-import useBlocksAuth from "./hooks/useBlocksAuth";
+import * as React from "react";
+import LoginButton from "../components/LoginButton";
+import useBlocksAuth from "../hooks/useBlocksAuth";
 import { useEffect, useState } from "react";
 import { BlocksClient } from "@lookingglass/blocks.js";
 
@@ -22,13 +22,8 @@ export default function BlockTest() {
 
   return (
   <>
-    <Head>
-      <title>Blocks API App</title>
-    </Head>
-    <main>
       {name && <h1>Hello, {name}!</h1>}
       <LoginButton />
-    </main>
   </>
   );
 }
