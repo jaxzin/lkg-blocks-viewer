@@ -20,7 +20,18 @@ export default function XrTest() {
       <VRButton />
       <Canvas sRGB>
         <XR>
-          <hemisphereLight skyColor="0x808080" groundColor="0x606060" /> 
+          
+          <hemisphereLight 
+              skyColor="0x808080" 
+              groundColor="0x606060" />
+          <ambientLight intensity={0.7}/>
+          <directionalLight 
+            position={[0,200,0]}
+            castShadow
+            shadow-mapSize={[4096,4096]}>
+            <orthographicCamera attach="shadow-camera" args={[-200, 200, 200, -200]} />
+          </directionalLight>
+
           <Controllers />
           <Hands />
           <BlockCard 
