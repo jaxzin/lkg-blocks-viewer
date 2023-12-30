@@ -1,63 +1,34 @@
-/**
- * This is the main Node.js server script for your project
- * Check out the two endpoints this back-end API provides in fastify.get and fastify.post below
- */
+import Head from "next/head";
+import LoginButton from "./components/LoginButton";
+import useBlocksAuth from "./hooks/useBlocksAuth";
+import { useEffect, useState } from "react";
+import { BlocksClient } from "@lookingglass/blocks.js";
 
-const path = require("path");
+export default function Home() {
+  const { isLoggedIn, token } = useBlocksAuth();
+  const [name, setName] = useState<string | null>(null);
 
-// Require the fastify framework and instantiate it
-const fastify = require("fastify")({
-  // Set this to true for detailed logging:
-  logger: false,
-});
+  useEffect(() => {
+    if (isLoggedIn && token) {
+      const blocksClient = new BlocksClient({ token });
 
-// ADD FAVORITES ARRAY VARIABLE FROM TODO HERE
-
-// Setup our static files
-fastify.register(require("@fastify/static"), {
-  root: path.join(__dirname, "public"),
-  prefix: "/", // optional: default '/'
-});
-
-// Formbody lets us parse incoming forms
-fastify.register(require("@fastify/formbody"));
-
-// View is a templating manager for fastify
-fastify.register(require("@fastify/view"), {
-  engine: {
-    handlebars: require("handlebars"),
-  },
-});
-
-// Load and parse SEO data
-const seo = require("./src/seo.json");
-if (seo.url === "glitch-default") {
-  seo.url = `https://${process.env.PROJECT_DOMAIN}.glitch.me`;
-}
-
-/**
- * Our home page route
- *
- * Returns src/pages/index.hbs with data built into it
- */
-fastify.get("/", function (request, reply) {
-  // params is an object we'll pass to our handlebars template
-  let params = { seo: seo };
-
-
-  // The Handlebars code will be able to access the parameter values and build them into the page
-  return reply.view("/src/pages/index.hbs", params);
-});
-
-
-// Run the server and report out to the logs
-fastify.listen(
-  { port: process.env.PORT, host: "0.0.0.0" },
-  function (err, address) {
-    if (err) {
-      console.error(err);
-      process.exit(1);
+      // Fetch info about the logged-in user
+      blocksClient.me().then((resp) => {
+        console.log(resp.me);
+        setName(resp.me?.displayName ?? null);
+      });
     }
-    console.log(`Your app is listening on ${address}`);
-  }
-);
+  }, [isLoggedIn]);
+
+  return (
+  <>
+    <Head>
+      <title>Blocks API App</title>
+    </Head>
+    <main>
+      {name && <h1>Hello, {name}!</h1>}
+      <LoginButton />
+    </main>
+  </>
+  );
+}
