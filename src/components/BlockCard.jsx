@@ -1,15 +1,17 @@
 import React, { useRef, useEffect } from 'react';
-import { useFrame } from '@react-three/fiber';
+import { useFrame, useLoader } from '@react-three/fiber';
 import * as THREE from 'three';
 import { QuiltMaterial } from './QuiltMaterial.js';
 import { RoundedRectGeometry } from './RoundedRect.js';
 
 
-function BlockCard({ texture, width, height, radius, borderWidth, borderColor, quiltRows, quiltColumns, maxViewingAngle }) {
+function BlockCard({ textureUrl, width, height, radius, borderWidth, borderColor, quiltRows, quiltColumns, maxViewingAngle }) {
   const meshRef = useRef();
   const borderRef = useRef();
+  const texture = useLoader(THREE.TextureLoader, textureUrl);
 
   useEffect(() => {
+    
     if (meshRef.current) {
       const quiltDims = new THREE.Vector2(quiltRows, quiltColumns);
       
@@ -28,7 +30,7 @@ function BlockCard({ texture, width, height, radius, borderWidth, borderColor, q
       });
       borderRef.current.position.z = -0.001;
     }
-  }, [texture, width, height, radius, borderWidth, borderColor, quiltRows, quiltColumns, maxViewingAngle]);
+  }, [textureUrl, width, height, radius, borderWidth, borderColor, quiltRows, quiltColumns, maxViewingAngle]);
 
   useFrame(({ camera }) => {
     if (meshRef.current && borderRef.current) {
