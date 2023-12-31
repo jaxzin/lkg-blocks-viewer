@@ -7,7 +7,7 @@ export default function Controls({ target, maxViewingAngle }) {
   
   useEffect(() => {
     camera.fov = 5;
-    camera.position.set(0,0,5)
+    camera.position.set(0,0,0)
     camera.updateProjectionMatrix();
   }, [camera]);
 
