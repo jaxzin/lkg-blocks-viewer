@@ -1,8 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, forwardRef } from 'react';
 import { useThree } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 
-export default function Controls({ target, maxViewingAngle }) {
+const Controls = forwardRef(({ maxViewingAngle }, ref) => {
   const { gl, camera } = useThree();
   
   useEffect(() => {
@@ -20,10 +20,9 @@ export default function Controls({ target, maxViewingAngle }) {
 
   
   // Only render OrbitControls if not in an XR session
-  return !isXRSession ? <OrbitControls 
+  return !isXRSession ? <OrbitControls ref={ref}
                           enableZoom={false} 
                           enablePan={false} 
-                          target={target}
                           enableDamping
                           dampingFactor={0.025}
                           minPolarAngle={Math.PI / 2}
@@ -32,4 +31,6 @@ export default function Controls({ target, maxViewingAngle }) {
                           maxAzimuthAngle={halfAngleLimit}
                           /> : null;
 
-}
+})
+
+export default Controls;

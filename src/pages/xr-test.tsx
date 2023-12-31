@@ -23,13 +23,14 @@ export default function XrTest() {
   
   const maxViewingAngle = 58.0;
   
-  useEffect(() => {
+  React.useEffect(() => {
     if (groupRef.current && controlsRef.current) {
       controlsRef.current.target.copy(groupRef.current.position);
+      alert("test")
       controlsRef.current.update();
-      return () => controls.dispose(); // Clean up controls when the component unmounts
+      return () => controlsRef.current.dispose(); // Clean up controls when the component unmounts
     }
-  }, [groupRef, camera, gl.domElement]);
+  }, [groupRef, controlsRef]);
   
   return (
     <>
@@ -65,7 +66,6 @@ export default function XrTest() {
           </group>
           
           <CardPreviewControls ref={controlsRef}
-              target={groupRef.current?.position} 
               maxViewingAngle={maxViewingAngle} 
             />
 
