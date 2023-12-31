@@ -12,7 +12,7 @@ import CardPreviewControls from '../components/CardPreviewControls';
 
 import { PerspectiveCamera, OrbitControls } from '@react-three/drei'
 
-export default function XrTest() {
+export default function BlocksScene() {
   
   const controlsRef = React.useRef();
 
