@@ -48,7 +48,7 @@ export default function XrTest() {
                 borderColor={"#AAAAFF"}
                 quiltRows={8}
                 quiltColumns={12}
-                maxViewingAngle={0.58}
+                maxViewingAngle={58}
               />
           </group>
         </XR>
