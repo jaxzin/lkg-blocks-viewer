@@ -24,6 +24,8 @@ export default function XrTest() {
   const maxViewingAngle = 58.0;
   
   React.useEffect(() => {
+    console.log("Group ref:" , groupRef.current);
+    console.log("Controls ref:", controlsRef.current);
     if (groupRef.current && controlsRef.current) {
       controlsRef.current.target.copy(groupRef.current.position);
       alert("test")
@@ -31,6 +33,11 @@ export default function XrTest() {
       return () => controlsRef.current.dispose(); // Clean up controls when the component unmounts
     }
   }, [groupRef, controlsRef]);
+  
+  React.useEffect(() => {
+    console.log("Group ref after mount:", groupRef.current);
+    console.log("Controls ref after mount:", controlsRef.current);
+  });
   
   return (
     <>

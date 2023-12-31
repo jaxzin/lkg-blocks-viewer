@@ -17,7 +17,6 @@ const Controls = forwardRef(({ maxViewingAngle }, ref) => {
   // Lock rotation around the Z axis
   const angleLimit = (maxViewingAngle * Math.PI) / 180;
   const halfAngleLimit = angleLimit / 2;
-
   
   // Only render OrbitControls if not in an XR session
   return !isXRSession ? <OrbitControls ref={ref}
