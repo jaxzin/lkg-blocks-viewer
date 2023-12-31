@@ -30,11 +30,6 @@ export default function XrTest() {
     }
   }, [groupRef, controlsRef]);
   
-  React.useEffect(() => {
-    console.log("Group ref after mount:", groupRef.current);
-    console.log("Controls ref after mount:", controlsRef.current);
-  });
-  
   return (
     <>
       <VRButton />
