@@ -8,7 +8,7 @@ import { useLoader } from '@react-three/fiber';
 import { TextureLoader, Group } from 'three';
 
 import BlockCard from '../components/BlockCard';
-import Controls from '../components/2DOrbitControls';
+import CardPreviewControls from '../components/CardPreviewControls';
 
 
 import { PerspectiveCamera, OrbitControls } from '@react-three/drei'
@@ -17,12 +17,14 @@ export default function XrTest() {
   
   const texture = useLoader(TextureLoader, "https://cdn.glitch.global/98b2b4e8-ce2c-4c4f-8e0c-3e762cb48276/christmas_tree_2023_qs8x12a0.75.jpg?v=1702708834115");
   
+  const maxViewingAngle = 58;
+  
   return (
     <>
       <VRButton />
       <Canvas style={{ width: "100vw", height: "90vh" }}>
         <XR>
-          <Controls target={[0, 0, -2.5]} />
+          <CardPreviewControls target={[0, 0, -2.5]} maxViewingAngle={maxViewingAngle} />
           <PerspectiveCamera fov={5} position={[0,0,0]} />
           
           <hemisphereLight 
@@ -48,7 +50,7 @@ export default function XrTest() {
                 borderColor={"#AAAAFF"}
                 quiltRows={8}
                 quiltColumns={12}
-                maxViewingAngle={58}
+                maxViewingAngle={maxViewingAngle}
               />
           </group>
         </XR>
