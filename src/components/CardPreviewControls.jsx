@@ -28,6 +28,9 @@ const Controls = forwardRef((props, ref) => {
                           maxPolarAngle={Math.PI / 2}
                           minAzumuthAngle={-halfAngleLimit}
                           maxAzimuthAngle={halfAngleLimit}
+                          
+                          {...props}
+                          
                           /> : null;
 
 })
