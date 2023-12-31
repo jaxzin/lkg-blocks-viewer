@@ -4,7 +4,7 @@ import { Link } from "wouter";
 
 import { VRButton, ARButton, XR, Controllers, Hands } from '@react-three/xr'
 import { Canvas, useThree } from '@react-three/fiber'
-import { Group } from 'three';
+import { Group, Vector3 } from 'three';
 
 import BlockCard from '../components/BlockCard';
 import CardPreviewControls from '../components/CardPreviewControls';
@@ -14,21 +14,10 @@ import { PerspectiveCamera, OrbitControls } from '@react-three/drei'
 
 export default function XrTest() {
   
-  const groupRef = React.useRef();
   const controlsRef = React.useRef();
 
   
   const maxViewingAngle = 58.0;
-  
-  React.useEffect(() => {
-    console.log("Group ref:" , groupRef);
-    console.log("Controls ref:", controlsRef);
-    if (groupRef.current && controlsRef.current) {
-      controlsRef.current.target.copy(groupRef.current.position);
-      controlsRef.current.update();
-      return () => controlsRef.current.dispose(); // Clean up controls when the component unmounts
-    }
-  }, [groupRef]);
   
   return (
     <>
@@ -53,7 +42,8 @@ export default function XrTest() {
 
           <Controllers />
           <Hands />
-          <group ref={groupRef} position={[0, 0, -2.5]}>
+          
+          <group position={[0, 0, -2.5]}>
             <BlockCard
                 textureUrl="https://cdn.glitch.global/98b2b4e8-ce2c-4c4f-8e0c-3e762cb48276/christmas_tree_2023_qs8x12a0.75.jpg?v=1702708834115"
                 width={.15}
@@ -64,6 +54,11 @@ export default function XrTest() {
                 quiltRows={8}
                 quiltColumns={12}
                 maxViewingAngle={maxViewingAngle}
+                onReady={(mesh) => {
+                  let worldPosition = new Vector3();
+                  mesh.getWorldPosition(worldPosition)
+                  controlsRef.current.target.copy(worldPosition);
+                }}
               />
           </group>
           

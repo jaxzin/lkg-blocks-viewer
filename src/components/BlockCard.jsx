@@ -5,7 +5,7 @@ import { QuiltMaterial } from './QuiltMaterial.js';
 import { RoundedRectGeometry } from './RoundedRect.js';
 
 
-function BlockCard({ textureUrl, width, height, radius, borderWidth, borderColor, quiltRows, quiltColumns, maxViewingAngle }) {
+function BlockCard({ textureUrl, width, height, radius, borderWidth, borderColor, quiltRows, quiltColumns, maxViewingAngle, onReady }) {
   const meshRef = useRef();
   const borderRef = useRef();
   const texture = useLoader(THREE.TextureLoader, textureUrl);
@@ -30,7 +30,12 @@ function BlockCard({ textureUrl, width, height, radius, borderWidth, borderColor
       });
       borderRef.current.position.z = -0.001;
     }
-  }, [textureUrl, width, height, radius, borderWidth, borderColor, quiltRows, quiltColumns, maxViewingAngle]);
+    
+    if (meshRef.current && borderRef.current) {
+      // Once everything is set up
+      onReady(meshRef.current); // Invoke the callback with the mesh as an argument
+    }
+  }, [textureUrl, width, height, radius, borderWidth, borderColor, quiltRows, quiltColumns, maxViewingAngle, onReady]);
 
   useFrame(({ camera }) => {
     if (meshRef.current && borderRef.current) {
