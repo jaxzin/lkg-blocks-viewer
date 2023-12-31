@@ -1,0 +1,50 @@
+{
+  "name": "lkg-blocks-viewer",
+  "version": "0.2.0",
+  "description": "A simple Node app built on fastify, instantly up and running. Built to be remixed on Glitch.com.",
+  "main": "server.js",
+  "scripts": {
+    "start": "vite",
+    "build": "vite build",
+    "serve": "vite preview"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-spring": "^9.7.3",
+    "wouter": "^2.12.1",
+    "react-helmet-async": "^2.0.4",
+    "@vitejs/plugin-react": "^4.2.1",
+    "@lookingglass/blocks.js": "^0.2.0",
+    "@apollo/client": "^3.8.8",
+    "graphql": "^16.8.1",
+    "@react-three/xr": "^5.7.1",
+    "@react-three/fiber": "^8.15.12",
+    "three": "^0.160.0",
+    "@react-three/drei": "^9.92.7"
+  },
+  "devDependencies": {
+    "vite": "^4.0.0"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead"
+  ],
+  "engines": {
+    "node": "14.x"
+  },
+  "repository": {
+    "url": "https://glitch.com/edit/#!/lkg-blocks-viewer"
+  },
+  "license": "MIT",
+  "keywords": [
+    "node",
+    "glitch",
+    "webxr",
+    "vr",
+    "lookingglass"
+  ],
+  "glitch": {
+    "projectType": "generated_static"
+  }
+}
