@@ -3,7 +3,7 @@ import { animated } from "react-spring";
 import { Link } from "wouter";
 
 import { VRButton, ARButton, XR, Controllers, Hands } from '@react-three/xr'
-import { Canvas } from '@react-three/fiber'
+import { Canvas, useThree } from '@react-three/fiber'
 import { useLoader } from '@react-three/fiber';
 import { TextureLoader, Group } from 'three';
 
@@ -15,13 +15,15 @@ export default function XrTest() {
   
   const texture = useLoader(TextureLoader, "https://cdn.glitch.global/98b2b4e8-ce2c-4c4f-8e0c-3e762cb48276/christmas_tree_2023_qs8x12a0.75.jpg?v=1702708834115");
 
+  const { isXR } = useThree((state) => state.controls) 
+  
   return (
     <>
       <VRButton />
-      <Canvas  style={{ width: '200px', height: '100%' }}>
+      <Canvas style={{ width: "100vw", height: "90vh" }}>
         <XR>
           <PerspectiveCamera makeDefault fov={5} position={[0,0,0]} />
-          <OrbitControls makeDefault />
+          {!isXR && <OrbitControls makeDefault />}
           
           <hemisphereLight 
               skyColor="#808080" 
