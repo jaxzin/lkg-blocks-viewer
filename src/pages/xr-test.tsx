@@ -16,11 +16,20 @@ import { PerspectiveCamera, OrbitControls } from '@react-three/drei'
 export default function XrTest() {
   
   const groupRef = React.useRef();
+  const controlsRef = React.useRef();
 
   
   const texture = useLoader(TextureLoader, "https://cdn.glitch.global/98b2b4e8-ce2c-4c4f-8e0c-3e762cb48276/christmas_tree_2023_qs8x12a0.75.jpg?v=1702708834115");
   
   const maxViewingAngle = 58.0;
+  
+  useEffect(() => {
+    if (groupRef.current && controlsRef.current) {
+      controlsRef.current.target.copy(groupRef.current.position);
+      controlsRef.current.update();
+      return () => controls.dispose(); // Clean up controls when the component unmounts
+    }
+  }, [groupRef, camera, gl.domElement]);
   
   return (
     <>
@@ -55,9 +64,10 @@ export default function XrTest() {
               />
           </group>
           
-          <CardPreviewControls 
-            target={groupRef.current?.position} 
-            maxViewingAngle={maxViewingAngle} />
+          <CardPreviewControls ref={controlsRef}
+              target={groupRef.current?.position} 
+              maxViewingAngle={maxViewingAngle} 
+            />
 
         </XR>
       </Canvas>
