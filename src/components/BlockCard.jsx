@@ -33,10 +33,10 @@ function BlockCard({ texture, width, height, radius, borderWidth, borderColor, q
   useFrame(({ camera }) => {
     if (meshRef.current && borderRef.current) {
       // Calculate the relative angle between the camera and the object
-      //const angle = calculateRelativeAngle(camera, meshRef.current);
+      const angle = calculateRelativeAngle(camera, meshRef.current);
 
       // Assuming your QuiltMaterial has a method to update the angle
-      //meshRef.current.material.setRelativeAngle(angle);
+      meshRef.current.material.setRelativeAngle(angle);
     }
   });
   
