@@ -18,7 +18,7 @@ export default function XrTest() {
   return (
     <>
       <VRButton />
-      <Canvas width="600px">
+      <Canvas  style={{ width: '200px', height: '100%' }}>
         <XR>
           <PerspectiveCamera makeDefault fov={5} position={[0,0,0]} />
           <OrbitControls makeDefault />
