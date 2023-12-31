@@ -15,6 +15,9 @@ import { PerspectiveCamera, OrbitControls } from '@react-three/drei'
 
 export default function XrTest() {
   
+  const groupRef = React.useRef();
+
+  
   const texture = useLoader(TextureLoader, "https://cdn.glitch.global/98b2b4e8-ce2c-4c4f-8e0c-3e762cb48276/christmas_tree_2023_qs8x12a0.75.jpg?v=1702708834115");
   
   const maxViewingAngle = 58.0;
@@ -24,7 +27,6 @@ export default function XrTest() {
       <VRButton />
       <Canvas style={{ width: "100vw", height: "90vh" }}>
         <XR>
-          <CardPreviewControls target={[0, 0, -2.5]} maxViewingAngle={maxViewingAngle} />
           
           <hemisphereLight 
               skyColor="#808080" 
@@ -39,8 +41,8 @@ export default function XrTest() {
 
           <Controllers />
           <Hands />
-          <group position={[0, 0, -2.5]}>
-            <BlockCard 
+          <group position={[0, 0, -2.5]} ref={groupRef}>
+            <BlockCard
                 texture={texture}
                 width={.15}
                 height={.2}
@@ -52,6 +54,11 @@ export default function XrTest() {
                 maxViewingAngle={maxViewingAngle}
               />
           </group>
+          
+          <CardPreviewControls 
+            target={groupRef.current?.position} 
+            maxViewingAngle={maxViewingAngle} />
+
         </XR>
       </Canvas>
     </>
