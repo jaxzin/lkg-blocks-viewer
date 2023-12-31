@@ -21,21 +21,25 @@ export default function XrTest() {
   const maxViewingAngle = 58.0;
   
   React.useEffect(() => {
-    console.log("Group ref:" , groupRef.current);
-    console.log("Controls ref:", controlsRef.current);
+    console.log("Group ref:" , groupRef);
+    console.log("Controls ref:", controlsRef);
     if (groupRef.current && controlsRef.current) {
       controlsRef.current.target.copy(groupRef.current.position);
       controlsRef.current.update();
       return () => controlsRef.current.dispose(); // Clean up controls when the component unmounts
     }
-  }, [groupRef, controlsRef]);
+  }, [groupRef]);
   
   return (
     <>
       <VRButton />
       <Canvas style={{ width: "100vw", height: "90vh" }}>
         <XR>
-          
+
+          <CardPreviewControls ref={controlsRef}
+              maxViewingAngle={maxViewingAngle} 
+            />
+
           <hemisphereLight 
               skyColor="#808080" 
               groundColor="#606060" />
@@ -63,9 +67,6 @@ export default function XrTest() {
               />
           </group>
           
-          <CardPreviewControls ref={controlsRef}
-              maxViewingAngle={maxViewingAngle} 
-            />
 
         </XR>
       </Canvas>
