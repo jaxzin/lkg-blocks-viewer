@@ -49,7 +49,7 @@ export default function XrTest() {
 
           <Controllers />
           <Hands />
-          <group position={[0, 0, -2.5]} ref={groupRef}>
+          <group ref={groupRef} position={[0, 0, -2.5]}>
             <BlockCard
                 textureUrl="https://cdn.glitch.global/98b2b4e8-ce2c-4c4f-8e0c-3e762cb48276/christmas_tree_2023_qs8x12a0.75.jpg?v=1702708834115"
                 width={.15}
