@@ -21,8 +21,8 @@ export default function Controls({ target, maxViewingAngle }) {
   
   // Only render OrbitControls if not in an XR session
   return !isXRSession ? <OrbitControls 
-                          enableZoom={true} 
-                          enablePan={true} 
+                          enableZoom={false} 
+                          enablePan={false} 
                           target={target}
                           enableDamping
                           dampingFactor={0.025}

@@ -17,7 +17,7 @@ export default function XrTest() {
   
   const texture = useLoader(TextureLoader, "https://cdn.glitch.global/98b2b4e8-ce2c-4c4f-8e0c-3e762cb48276/christmas_tree_2023_qs8x12a0.75.jpg?v=1702708834115");
   
-  const maxViewingAngle = 10.0;
+  const maxViewingAngle = 58.0;
   
   return (
     <>
@@ -25,7 +25,6 @@ export default function XrTest() {
       <Canvas style={{ width: "100vw", height: "90vh" }}>
         <XR>
           <CardPreviewControls target={[0, 0, -2.5]} maxViewingAngle={maxViewingAngle} />
-          <PerspectiveCamera fov={5} position={[0,0,0]} />
           
           <hemisphereLight 
               skyColor="#808080" 
