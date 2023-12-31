@@ -22,8 +22,8 @@ export default function XrTest() {
       <VRButton />
       <Canvas style={{ width: "100vw", height: "90vh" }}>
         <XR>
-          <Controls />
-          <PerspectiveCamera  fov={5} position={[0,0,0]} />
+          <Controls target={[0, 0, -2.5]} />
+          <PerspectiveCamera fov={5} position={[0,0,0]} />
           
           <hemisphereLight 
               skyColor="#808080" 
