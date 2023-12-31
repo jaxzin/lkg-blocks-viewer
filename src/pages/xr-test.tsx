@@ -16,14 +16,14 @@ import { PerspectiveCamera, OrbitControls } from '@react-three/drei'
 export default function XrTest() {
   
   const texture = useLoader(TextureLoader, "https://cdn.glitch.global/98b2b4e8-ce2c-4c4f-8e0c-3e762cb48276/christmas_tree_2023_qs8x12a0.75.jpg?v=1702708834115");
-
+  
   return (
     <>
       <VRButton />
       <Canvas style={{ width: "100vw", height: "90vh" }}>
         <XR>
-          <PerspectiveCamera makeDefault fov={5} position={[0,0,0]} />
           <Controls />
+          <PerspectiveCamera  fov={5} position={[0,0,0]} />
           
           <hemisphereLight 
               skyColor="#808080" 
