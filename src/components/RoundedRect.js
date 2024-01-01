@@ -4,7 +4,7 @@ import * as THREE from 'three';
 export class RoundedRectGeometry {
   constructor(width, height, radius) {
     const shape = this.createRoundedRectShape(width, height, radius);
-    const geometry = new THREE.ShapeGeometry(shape);  
+    let geometry = new THREE.ShapeGeometry(shape);  
 
     // If the geometry is not already a BufferGeometry, convert it
     if (!(geometry instanceof THREE.BufferGeometry)) {
