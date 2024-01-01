@@ -4,17 +4,16 @@ import { Link } from "wouter";
 
 import { VRButton, ARButton, XR, Controllers, Hands } from '@react-three/xr'
 import { Canvas, useThree } from '@react-three/fiber'
-import { Group, Vector3 } from 'three';
+import {Group, Object3D, Vector3} from 'three';
 
 import BlockCard from '../components/BlockCard';
 import CardPreviewControls from '../components/CardPreviewControls';
-
-
-import { PerspectiveCamera, OrbitControls } from '@react-three/drei'
+import {ComponentProps, Ref} from "react";
+import {OrbitControls} from "@react-three/drei";
 
 export default function BlocksScene() {
   
-  const controlsRef = React.useRef();
+  const controlsRef :ComponentProps<typeof OrbitControls>['ref'] = React.useRef();
 
   
   const maxViewingAngle = 58.0;
@@ -30,12 +29,11 @@ export default function BlocksScene() {
             />
 
           <hemisphereLight 
-              skyColor="#808080" 
+              color="#808080"
               groundColor="#606060" />
           <ambientLight intensity={0.7}/>
           <directionalLight 
             position={[0,200,0]}
-            castShadow
             shadow-mapSize={[4096,4096]}>
             <orthographicCamera attach="shadow-camera" args={[-200, 200, 200, -200]} />
           </directionalLight>
@@ -54,10 +52,12 @@ export default function BlocksScene() {
                 quiltRows={8}
                 quiltColumns={12}
                 maxViewingAngle={maxViewingAngle}
-                onReady={(mesh) => {
-                  let worldPosition = new Vector3();
-                  mesh.getWorldPosition(worldPosition)
-                  controlsRef.current.target.copy(worldPosition);
+                onReady={(mesh: Object3D) => {
+                    let worldPosition = new Vector3();
+                    mesh.getWorldPosition(worldPosition)
+                    if(controlsRef.current) {
+                        controlsRef.current.target.copy(worldPosition);
+                    }
                 }}
               />
           </group>

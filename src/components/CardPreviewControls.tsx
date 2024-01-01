@@ -1,15 +1,25 @@
-import { useEffect, forwardRef } from 'react';
+import {useEffect, forwardRef, Ref, ComponentProps, ForwardedRef} from 'react';
 import { useThree } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
+import { PerspectiveCamera } from "three";
 
-const Controls = forwardRef((props, ref) => {
-  const { gl, camera } = useThree();
-  
+// Define the props interface
+interface CardPreviewControlsProps {
+  maxViewingAngle: number; // Define the type of maxViewingAngle
+  // Include other props here as needed
+}
+
+const CardPreviewControls = forwardRef((props :CardPreviewControlsProps, ref :ComponentProps<typeof OrbitControls>['ref']) => {
+  const { gl, camera} = useThree();
+
+  // Assert that the camera is a PerspectiveCamera
+  const perspectiveCamera = camera as PerspectiveCamera;
+
   useEffect(() => {
-    camera.fov = 5;
-    camera.position.set(0,0,0)
-    camera.updateProjectionMatrix();
-  }, [camera]);
+    perspectiveCamera.fov = 5;
+    perspectiveCamera.position.set(0,0,0)
+    perspectiveCamera.updateProjectionMatrix();
+  }, [perspectiveCamera]);
 
   // Check for XR session
   const isXRSession = gl.xr && gl.xr.isPresenting;
@@ -26,13 +36,10 @@ const Controls = forwardRef((props, ref) => {
                           dampingFactor={0.025}
                           minPolarAngle={Math.PI / 2}
                           maxPolarAngle={Math.PI / 2}
-                          minAzumuthAngle={-halfAngleLimit}
+                          minAzimuthAngle={-halfAngleLimit}
                           maxAzimuthAngle={halfAngleLimit}
-                          
-                          {...props}
-                          
                           /> : null;
 
 })
 
-export default Controls;
+export default CardPreviewControls;
