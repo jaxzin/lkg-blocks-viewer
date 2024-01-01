@@ -25,6 +25,7 @@
   },
   "devDependencies": {
     "vite": "^4.0.0"
+    "vite-plugin-mkcert": "^1.17.1"
   },
   "browserslist": [
     ">0.2%",
