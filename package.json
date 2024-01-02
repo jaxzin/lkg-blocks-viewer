@@ -6,7 +6,8 @@
   "scripts": {
     "start": "vite",
     "build": "vite build",
-    "serve": "vite preview"
+    "serve": "vite preview",
+    "postinstall": "if [ \"$NODE_ENV\" = \"production\" ]; then npm prune --production; fi"
   },
   "dependencies": {
     "react": "^18.2.0",
@@ -25,7 +26,8 @@
   },
   "devDependencies": {
     "@types/three": "^0.160.0",
-    "vite": "^4.0.0"
+    "vite": "^4.0.0",
+    "vite-plugin-mkcert": "^1.16.0"
   },
   "browserslist": [
     ">0.2%",
